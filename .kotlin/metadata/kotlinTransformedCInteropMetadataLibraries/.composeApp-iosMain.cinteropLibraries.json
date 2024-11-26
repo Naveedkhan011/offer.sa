@@ -1,0 +1,22 @@
+[
+  {
+    "moduleId": "org.jetbrains.kotlinx:atomicfu:0.23.2",
+    "file": "/Users/mac/StudioProjects/ToDo-App-Compose-Multiplatform/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/org.jetbrains.kotlinx-atomicfu-0.23.2-nativeMain-cinterop/org.jetbrains.kotlinx_atomicfu-cinterop-interop-yBS35w.klib",
+    "sourceSetName": "nativeMain"
+  },
+  {
+    "moduleId": "org.jetbrains.compose.ui:ui-uikit:1.7.0",
+    "file": "/Users/mac/StudioProjects/ToDo-App-Compose-Multiplatform/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/org.jetbrains.compose.ui-ui-uikit-1.7.0-uikitMain-cinterop/org.jetbrains.compose.ui_ui-uikit-cinterop-utils-aNVDjg.klib",
+    "sourceSetName": "uikitMain"
+  },
+  {
+    "moduleId": "io.realm.kotlin:cinterop:1.13.0",
+    "file": "/Users/mac/StudioProjects/ToDo-App-Compose-Multiplatform/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/io.realm.kotlin-cinterop-1.13.0-nativeDarwin-cinterop/io.realm.kotlin_cinterop-cinterop-realm_wrapper-nt9oMQ.klib",
+    "sourceSetName": "nativeDarwin"
+  },
+  {
+    "moduleId": "io.ktor:ktor-utils:2.3.5",
+    "file": "/Users/mac/StudioProjects/ToDo-App-Compose-Multiplatform/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/io.ktor-ktor-utils-2.3.5-iosMain-cinterop/io.ktor_ktor-utils-cinterop-threadUtils-z9lQdw.klib",
+    "sourceSetName": "iosMain"
+  }
+]

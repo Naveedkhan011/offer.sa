@@ -130,8 +130,8 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
         // National ID/Iqama ID Field
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = viewModel.nationalIDSeller,
-            onValueChange = { viewModel.nationalIDSellerError = it },
+            value = viewModel.sellerNationalId,
+            onValueChange = { viewModel.sellerNationalIdError = it },
             label = {
                 Text(
                     text = "National ID/Iqama ID/Company Unified ID(Seller)",

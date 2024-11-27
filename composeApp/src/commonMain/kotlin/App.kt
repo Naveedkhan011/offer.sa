@@ -84,7 +84,7 @@ fun App(sharedPreference: KMMPreference) {
     )
     MaterialTheme(colorScheme = colors) {
 
-        Navigator(Splash()) {
+        Navigator(GetQuotes()) {
             SlideTransition(it)
         }
 

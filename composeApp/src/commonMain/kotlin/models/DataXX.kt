@@ -11,21 +11,21 @@ data class DataXX(
     @SerialName("additionalNumber")
     val additionalNumber: String? = null,
     @SerialName("agentId")
-    val agentId: Any? = null,
+    val agentId: String? = null,
     @SerialName("buildingNumber")
     val buildingNumber: String? = null,
     @SerialName("clientId")
-    val clientId: Any? = null,
+    val clientId: String? = null,
     @SerialName("companyNameAr")
-    val companyNameAr: Any? = null,
+    val companyNameAr: String? = null,
     @SerialName("companyNameEn")
-    val companyNameEn: Any? = null,
+    val companyNameEn: String? = null,
     @SerialName("createdBy")
-    val createdBy: Any? = null,
+    val createdBy: String? = null,
     @SerialName("createdDate")
     val createdDate: String? = null,
     @SerialName("customCard")
-    val customCard: Any? = null,
+    val customCard: String? = null,
     @SerialName("dateOfBirth")
     val dateOfBirth: String? = null,
     @SerialName("district")
@@ -35,7 +35,7 @@ data class DataXX(
     @SerialName("dobYear")
     val dobYear: String? = null,
     @SerialName("email")
-    val email: Any? = null,
+    val email: String? = null,
     @SerialName("errorCode")
     val errorCode: Int? = null,
     @SerialName("errorMessage")
@@ -61,7 +61,7 @@ data class DataXX(
     @SerialName("insuranceEffectiveDate")
     val insuranceEffectiveDate: String? = null,
     @SerialName("insuranceId")
-    val insuranceId: Any? = null,
+    val insuranceId: String? = null,
     @SerialName("insuranceType")
     val insuranceType: Int? = null,
     @SerialName("insuredAddressCity")
@@ -85,7 +85,7 @@ data class DataXX(
     @SerialName("insuredIdIssuePlace")
     val insuredIdIssuePlace: String? = null,
     @SerialName("insuredIdIssuePlaceCode")
-    val insuredIdIssuePlaceCode: Any? = null,
+    val insuredIdIssuePlaceCode: String? = null,
     @SerialName("insuredIdTypeCode")
     val insuredIdTypeCode: String? = null,
     @SerialName("insuredNationalityCode")
@@ -97,25 +97,25 @@ data class DataXX(
     @SerialName("insuredSocialStatusCode")
     val insuredSocialStatusCode: String? = null,
     @SerialName("lastModifiedBy")
-    val lastModifiedBy: Any? = null,
+    val lastModifiedBy: String? = null,
     @SerialName("lastModifiedDate")
     val lastModifiedDate: String? = null,
     @SerialName("manufactureYear")
-    val manufactureYear: Any? = null,
+    val manufactureYear: String? = null,
     @SerialName("middleNameAr")
     val middleNameAr: String? = null,
     @SerialName("middleNameEn")
     val middleNameEn: String? = null,
     @SerialName("mobile")
-    val mobile: Any? = null,
+    val mobile: String? = null,
     @SerialName("nationalId")
     val nationalId: String? = null,
     @SerialName("nationality")
-    val nationality: Any? = null,
+    val nationality: String? = null,
     @SerialName("postCode")
     val postCode: String? = null,
     @SerialName("promoCode")
-    val promoCode: Any? = null,
+    val promoCode: String? = null,
     @SerialName("quotationPrepId")
     val quotationPrepId: Int? = null,
     @SerialName("referenceNo")
@@ -125,13 +125,13 @@ data class DataXX(
     @SerialName("selectedTab")
     val selectedTab: String? = null,
     @SerialName("sellerNationalId")
-    val sellerNationalId: Any? = null,
+    val sellerNationalId: String? = null,
     @SerialName("sequenceNo")
-    val sequenceNo: Any? = null,
+    val sequenceNo: String? = null,
     @SerialName("sequenceNumber")
     val sequenceNumber: String? = null,
     @SerialName("sponsoredId")
-    val sponsoredId: Any? = null,
+    val sponsoredId: String? = null,
     @SerialName("street")
     val street: String? = null,
     @SerialName("userId")

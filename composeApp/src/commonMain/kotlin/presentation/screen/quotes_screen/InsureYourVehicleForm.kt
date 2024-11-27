@@ -30,8 +30,6 @@ import utils.AppConstants.Companion.getOutlineTextFieldColors
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun IqamaFormScreen(viewModel: QuotesViewModel) {
-    val months = viewModel.months
-    val years = viewModel.years
 
     Column(
         modifier = Modifier

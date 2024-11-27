@@ -33,13 +33,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import models.DataXXX
+import models.InsuranceTypeCodeModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheet(
-    data: List<String> = QuotesViewModel().months,
+    data: DataXXX? = DataXXX(),
     onDismiss: () -> Unit,
-    onYearSelected: (selectedMonth: String) -> Unit
+    onSelected: (selectedData: InsuranceTypeCodeModel) -> Unit
 ) {
 
     var searchQuery by remember { mutableStateOf("") }
@@ -47,8 +49,13 @@ fun BottomSheet(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    val filteredMonths = remember(searchQuery) {
-        data.filter { it.contains(searchQuery, ignoreCase = true) }
+    val filteredList = remember(searchQuery) {
+        data?.insuranceTypeCodeModels?.filter {
+            it?.description!!.en.contains(
+                searchQuery,
+                ignoreCase = true
+            )
+        }
     }
 
     ModalBottomSheet(
@@ -107,20 +114,22 @@ fun BottomSheet(
             LazyColumn(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(filteredMonths.size) { month ->
-                    Box(modifier = Modifier.fillMaxWidth().clickable {
-                        println("Selected: $month")
-                        onYearSelected(filteredMonths[month])
-                    }) {
-                        Text(
-                            text = filteredMonths[month],
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 20.dp)
-                        )
-                    }
+                if (!filteredList.isNullOrEmpty()){
+                    items(filteredList.size) { month ->
+                        Box(modifier = Modifier.fillMaxWidth().clickable {
+                            println("Selected: $month")
+                            filteredList[month]?.let { onSelected(it) }
+                        }) {
+                            Text(
+                                text = filteredList.get(month)?.description!!.en,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 20.dp)
+                            )
+                        }
 
+                    }
                 }
             }
         }

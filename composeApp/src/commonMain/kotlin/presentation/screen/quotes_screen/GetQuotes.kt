@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -58,6 +59,7 @@ import offer.composeapp.generated.resources.Res
 import offer.composeapp.generated.resources.ic_baseline_alternate_email_24
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
+import presentation.bottom_sheets.VehicleSpecificationsBottomSheet
 import utils.AppColors
 import utils.AppConstants.Companion.getButtonColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
@@ -67,7 +69,7 @@ private var selectedInsuranceType: InsuranceType = InsuranceType.INSURE_YOUR_VEH
 private lateinit var quoteViewModel: QuotesViewModel
 
 enum class BottomSheetCaller {
-    MONTH, YEAR, PURPOSE, OTHER
+    MONTH, YEAR, PURPOSE
 }
 
 val spaceBwFields = 10.dp
@@ -82,6 +84,10 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
         selectedInsuranceType = insuranceType;
         quoteViewModel = getScreenModel<QuotesViewModel>()
         var currentStep by remember { mutableStateOf(1) }
+
+        quoteViewModel.getAllDataFromServer()
+
+
 
         Scaffold(topBar = {
             CenterAlignedTopAppBar(title = { Text(text = "Get Quotes") }, navigationIcon = {
@@ -140,7 +146,6 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                             } else {
                                 currentStep++
                             }
-                            quoteViewModel.verifyForm()
                         }, enabled = true, // Initially disabled
                         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                     ) {
@@ -151,18 +156,16 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
         }
 
 
-
         if (quoteViewModel.isSheetVisible) {
             BottomSheet(
                 onDismiss = {
                     quoteViewModel.isSheetVisible = false
                 },
-                onYearSelected = {
+                onSelected = {
                     when (quoteViewModel.selectedSheet) {
-                        BottomSheetCaller.MONTH -> quoteViewModel.selectedMonth = it
-                        BottomSheetCaller.YEAR -> quoteViewModel.selectedYear = it
-                        BottomSheetCaller.PURPOSE -> quoteViewModel.purposeOfUse = it
-                        BottomSheetCaller.OTHER -> {}
+                        BottomSheetCaller.MONTH -> quoteViewModel.selectedMonth = it.description.en
+                        BottomSheetCaller.YEAR -> quoteViewModel.selectedYear = it.description.en
+                        BottomSheetCaller.PURPOSE -> quoteViewModel.purposeOfUse = it.description.en
                     }
                     quoteViewModel.isSheetVisible = false
                 },
@@ -170,9 +173,12 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                     BottomSheetCaller.MONTH -> quoteViewModel.months
                     BottomSheetCaller.YEAR -> quoteViewModel.years
                     BottomSheetCaller.PURPOSE -> quoteViewModel.purposeList
-                    BottomSheetCaller.OTHER -> quoteViewModel.purposeList
                 }
             )
+        }
+
+        if (quoteViewModel.vehicleSpecificationsSheetVisible) {
+            VehicleSpecificationsBottomSheet(quoteViewModel, {}, {})
         }
 
     }
@@ -248,18 +254,15 @@ fun GetQuoteForm(progress: Int) {
 @Composable
 fun DriversScreen() {
     val drivers = remember { quoteViewModel.drivers }
-    val otherDetailsVisible = remember { quoteViewModel.otherDetailsVisible }
 
     Column(
         modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .fillMaxSize()
     ) {
         // Drivers List Header with "Edit List"
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = "Drivers List",
@@ -268,8 +271,9 @@ fun DriversScreen() {
             )
             Text(
                 text = "Edit List",
-                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Blue),
-                modifier = Modifier.clickable { quoteViewModel.editDrivers() }
+                style = MaterialTheme.typography.bodyMedium.copy(color = AppColors.AppColor),
+                modifier = Modifier.clickable { quoteViewModel.editDrivers() },
+                fontWeight = FontWeight.Bold
             )
         }
 
@@ -277,65 +281,33 @@ fun DriversScreen() {
         Text(
             text = "you can add, edit or remove",
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
+            color = Color.Gray,
+            modifier = Modifier.padding(bottom = 8.dp)
         )
 
         // Drivers List Content
         drivers.forEach { driver ->
             DriverCard(driver = driver)
         }
-
-        // Other Details Section
-        Text(
-            text = "Other Details",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        Card(modifier = Modifier.background(Color.White)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(10.dp)
-            ) {
-                Text(
-                    text = "+",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.Blue,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Column {
-                    Text(
-                        text = "Other Details",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Text(
-                        text = "Some insurance companies are asking for more details like Vehicle Night Parking, Expected KM per year",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
-                    )
-                }
-            }
-        }
-
     }
 }
 
 
 @Composable
 fun DriverCard(driver: Driver) {
-    Box(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .background(
-                color = Color(0xFFF7F7F7),
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(16.dp)
+            .background(Color.White, shape = RoundedCornerShape(16.dp))
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(3.dp)
     ) {
-        Column {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White) // Set background color here
+                .padding(12.dp)
+        ) {
             Text(
                 text = driver.name,
                 style = MaterialTheme.typography.bodyLarge,
@@ -545,6 +517,42 @@ fun VehicleDetailsForm() {
             modifier = Modifier.fillMaxWidth(),
             colors = getOutlineTextFieldColors()
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+        // Other Details Section
+        Text(
+            text = "Other Details",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+        Card(modifier = Modifier.background(Color.White)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Text(
+                    text = "+",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.Blue,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Column {
+                    Text(
+                        text = "Other Details",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = "Some insurance companies are asking for more details like Vehicle Night Parking, Expected KM per year",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
+            }
+        }
 
     }
 }

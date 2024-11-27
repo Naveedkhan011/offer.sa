@@ -1,5 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -48,6 +46,7 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation (libs.navigation.compose)
+            implementation(libs.kotlinx.datetime) // Check for the latest version
 
             //ktor
             implementation(libs.ktor.client.core) // Core Ktor client

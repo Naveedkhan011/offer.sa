@@ -30,9 +30,6 @@ import utils.AppConstants.Companion.getOutlineTextFieldColors
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
-    val months = viewModel.months
-    val years = viewModel.years
-
     Column(
         modifier = Modifier
             .padding(top = 20.dp)
@@ -61,29 +58,35 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
 
         Spacer(modifier = Modifier.height(spaceBwFields))
 
-        // DOB Month and Year Dropdowns
+        /*// DOB Month and Year Dropdowns
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            DropdownField(
-                label = "DOB Month",
-                onclick = {},
-                modifier = Modifier.weight(1f),
-                errorValue = viewModel.dobError,
-                selectedOption = viewModel.selectedMonth
-            )
 
-            Spacer(modifier = Modifier.width(spaceBwFields))
+        }*/
 
-            DropdownField(
-                label = "DOB Year",
-                onclick = {},
-                modifier = Modifier.weight(1f),
-                errorValue = viewModel.dobYearError,
-                selectedOption = viewModel.selectedYear
-            )
-        }
+        DropdownField(
+            label = "DOB Month",
+            onclick = {
+                viewModel.selectedSheet = BottomSheetCaller.MONTH
+            },
+            modifier = Modifier.fillMaxWidth(),
+            errorValue = viewModel.dobError,
+            selectedOption = viewModel.selectedMonth
+        )
+
+        Spacer(modifier = Modifier.width(spaceBwFields))
+
+        DropdownField(
+            label = "DOB Year",
+            onclick = {
+                viewModel.selectedSheet = BottomSheetCaller.YEAR
+            },
+            modifier = Modifier.fillMaxWidth(),
+            errorValue = viewModel.dobYearError,
+            selectedOption = viewModel.selectedYear
+        )
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
@@ -107,8 +110,6 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
 
         addErrorText(viewModel.sequenceNumberError)
 
-
-
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
             value = viewModel.effectiveYear,
@@ -131,7 +132,7 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
             value = viewModel.sellerNationalId,
-            onValueChange = { viewModel.sellerNationalIdError = it },
+            onValueChange = { viewModel.sellerNationalId = it },
             label = {
                 Text(
                     text = "National ID/Iqama ID/Company Unified ID(Seller)",
@@ -140,10 +141,10 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
             },
             trailingIcon = { Icon(Icons.Default.Info, contentDescription = "Info") },
             modifier = Modifier.fillMaxWidth(),
-            isError = viewModel.nationalIDError != null,
+            isError = viewModel.sellerNationalIdError != null,
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(viewModel.nationalIDError)
+        addErrorText(viewModel.sellerNationalIdError)
 
     }
 }

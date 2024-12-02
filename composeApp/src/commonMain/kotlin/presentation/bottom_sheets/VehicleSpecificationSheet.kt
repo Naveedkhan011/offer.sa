@@ -1,8 +1,7 @@
-package presentation.screen.quotes_screen
+package presentation.bottom_sheets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,13 +22,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -37,14 +36,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import models.DataXXX
 import models.InsuranceTypeCodeModel
-import utils.AppConstants.Companion.getOutlineTextFieldColors
+import presentation.screen.quotes_screen.getSelectedSpecificationList
+
+data class VehicleSpecifications(var isChecked: Boolean = false, val title: String = "")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheet(
-    data: DataXXX? = DataXXX(),
+fun VehicleSpecificationSheet(
+    data: DataXXX = DataXXX(),
     onDismiss: () -> Unit,
-    onSelected: (selectedData: InsuranceTypeCodeModel) -> Unit
+    onSelected: (selectedSpecification: List<InsuranceTypeCodeModel>) -> Unit
 ) {
 
     var searchQuery by remember { mutableStateOf("") }
@@ -53,12 +54,12 @@ fun BottomSheet(
         skipPartiallyExpanded = true
     )
     val filteredList = remember(searchQuery) {
-        data?.insuranceTypeCodeModels?.filter {
-            it?.description!!.en.contains(
+        data.insuranceTypeCodeModels?.filter {
+            it?.description?.en!!.contains(
                 searchQuery,
                 ignoreCase = true
             )
-        } as ArrayList
+        }
     }
 
     ModalBottomSheet(
@@ -98,7 +99,11 @@ fun BottomSheet(
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
-                colors = getOutlineTextFieldColors(),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
@@ -114,44 +119,21 @@ fun BottomSheet(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (!filteredList.isNullOrEmpty()) {
-                    items(filteredList.size) { pos ->
+                    items(filteredList.size) { month ->
 
-                        if (data?.id == 29) {
+                        if (data.id == 29){
 
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                                    .clickable {
-
-                                        filteredList[pos]?.let {
-                                            it.isChecked = !it.isChecked
-                                        }
-
-                                    }) {
-                                Checkbox(
-                                    checked = filteredList[pos]?.isChecked ?: false,
-                                    onCheckedChange = {
-                                        check(it)
-                                        filteredList[pos]?.isChecked = it
-                                    }
-                                )
-
-                                Text(
-                                    text = filteredList[pos]?.description?.en ?: "",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier
-                                        .align(Alignment.CenterVertically)
-                                        .fillMaxWidth()
-                                        .padding(vertical = 20.dp)
-                                )
-                            }
-                        } else {
-                            Box(modifier = Modifier.fillMaxWidth().clickable {
-                                println("Selected: $pos")
-                                filteredList[pos]?.let { onSelected(it) }
+                        }else{
+                            Row(modifier = Modifier.fillMaxWidth().clickable {
+                                //onSelected(getSelectedSpecificationList(data))
                             }) {
+                                Checkbox(
+                                    checked = false,
+                                    onCheckedChange = {}
+                                )
+
                                 Text(
-                                    text = filteredList[pos]?.description!!.en,
+                                    text = filteredList.get(month)?.description?.en ?:"",
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -166,14 +148,4 @@ fun BottomSheet(
     }
 }
 
-fun getSelectedSpecificationList(data: DataXXX): List<InsuranceTypeCodeModel> {
-    val selectedList: List<InsuranceTypeCodeModel> = ArrayList()
-    data.insuranceTypeCodeModels?.forEach {
-        if (it != null) {
-            if (it.isChecked)
-                selectedList.plus(it)
-        }
-    }
-    return selectedList
-}
 

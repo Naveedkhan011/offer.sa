@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,13 +54,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
+import isLoading
 import models.enums.InsuranceType
+import models.enums.ToastType
 import navigator
 import offer.composeapp.generated.resources.Res
 import offer.composeapp.generated.resources.ic_baseline_alternate_email_24
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
+import presentation.bottom_sheets.AddNewDriverSheet
 import presentation.bottom_sheets.VehicleSpecificationsBottomSheet
+import showToastUsingLaunchEffect
 import utils.AppColors
 import utils.AppConstants.Companion.getButtonColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
@@ -74,6 +79,10 @@ enum class BottomSheetCaller {
 
 val spaceBwFields = 10.dp
 
+data class QuotesUiState(val apiStatus: QuotesApiStates = QuotesApiStates.None)
+
+lateinit var uiQuotesState: QuotesUiState
+
 class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_YOUR_VEHICLE) :
     Screen {
 
@@ -81,13 +90,12 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
+
         selectedInsuranceType = insuranceType;
         quoteViewModel = getScreenModel<QuotesViewModel>()
+        uiQuotesState = quoteViewModel.quotesApiStates.collectAsState().value
+
         var currentStep by remember { mutableStateOf(1) }
-
-        quoteViewModel.getAllDataFromServer()
-
-
 
         Scaffold(topBar = {
             CenterAlignedTopAppBar(title = { Text(text = "Get Quotes") }, navigationIcon = {
@@ -109,19 +117,14 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
             ) {
 
                 Column(
-                    modifier = Modifier.fillMaxSize().fillMaxSize().padding(padding)
+                    modifier = Modifier.fillMaxSize().padding(padding)
                         .verticalScroll(rememberScrollState())
                 ) {
-
-                    // Step Indicator
                     StepIndicator(currentStep)
 
                     Spacer(modifier = Modifier.height(30.dp))
 
-                    // Input Fields
                     GetQuoteForm(currentStep)
-
-
                 }
 
                 Column(Modifier.fillMaxWidth().align(Alignment.BottomCenter)) {
@@ -141,11 +144,21 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                         shape = androidx.compose.foundation.shape.CircleShape,
                         colors = getButtonColors(),
                         onClick = {
-                            if (currentStep == TOTAL_STEPS) {
-                                navigator.pop()
-                            } else {
-                                currentStep++
-                            }
+
+                            currentStep++
+
+                            /* when (currentStep) {
+                                 1 -> {
+                                     quoteViewModel.createPolicyHolder(insuranceType)
+                                 }
+                                 2 -> {}
+
+                                 3 -> {}
+
+                                 4 -> {}
+
+                                 5 -> {}
+                             }*/
                         }, enabled = true, // Initially disabled
                         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                     ) {
@@ -155,6 +168,47 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
             }
         }
 
+        when (val state = uiQuotesState.apiStatus) {
+
+            is QuotesApiStates.None -> {}
+
+            is QuotesApiStates.Loading -> {
+                isLoading = true
+            }
+
+            is QuotesApiStates.CreatePolicyHolder -> {
+                isLoading = false
+                currentStep = 2
+            }
+
+            is QuotesApiStates.VehicleInfo -> {
+                isLoading = false
+                currentStep = 3
+            }
+
+            is QuotesApiStates.DriverInfo -> {
+                isLoading = false
+                currentStep = 4
+            }
+
+
+            is QuotesApiStates.QuotesList -> {
+                isLoading = false
+                currentStep = 5
+            }
+
+            is QuotesApiStates.Payment -> {
+                isLoading = false
+                currentStep = 4
+            }
+
+            is QuotesApiStates.Error -> {
+                isLoading = false
+                val message = state.message
+                showToastUsingLaunchEffect(message, ToastType.ERROR)
+            }
+
+        }
 
         if (quoteViewModel.isSheetVisible) {
             BottomSheet(
@@ -177,8 +231,25 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
             )
         }
 
-        if (quoteViewModel.vehicleSpecificationsSheetVisible) {
-            VehicleSpecificationsBottomSheet(quoteViewModel, {}, {})
+        if (quoteViewModel.isVehicleSpecificationSheetVisible) {
+            VehicleSpecificationsBottomSheet(
+                quoteViewModel,
+                onDismiss = {
+                    quoteViewModel.isVehicleSpecificationSheetVisible = false
+                },
+                onSelected = {
+
+                })
+        }
+
+        if (quoteViewModel.addNewDriverSheetVisible) {
+            AddNewDriverSheet(
+                quoteViewModel,
+                onDismiss = {
+                    quoteViewModel.addNewDriverSheetVisible = false
+                },
+                onSelected = {}
+            )
         }
 
     }
@@ -208,45 +279,63 @@ fun GetQuoteForm(progress: Int) {
 
     when (progress) {
         1 -> {
-            when (selectedInsuranceType) {
-                InsuranceType.INSURE_YOUR_VEHICLE -> {
-                    IqamaFormScreen(quoteViewModel)
-                }
-
-                InsuranceType.OWNER_TRANSFER -> {
-                    OwnerTransferFormScreen(quoteViewModel)
-                }
-
-                InsuranceType.CUSTOM_CARD -> {
-                    CustomerTransferFormScreen(quoteViewModel)
-                }
-            }
-            //nationalIDForm(selectedInsuranceType)
+            //CheckboxListScreen()
+            policyHolderCompose()
         }
 
         2 -> {
-            when (selectedInsuranceType) {
-                InsuranceType.INSURE_YOUR_VEHICLE,
-                InsuranceType.OWNER_TRANSFER -> {
-                    sequenceVerificationForm()
-                }
-
-                InsuranceType.CUSTOM_CARD -> {
-                    CustomCardsForm()
-                }
-            }
-        }
-
-        3 -> {
             VehicleDetailsForm()
         }
 
-        4 -> {
+        3 -> {
             DriversScreen()
         }
 
-        else -> {
+        4 -> {
+            QuotesCompose()
+        }
 
+        else -> {
+            PaymentCompose()
+        }
+    }
+
+
+    /*when (selectedInsuranceType) {
+               InsuranceType.INSURE_YOUR_VEHICLE,
+               InsuranceType.OWNER_TRANSFER -> {
+                   sequenceVerificationForm()
+               }
+
+               InsuranceType.CUSTOM_CARD -> {
+                   CustomCardsForm()
+               }
+           }*/
+}
+
+@Composable
+fun PaymentCompose() {
+
+}
+
+@Composable
+fun QuotesCompose() {
+
+}
+
+@Composable
+fun policyHolderCompose() {
+    when (selectedInsuranceType) {
+        InsuranceType.INSURE_YOUR_VEHICLE -> {
+            IqamaFormScreen(quoteViewModel)
+        }
+
+        InsuranceType.OWNER_TRANSFER -> {
+            OwnerTransferFormScreen(quoteViewModel)
+        }
+
+        InsuranceType.CUSTOM_CARD -> {
+            CustomerTransferFormScreen(quoteViewModel)
         }
     }
 }
@@ -272,7 +361,7 @@ fun DriversScreen() {
             Text(
                 text = "Edit List",
                 style = MaterialTheme.typography.bodyMedium.copy(color = AppColors.AppColor),
-                modifier = Modifier.clickable { quoteViewModel.editDrivers() },
+                modifier = Modifier.clickable { quoteViewModel.addNewDriverSheetVisible = true },
                 fontWeight = FontWeight.Bold
             )
         }
@@ -468,6 +557,7 @@ fun VehicleDetailsForm() {
         Text(
             text = "Car details",
             style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -527,10 +617,23 @@ fun VehicleDetailsForm() {
         )
 
         Spacer(modifier = Modifier.height(6.dp))
-        Card(modifier = Modifier.background(Color.White)) {
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White, shape = RoundedCornerShape(16.dp))
+                .padding(vertical = 8.dp),
+            onClick = {
+                quoteViewModel.isVehicleSpecificationSheetVisible = true
+            },
+            elevation = CardDefaults.cardElevation(3.dp)
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White) // Set background color here
+                    .padding(12.dp)
             ) {
                 Text(
                     text = "+",
@@ -553,7 +656,6 @@ fun VehicleDetailsForm() {
                 }
             }
         }
-
     }
 }
 
@@ -769,7 +871,7 @@ fun DropdownField(
                 .fillMaxWidth()
                 .clickable {
                     quoteViewModel.isSheetVisible = true
-                    onclick.invoke()
+                    onclick()
                 },
             trailingIcon = {
                 Icon(
@@ -777,10 +879,11 @@ fun DropdownField(
                     contentDescription = null,
                     modifier = Modifier.clickable {
                         quoteViewModel.isSheetVisible = true
-                        onclick.invoke()
+                        onclick()
                     }
                 )
-            }
+            },
+            colors = getOutlineTextFieldColors()
         )
     }
 

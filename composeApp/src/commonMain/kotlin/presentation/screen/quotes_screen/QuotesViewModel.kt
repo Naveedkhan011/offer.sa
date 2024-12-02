@@ -1,11 +1,13 @@
 package presentation.screen.quotes_screen
 
+import SHARED_PREFERENCE
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import dropDownValues
 import io.ktor.client.call.body
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
@@ -13,50 +15,89 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import isLoading
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import models.AllDropDownValues
 import models.CreatePolicyHolderBody
 import models.CreatePolicyHolderResponse
 import models.DataXXX
-import models.ServicesResponse
+import models.Description
+import models.InsuranceTypeCodeModel
 import models.enums.InsuranceType
 import network.Ktor
+import utils.AppConstants
 import utils.LogInManager
+
+val currentLanguage = SHARED_PREFERENCE.getString(
+    AppConstants.SharedPreferenceKeys.LANGUAGE
+)
 
 data class Driver(val name: String, val id: String)
 
 
 class QuotesViewModel : ScreenModel {
-    var allDropDownValues by mutableStateOf(AllDropDownValues())
 
-    val purposeList = getData(allDropDownValues, 13)
-    lateinit var months: DataXXX
-    val years = getData(allDropDownValues, 37)
+    val purposeList: DataXXX? = dropDownValues.getData(13)
+    val months: DataXXX? = dropDownValues.getData(if (currentLanguage == "en") 39 else 38)
+    val years: DataXXX? = dropDownValues.getData(37)
+    val vehicleSpecifications: DataXXX? = dropDownValues.getData(29)
+    val vehicleParking: DataXXX? = dropDownValues.getData(25)
+    val vehicleMileageExpectedAnnual: DataXXX? = dropDownValues.getData(30)
+    val transmissionType: DataXXX? = dropDownValues.getData(26)
+    val modificationTypes: DataXXX? = dropDownValues.getData(40)
+    val accidentCount: DataXXX = DataXXX(id = 1, name = "Accident Count", insuranceTypeCodeModels = getAccidentCountList())
+    val noOfChildren: DataXXX = DataXXX(id = 1, name = "No of childrens", insuranceTypeCodeModels = getChildrenCount())
+    val driverRelation: DataXXX? = dropDownValues.getData(14)
+    val healthConditionList: DataXXX? = dropDownValues.getData(41)
+    val trafficViolationList: DataXXX? = dropDownValues.getData(24)
+    val driverBusinessCityList: DataXXX? = dropDownValues.getData(32)
+    val drivingLicenceCountryList: DataXXX? = dropDownValues.getData(33)
+    val educationList: DataXXX? = dropDownValues.getData(12)
+    val productType: DataXXX? = dropDownValues.getData(5)
 
-    private fun getData(allDropDownValues: AllDropDownValues, id: Int): DataXXX? {
-        allDropDownValues.data?.let { it ->
-            it.forEach {
-                if (it.id == id)//38 arabic months
-                    return it
-            }
-        }
-        return null
-    }
+    var createPolicyHolderBody by mutableStateOf(CreatePolicyHolderBody())
+    private var createPolicyHolderResponse by mutableStateOf(CreatePolicyHolderResponse())
 
 
-    var nationalID by mutableStateOf("")
+    var expectedKM by mutableStateOf(
+        vehicleMileageExpectedAnnual?.insuranceTypeCodeModels?.get(0)?.description?.en
+            ?: ""
+    )
+    var vehicleParkedAtNight by mutableStateOf(
+        vehicleParking?.insuranceTypeCodeModels?.get(0)?.description?.en
+            ?: ""
+    )
+    var accidentCountV by mutableStateOf("0")
+    var modificationV by mutableStateOf(
+        modificationTypes?.insuranceTypeCodeModels?.get(0)?.description?.en
+            ?: ""
+    )
+    var transmissionTypeV by mutableStateOf(
+        transmissionType?.insuranceTypeCodeModels?.get(0)?.description?.en
+            ?: ""
+    )
+    var specification by mutableStateOf("")
+    var claim by mutableStateOf("")
+
+
+    var nationalID by mutableStateOf("2537995140")
     var nationalIDError by mutableStateOf<String?>(null)
 
-    var sellerNationalId by mutableStateOf("")
+    var sellerNationalId by mutableStateOf("2537995140")
     var sellerNationalIdError by mutableStateOf<String?>(null)
 
-    var selectedMonth by mutableStateOf("month")
+    var selectedMonth by mutableStateOf(
+        months?.insuranceTypeCodeModels?.get(0)?.description?.en ?: ""
+    )
     var dobError by mutableStateOf<String?>(null)
 
-    var selectedYear by mutableStateOf("year")
+    var selectedYear by mutableStateOf(
+        years?.insuranceTypeCodeModels?.get(0)?.description?.en ?: ""
+    )
     var dobYearError by mutableStateOf<String?>(null)
 
-    var sequenceNumber by mutableStateOf("")
+    var sequenceNumber by mutableStateOf("983236710")
     var sequenceNumberError by mutableStateOf<String?>(null)
 
     var customCard by mutableStateOf("")
@@ -65,17 +106,24 @@ class QuotesViewModel : ScreenModel {
     var manufacturingYear by mutableStateOf("")
     var manufacturingYearError by mutableStateOf<String?>(null)
 
-    var effectiveYear by mutableStateOf("")
+    var effectiveYear by mutableStateOf("2024-12-10")
     var effectiveYearError by mutableStateOf<String?>(null)
 
     var isSheetVisible by mutableStateOf(false)  // State for dropdown menu
-    var vehicleSpecificationsSheetVisible by mutableStateOf(false)  // State for dropdown menu
+    var isVehicleSpecificationSheetVisible by mutableStateOf(false)  // State for dropdown menu
+    var vehicleSpecificationsFieldsSheetVisible by mutableStateOf(false)  // State for dropdown menu
+    var addNewDriverSheetVisible by mutableStateOf(false)  // State for dropdown menu
+
     var selectedSheet by mutableStateOf(BottomSheetCaller.MONTH)
-
-    var isLoading by mutableStateOf(false)
-
     var purposeOfUse by mutableStateOf("")
     var vehicleEstimatedValue by mutableStateOf("")  // State for dropdown menu
+
+    var buttonEnabled by mutableStateOf(false)  // State for dropdown menu
+
+
+    private val _quotesApiStates: MutableStateFlow<QuotesUiState> =
+        MutableStateFlow(QuotesUiState())
+    val quotesApiStates: StateFlow<QuotesUiState> = _quotesApiStates
 
 
     // Driver List
@@ -84,13 +132,24 @@ class QuotesViewModel : ScreenModel {
         Driver(name = "كاشف تسنيم خان", id = "2537995140")
     )
 
-    // Other Details
-    val otherDetailsVisible = mutableStateOf(false)
 
-    // Functions to modify state
-    fun toggleOtherDetailsVisibility() {
-        otherDetailsVisible.value = !otherDetailsVisible.value
-    }
+    // edit driver list variables
+
+    var driverId by mutableStateOf("")
+    var dobMonth by mutableStateOf("")
+    var dobYear by mutableStateOf("")
+    var vehicleNightParking by mutableStateOf("")
+    var driverRelationship by mutableStateOf("")
+    var education by mutableStateOf("")
+    var noOfChildrenBelow16 by mutableStateOf("")
+    var healthCondition by mutableStateOf("")
+    var trafficViolations by mutableStateOf("")
+    var driverBusinessCity by mutableStateOf("")
+    var driverNOALastFiveYears by mutableStateOf("")
+    var driverNocLastFiveYears by mutableStateOf("")
+    var drivingLicenceCountry by mutableStateOf("")
+    var licenceValidFor by mutableStateOf("")
+
 
     fun editDrivers() {
         // Handle edit driver action here
@@ -100,58 +159,110 @@ class QuotesViewModel : ScreenModel {
     val uiState: StateFlow<GetQuotesStates> = _uiState
 */
 
+    fun checkButtonVisibility() {
+        buttonEnabled =
+            verifyIqamaLocally() && verifySequenceNumberLocally() && effectiveYear.isNotEmpty()
+
+    }
+
     fun createPolicyHolder(insuranceType: InsuranceType) {
-        screenModelScope.launch {
-            try {
-                val servicesResponse = Ktor.client.post("/portal-api/insurance/rest/serviceList") {
-                    contentType(ContentType.Application.Json)
-                    accept(ContentType.Application.Json)
-                    setBody(
-                        CreatePolicyHolderBody(
-                            nationalId = nationalID,
-                            sellerNationalId = sellerNationalId,
-                            dobMonth = selectedMonth,
-                            dobYear = selectedYear,
-                            sequenceNumber = sequenceNumber,
-                            clientId = null,
-                            agentId = null,
-                            userId = if (LogInManager.getLoggedInUser() != null || LogInManager.getLoggedInUser()!!.user != null) {
-                                LogInManager.getLoggedInUser()!!.user!!.id
-                            } else 0,
-                            insuranceType = when (insuranceType) {
-                                InsuranceType.INSURE_YOUR_VEHICLE -> "1"
-                                InsuranceType.OWNER_TRANSFER -> "2"
-                                InsuranceType.CUSTOM_CARD -> "3"
-                            },
-                            insuranceEffectiveDate = effectiveYear,
-                            customCard = customCard,
-                            manufactureYear = manufacturingYear,
-                            referenceNo = "",
-                            selectedTab = when (insuranceType) {
-                                InsuranceType.INSURE_YOUR_VEHICLE -> "INSURE_YOUR_VEHICLE"
-                                InsuranceType.OWNER_TRANSFER -> "OWNER_INSURANCE"
-                                InsuranceType.CUSTOM_CARD -> "CUSTOM_CARD"
-                            }
+        if (validFormValues(insuranceType)) {
+            screenModelScope.launch {
+                try {
+                    val response = Ktor.client.post("/portal-api/insurance/rest/serviceList") {
+                        contentType(ContentType.Application.Json)
+                        accept(ContentType.Application.Json)
+                        setBody(
+                            CreatePolicyHolderBody(
+                                nationalId = nationalID,
+                                sellerNationalId = sellerNationalId.ifEmpty { null },
+                                dobMonth = selectedMonth.substring(1, 3),
+                                dobYear = selectedYear,
+                                sequenceNumber = sequenceNumber,
+                                userId = if (LogInManager.getLoggedInUser() != null && LogInManager.getLoggedInUser()!!.user != null) {
+                                    LogInManager.getLoggedInUser()!!.user!!.id
+                                } else 15,
+                                insuranceType = when (insuranceType) {
+                                    InsuranceType.INSURE_YOUR_VEHICLE -> "2"
+                                    InsuranceType.OWNER_TRANSFER -> "2"
+                                    InsuranceType.CUSTOM_CARD -> "2"
+                                },
+                                insuranceEffectiveDate = effectiveYear,
+                                customCard = customCard.ifEmpty { null },
+                                manufactureYear = manufacturingYear.ifEmpty { null },
+                                referenceNo = null,
+                                selectedTab = when (insuranceType) {
+                                    InsuranceType.INSURE_YOUR_VEHICLE -> "OWNER_INSURANCE"
+                                    InsuranceType.OWNER_TRANSFER -> "TRANSFER_OWNERSHIP"
+                                    InsuranceType.CUSTOM_CARD -> "INSURANCE_BY_CUSTMOS_CARD"
+                                }
+                            )
                         )
+                    }.body<CreatePolicyHolderResponse>()
+
+                    if (response.errorCode == null) {
+                        createPolicyHolderResponse = response
+                        _quotesApiStates.value = QuotesUiState(
+                            apiStatus = QuotesApiStates.CreatePolicyHolder(response)
+                        )
+                    } else
+                        _quotesApiStates.value = QuotesUiState(
+                            apiStatus = QuotesApiStates.Error(response.errorMessage.toString())
+                        )
+                } catch (e: Exception) {
+                    val message = if (e.message == null) "empty" else e.message!!
+                    _quotesApiStates.value = QuotesUiState(
+                        apiStatus = QuotesApiStates.Error(message)
                     )
-                }.body<CreatePolicyHolderResponse>()
-
-                /*_uiState.value = GetQuotesStates(
-                    apiStatus = ApiStatus.SUCCESS, servicesResponse = servicesResponse
-                )*/
-            } catch (e: Exception) {
-                val servicesResponse = ServicesResponse()
-                servicesResponse.message = if (e.message == null) "empty" else e.message!!
-
-                /*_uiState.value = HomeUiState(
-                    apiStatus = ApiStatus.ERROR, servicesResponse = servicesResponse
-                )*/
+                }
             }
         }
     }
 
-    fun verifyIqamaLocally() {
+    private fun validFormValues(insuranceType: InsuranceType): Boolean {
+        var isValid = true
+        if (!verifyIqamaLocally() || !verifySequenceNumberLocally()) {
+            isValid = false
+        }
+        if (insuranceType == InsuranceType.OWNER_TRANSFER) {
+            if (!verifyIqamaSellerLocally()) {
+                isValid = false
+            }
+        }
+
+        if (insuranceType == InsuranceType.CUSTOM_CARD) {
+            if (customCard.isEmpty()) {
+                isValid = false
+                customCardError = "Field is required"
+            }
+
+            if (manufacturingYear.isEmpty()) {
+                isValid = false
+                manufacturingYearError = "Field is required"
+            }
+        }
+
+        return isValid
+    }
+
+    fun verifyIqamaSellerLocally(): Boolean {
+        sellerNationalIdError = if (sellerNationalId.isEmpty()) {
+            buttonEnabled = false
+            "National ID is required"
+        } else if (!sellerNationalId.startsWith("1") && !sellerNationalId.startsWith("2")) {
+            "invalid national id"
+        } else if (sellerNationalId.length < 10) {
+            "ID should be 10 character long"
+        } else {
+            null
+        }
+
+        return nationalIDError == null
+    }
+
+    fun verifyIqamaLocally(): Boolean {
         nationalIDError = if (nationalID.isEmpty()) {
+            buttonEnabled = false
             "National ID is required"
         } else if (!nationalID.startsWith("1") && !nationalID.startsWith("2")) {
             "invalid national id"
@@ -160,10 +271,12 @@ class QuotesViewModel : ScreenModel {
         } else {
             null
         }
+
+        return nationalIDError == null
     }
 
 
-    fun verifySequenceNumberLocally() {
+    fun verifySequenceNumberLocally(): Boolean {
         sequenceNumberError = if (sequenceNumber.isEmpty()) {
             "Sequence number is required"
         } else if (sequenceNumber.length < 8) {
@@ -171,6 +284,8 @@ class QuotesViewModel : ScreenModel {
         } else {
             null
         }
+
+        return sequenceNumberError == null
     }
 
     fun searchUserByNationalId() {
@@ -213,24 +328,27 @@ class QuotesViewModel : ScreenModel {
         }
     }
 
-
-    fun getAllDataFromServer() {
-        screenModelScope.launch {
-            isLoading = true
-            try {
-                val response =
-                    Ktor.client.get("/portal-api/insurance/rest/showInsuranceCodeName") {}
-                        .body<AllDropDownValues>()
-                allDropDownValues = response
-                val data = getData(allDropDownValues, 39)
-                if (data != null)
-                    months = data
-
-            } catch (_: Exception) {
-
-            } finally {
-                isLoading = false
-            }
-        }
+    private fun getChildrenCount(): List<InsuranceTypeCodeModel?> {
+        return listOf(
+            InsuranceTypeCodeModel(description = Description(en = "1", ar = "1")),
+            InsuranceTypeCodeModel(description = Description(en = "2", ar = "2")),
+            InsuranceTypeCodeModel(description = Description(en = "3", ar = "3")),
+            InsuranceTypeCodeModel(description = Description(en = "4", ar = "4")),
+            InsuranceTypeCodeModel(description = Description(en = "5", ar = "5"))
+        )
+    }
+    private fun getAccidentCountList(): List<InsuranceTypeCodeModel?> {
+        return listOf(
+            InsuranceTypeCodeModel(description = Description(en = "1", ar = "1")),
+            InsuranceTypeCodeModel(description = Description(en = "2", ar = "2")),
+            InsuranceTypeCodeModel(description = Description(en = "3", ar = "3")),
+            InsuranceTypeCodeModel(description = Description(en = "4", ar = "4")),
+            InsuranceTypeCodeModel(description = Description(en = "5", ar = "5")),
+            InsuranceTypeCodeModel(description = Description(en = "6", ar = "6")),
+            InsuranceTypeCodeModel(description = Description(en = "7", ar = "7")),
+            InsuranceTypeCodeModel(description = Description(en = "8", ar = "8")),
+            InsuranceTypeCodeModel(description = Description(en = "9", ar = "9")),
+            InsuranceTypeCodeModel(description = Description(en = "10", ar = "10")),
+        )
     }
 }

@@ -16,5 +16,9 @@ data class CreatePolicyHolderResponse(
     @SerialName("success")
     val success: Boolean? = false,
     @SerialName("total")
-    val total: String? = String()
+    val total: String? = String(),
+    @SerialName("errorCode")
+    val errorCode: Int? = null,
+    @SerialName("errorMessage")
+    val errorMessage: String? = String()
 )

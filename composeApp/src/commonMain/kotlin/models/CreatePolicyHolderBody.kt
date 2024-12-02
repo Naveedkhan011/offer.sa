@@ -9,9 +9,9 @@ data class CreatePolicyHolderBody(
     @SerialName("agentId")
     val agentId: String? = null,
     @SerialName("captchaCode")
-    val captchaCode: String = "",
+    val captchaCode: String? = null,
     @SerialName("captchaId")
-    val captchaId: String = "",
+    val captchaId: String? = null,
     @SerialName("clientId")
     val clientId: String? = null,
     @SerialName("customCard")
@@ -29,7 +29,7 @@ data class CreatePolicyHolderBody(
     @SerialName("nationalId")
     val nationalId: String = "",
     @SerialName("referenceNo")
-    val referenceNo: String = "",
+    val referenceNo: String? = null,
     @SerialName("selectedTab")
     val selectedTab: String = "",
     @SerialName("sellerNationalId")

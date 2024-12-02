@@ -11,5 +11,7 @@ data class InsuranceTypeCodeModel(
     @SerialName("description")
     val description: Description = Description(),
     @SerialName("id")
-    val id: Int = 13
+    val id: Int = 13,
+    @SerialName("isChecked")
+    var isChecked : Boolean = false
 )

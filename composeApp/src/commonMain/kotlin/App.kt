@@ -32,6 +32,7 @@ import presentation.screen.signup_screen.SignupViewModel
 import presentation.screen.splash.Splash
 import presentation.screen.task.TaskViewModel
 import utils.AppConstants
+import utils.DropDownManager
 import utils.LogInManager
 import utils.language.language_manager.LanguageManager
 import utils.language.languages.ArabicStrings
@@ -54,6 +55,7 @@ lateinit var navigator: Navigator
 
 var loaderData by mutableStateOf(Loader())
 var isLoading by mutableStateOf(false)
+val dropDownValues = DropDownManager()
 
 @Composable
 fun App(sharedPreference: KMMPreference) {
@@ -84,7 +86,7 @@ fun App(sharedPreference: KMMPreference) {
     )
     MaterialTheme(colorScheme = colors) {
 
-        Navigator(GetQuotes()) {
+        Navigator(Splash()) {
             SlideTransition(it)
         }
 
@@ -101,6 +103,8 @@ fun App(sharedPreference: KMMPreference) {
     // This is fine to call here since it's not composable
     val language = SHARED_PREFERENCE.getString(AppConstants.SharedPreferenceKeys.LANGUAGE)
     language?.let { LanguageManager.switchLanguage(it) }
+
+    dropDownValues.getDropDownValues()
 }
 
 val mongoModule = module {
@@ -135,7 +139,7 @@ fun showToast(messageToDisplay: String, type: ToastType = ToastType.SUCCESS) {
 
 
 object KoinInitializer {
-    var isInitialized = false
+    private var isInitialized = false
     fun initializeKoin() {
         if (!isInitialized) {
             startKoin {

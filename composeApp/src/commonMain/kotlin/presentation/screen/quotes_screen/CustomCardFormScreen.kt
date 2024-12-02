@@ -30,8 +30,6 @@ import utils.AppConstants.Companion.getOutlineTextFieldColors
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun CustomerTransferFormScreen(viewModel: QuotesViewModel) {
-    val months = viewModel.months
-    val years = viewModel.years
 
     Column(
         modifier = Modifier
@@ -62,29 +60,35 @@ fun CustomerTransferFormScreen(viewModel: QuotesViewModel) {
 
         Spacer(modifier = Modifier.height(spaceBwFields))
 
-        // DOB Month and Year Dropdowns
+       /* // DOB Month and Year Dropdowns
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            DropdownField(
-                label = "DOB Month",
-                onclick = {},
-                modifier = Modifier.weight(1f),
-                errorValue = viewModel.dobError,
-                selectedOption = viewModel.selectedMonth
-            )
 
-            Spacer(modifier = Modifier.width(spaceBwFields))
+        }*/
 
-            DropdownField(
-                label = "DOB Year",
-                onclick = {},
-                modifier = Modifier.weight(1f),
-                errorValue = viewModel.dobYearError,
-                selectedOption = viewModel.selectedYear
-            )
-        }
+        DropdownField(
+            label = "DOB Month",
+            onclick = {
+                viewModel.selectedSheet = BottomSheetCaller.MONTH
+            },
+            modifier = Modifier.fillMaxWidth(),
+            errorValue = viewModel.dobError,
+            selectedOption = viewModel.selectedMonth
+        )
+
+        Spacer(modifier = Modifier.width(spaceBwFields))
+
+        DropdownField(
+            label = "DOB Year",
+            onclick = {
+                viewModel.selectedSheet = BottomSheetCaller.YEAR
+            },
+            modifier = Modifier.fillMaxWidth(),
+            errorValue = viewModel.dobYearError,
+            selectedOption = viewModel.selectedYear
+        )
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(

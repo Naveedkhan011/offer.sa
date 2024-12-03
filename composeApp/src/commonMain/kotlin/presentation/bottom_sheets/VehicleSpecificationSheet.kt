@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import models.DataXXX
 import models.InsuranceTypeCodeModel
-import presentation.screen.quotes_screen.getSelectedSpecificationList
 
 data class VehicleSpecifications(var isChecked: Boolean = false, val title: String = "")
 

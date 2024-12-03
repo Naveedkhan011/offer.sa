@@ -1,4 +1,4 @@
-package presentation.screen.quotes_screen
+package presentation.bottom_sheets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -1,4 +1,4 @@
-package presentation.screen.quotes_screen
+package presentation.bottom_sheets
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

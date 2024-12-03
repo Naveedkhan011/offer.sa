@@ -7,7 +7,11 @@ import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.accept
 import io.ktor.client.request.header
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
@@ -19,6 +23,7 @@ object Ktor {
         install(ContentNegotiation) {
             json(
                 Json {
+                    prettyPrint = true
                     ignoreUnknownKeys = true // Ignore extra keys in JSON
                     isLenient = true // Allow lenient JSON parsing
                 }
@@ -45,7 +50,8 @@ object Ktor {
 
         // Default request setup
         defaultRequest {
-            header("Content-Type", "application/json")
+            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            header(HttpHeaders.Accept, ContentType.Application.Json)
             url(BASE_URL) // Set the base URL
         }
     }

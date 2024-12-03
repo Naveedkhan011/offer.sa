@@ -2,6 +2,7 @@ package presentation.bottom_sheets
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,19 +13,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import presentation.screen.quotes_screen.BottomSheet
 import presentation.screen.quotes_screen.QuotesViewModel
 import utils.AppConstants.Companion.getOutlineTextFieldColors
 
@@ -173,9 +176,73 @@ fun VehicleSpecificationsBottomSheet(
                 colors = getOutlineTextFieldColors()
             )
 
+
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
+                value = quoteViewModel.modificationV,
+                onValueChange = {
+                    quoteViewModel.modificationV = it
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.clickable {
+                            selectedSheet = SpecificationBottomSheetCaller.ANY_MODIFICATION
+                            quoteViewModel.vehicleSpecificationsFieldsSheetVisible = true
+                        }
+                    )
+                },
+                label = { Text("Any Modification") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = getOutlineTextFieldColors()
+            )
+
+
+            if (quoteViewModel.modificationV == "Yes"){
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = quoteViewModel.reasonForModification,
+                    onValueChange = {
+                        quoteViewModel.reasonForModification = it
+                    },
+                    label = { Text("Modification reason") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = getOutlineTextFieldColors()
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("Vehicle Specification")
+
+            quoteViewModel.vehicleSpecifications?.insuranceTypeCodeModels?.forEach {item->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                        .clickable {}) {
+                    Checkbox(
+                        checked = item?.isChecked ?: false,
+                        onCheckedChange = {
+                            item?.isChecked = it
+                        }
+                    )
+
+                    Text(
+                        text = item?.description?.en ?: "",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp)
+                    )
+                }
+            }
+
+            /*OutlinedTextField(
                 value = quoteViewModel.specification,
                 onValueChange = {
                     quoteViewModel.specification = it
@@ -193,7 +260,7 @@ fun VehicleSpecificationsBottomSheet(
                 label = { Text("Vehicle Specification") },
                 modifier = Modifier.fillMaxWidth(),
                 colors = getOutlineTextFieldColors()
-            )
+            )*/
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -210,7 +277,6 @@ fun VehicleSpecificationsBottomSheet(
     }
 
     if (quoteViewModel.vehicleSpecificationsFieldsSheetVisible) {
-
         BottomSheet(
             data = when (selectedSheet) {
                 SpecificationBottomSheetCaller.EXPECTED_KM -> quoteViewModel.vehicleMileageExpectedAnnual

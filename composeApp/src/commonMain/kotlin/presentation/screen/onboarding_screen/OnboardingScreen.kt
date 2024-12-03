@@ -1,5 +1,6 @@
 package presentation.screen.onboarding_screen
 
+import SHARED_PREFERENCE
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -55,6 +56,7 @@ import offer.composeapp.generated.resources.Res
 import offer.composeapp.generated.resources.walk2
 import offer.composeapp.generated.resources.walk3
 import utils.AppColors
+import utils.AppConstants
 
 class OnboardingScreen() : Screen {
 
@@ -240,6 +242,6 @@ class OnboardingScreen() : Screen {
 
     private fun moveToMainActivity(navigator: Navigator) {
         navigator.replace(MyHomeScreen())
-        //SHARED_PREFERENCE.put("isAlreadyViewed", true)
+        SHARED_PREFERENCE.put(AppConstants.SharedPreferenceKeys.IS_ALREADY_VIEWED, true)
     }
 }

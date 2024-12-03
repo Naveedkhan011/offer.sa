@@ -63,6 +63,7 @@ import offer.composeapp.generated.resources.ic_baseline_alternate_email_24
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import presentation.bottom_sheets.AddNewDriverSheet
+import presentation.bottom_sheets.BottomSheet
 import presentation.bottom_sheets.VehicleSpecificationsBottomSheet
 import showToastUsingLaunchEffect
 import utils.AppColors
@@ -72,6 +73,13 @@ import utils.AppConstants.Companion.getOutlineTextFieldColors
 private const val TOTAL_STEPS = 5
 private var selectedInsuranceType: InsuranceType = InsuranceType.INSURE_YOUR_VEHICLE
 private lateinit var quoteViewModel: QuotesViewModel
+
+data class Quote(
+    val title: String,
+    val price: String,
+    val details: List<String>,
+    val discount: String
+)
 
 enum class BottomSheetCaller {
     MONTH, YEAR, PURPOSE
@@ -144,21 +152,19 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                         shape = androidx.compose.foundation.shape.CircleShape,
                         colors = getButtonColors(),
                         onClick = {
+                            when (currentStep) {
+                                1 -> {
+                                    quoteViewModel.showDriverByVehicleId()
+                                }
 
-                            currentStep++
+                                2 -> {}
 
-                            /* when (currentStep) {
-                                 1 -> {
-                                     quoteViewModel.createPolicyHolder(insuranceType)
-                                 }
-                                 2 -> {}
+                                3 -> {}
 
-                                 3 -> {}
+                                4 -> {}
 
-                                 4 -> {}
-
-                                 5 -> {}
-                             }*/
+                                5 -> {}
+                            }
                         }, enabled = true, // Initially disabled
                         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                     ) {
@@ -292,7 +298,7 @@ fun GetQuoteForm(progress: Int) {
         }
 
         4 -> {
-            QuotesCompose()
+            QuoteScreen(quoteViewModel)
         }
 
         else -> {
@@ -318,10 +324,6 @@ fun PaymentCompose() {
 
 }
 
-@Composable
-fun QuotesCompose() {
-
-}
 
 @Composable
 fun policyHolderCompose() {

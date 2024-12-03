@@ -19,15 +19,33 @@ import isLoading
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import models.CreatePolicyHolderBody
 import models.CreatePolicyHolderResponse
 import models.DataXXX
 import models.Description
+import models.DriverByVehicleIdResponse
+import models.DriverByVehicleIdResponseItem
+import models.GeneralResponse
 import models.InsuranceTypeCodeModel
+import models.QuotesListResponse
 import models.enums.InsuranceType
 import network.Ktor
 import utils.AppConstants
 import utils.LogInManager
+
+enum class Tab(val title: String) {
+    ThirdParty("Third Party"),
+    OwnDamage("Own Damage"),
+    Comprehensive("Comprehensive")
+}
+
+var quotes by mutableStateOf(
+    listOf(
+        Quote("ACIG One", "SAR 2,661.66", listOf("Loss or Damage to the Insured Car", "Liability to Third Parties", "Natural Disasters"), "404.03 SAR Total discount"),
+        Quote("SANAD Plus", "SAR 1,760.65", listOf("Estimated activation time: 12+ hours", "Third-party coverage"), "No discount applied")
+    )
+)
 
 val currentLanguage = SHARED_PREFERENCE.getString(
     AppConstants.SharedPreferenceKeys.LANGUAGE
@@ -38,6 +56,9 @@ data class Driver(val name: String, val id: String)
 
 class QuotesViewModel : ScreenModel {
 
+    var selectedTab by mutableStateOf(Tab.ThirdParty)
+    val tabs = listOf(Tab.ThirdParty, Tab.Comprehensive)
+
     val purposeList: DataXXX? = dropDownValues.getData(13)
     val months: DataXXX? = dropDownValues.getData(if (currentLanguage == "en") 39 else 38)
     val years: DataXXX? = dropDownValues.getData(37)
@@ -46,8 +67,10 @@ class QuotesViewModel : ScreenModel {
     val vehicleMileageExpectedAnnual: DataXXX? = dropDownValues.getData(30)
     val transmissionType: DataXXX? = dropDownValues.getData(26)
     val modificationTypes: DataXXX? = dropDownValues.getData(40)
-    val accidentCount: DataXXX = DataXXX(id = 1, name = "Accident Count", insuranceTypeCodeModels = getAccidentCountList())
-    val noOfChildren: DataXXX = DataXXX(id = 1, name = "No of childrens", insuranceTypeCodeModels = getChildrenCount())
+    val accidentCount: DataXXX =
+        DataXXX(id = 1, name = "Accident Count", insuranceTypeCodeModels = getAccidentCountList())
+    val noOfChildren: DataXXX =
+        DataXXX(id = 1, name = "No of childrens", insuranceTypeCodeModels = getChildrenCount())
     val driverRelation: DataXXX? = dropDownValues.getData(14)
     val healthConditionList: DataXXX? = dropDownValues.getData(41)
     val trafficViolationList: DataXXX? = dropDownValues.getData(24)
@@ -58,6 +81,7 @@ class QuotesViewModel : ScreenModel {
 
     var createPolicyHolderBody by mutableStateOf(CreatePolicyHolderBody())
     private var createPolicyHolderResponse by mutableStateOf(CreatePolicyHolderResponse())
+    private var driverList by mutableStateOf(ArrayList<DriverByVehicleIdResponseItem>())
 
 
     var expectedKM by mutableStateOf(
@@ -73,6 +97,9 @@ class QuotesViewModel : ScreenModel {
         modificationTypes?.insuranceTypeCodeModels?.get(0)?.description?.en
             ?: ""
     )
+
+    var reasonForModification by mutableStateOf("")
+
     var transmissionTypeV by mutableStateOf(
         transmissionType?.insuranceTypeCodeModels?.get(0)?.description?.en
             ?: ""
@@ -129,7 +156,6 @@ class QuotesViewModel : ScreenModel {
     // Driver List
     val drivers = mutableStateListOf(
         Driver(name = "كاشف تسنيم خان", id = "2537995140"),
-        Driver(name = "كاشف تسنيم خان", id = "2537995140")
     )
 
 
@@ -165,39 +191,155 @@ class QuotesViewModel : ScreenModel {
 
     }
 
-    fun createPolicyHolder(insuranceType: InsuranceType) {
+    fun testing(insuranceType: InsuranceType) {
         if (validFormValues(insuranceType)) {
             screenModelScope.launch {
                 try {
+
+                    val body = CreatePolicyHolderBody(
+                        nationalId = nationalID,
+                        sellerNationalId = sellerNationalId.ifEmpty { "null" },
+                        dobMonth = selectedMonth.substring(1, 3),
+                        dobYear = selectedYear,
+                        sequenceNumber = sequenceNumber,
+                        userId = if (LogInManager.getLoggedInUser() != null && LogInManager.getLoggedInUser()!!.user != null) {
+                            LogInManager.getLoggedInUser()!!.user!!.id.toString()
+                        } else "15",
+                        insuranceType = when (insuranceType) {
+                            InsuranceType.INSURE_YOUR_VEHICLE -> "2"
+                            InsuranceType.OWNER_TRANSFER -> "2"
+                            InsuranceType.CUSTOM_CARD -> "2"
+                        },
+                        insuranceEffectiveDate = effectiveYear,
+                        customCard = customCard.ifEmpty { "null" },
+                        manufactureYear = manufacturingYear.ifEmpty { "null" },
+                        referenceNo = "null",
+                        selectedTab = when (insuranceType) {
+                            InsuranceType.INSURE_YOUR_VEHICLE -> "OWNER_INSURANCE"
+                            InsuranceType.OWNER_TRANSFER -> "TRANSFER_OWNERSHIP"
+                            InsuranceType.CUSTOM_CARD -> "INSURANCE_BY_CUSTMOS_CARD"
+                        }
+                    )
+
+                    val jsonString = Json.encodeToString(CreatePolicyHolderBody.serializer(), body)
+
+                    val response = Ktor.client.post("/portal-api/insurance/rest/serviceList") {
+                        contentType(ContentType.Application.Json) // Set Content-Type to JSON
+                        setBody(jsonString) // Send the JSON string as the body
+                    }.body<CreatePolicyHolderResponse>()
+
+                    if (response.errorCode == null) {
+                        createPolicyHolderResponse = response
+                        _quotesApiStates.value = QuotesUiState(
+                            apiStatus = QuotesApiStates.CreatePolicyHolder(response)
+                        )
+                    } else
+                        _quotesApiStates.value = QuotesUiState(
+                            apiStatus = QuotesApiStates.Error(response.errorMessage.toString())
+                        )
+                } catch (e: Exception) {
+                    val message = if (e.message == null) "empty" else e.message!!
+                    _quotesApiStates.value = QuotesUiState(
+                        apiStatus = QuotesApiStates.Error(message)
+                    )
+                }
+            }
+        }
+    }
+
+    fun getQuotesList(){
+        screenModelScope.launch {
+            try {
+                val response = Ktor.client.get("portal-api/insurance/rest/ica-get-quotesErrorFree/L1B12W0FCK01")
+                    .body<QuotesListResponse>()
+
+                if (response.errorCode == null) {
+                    /*_quotesApiStates.value = QuotesUiState(
+                        apiStatus = QuotesApiStates.CreatePolicyHolder(response)
+                    )*/
+                } else
+                    _quotesApiStates.value = QuotesUiState(
+                        apiStatus = QuotesApiStates.Error(response.errorMessage.toString())
+                    )
+
+            } catch (e: Exception) {
+                val message = if (e.message == null) "empty" else e.message!!
+                _quotesApiStates.value = QuotesUiState(
+                    apiStatus = QuotesApiStates.Error(message)
+                )
+            }
+        }
+    }
+
+    fun showDriverByVehicleId(){
+
+        screenModelScope.launch {
+            try {
+                val response = Ktor.client.get("portal-api/insurance/rest/showDriverByVehicleId/384/384")
+                    .body<ArrayList<DriverByVehicleIdResponseItem>>()
+
+                // Check the type of the response
+                when (response) {
+                    is List<*> -> {
+                        println("success")
+                        driverList = response as ArrayList<DriverByVehicleIdResponseItem>
+                    }
+                    /*is DriverByVehicleIdResponse -> {
+                        println("error")
+                    }*/
+                    else -> {
+                        println("error")
+
+                        val driverByVehicleIdResponse = response as DriverByVehicleIdResponse
+                        _quotesApiStates.value = QuotesUiState(
+                            apiStatus = QuotesApiStates.Error(driverByVehicleIdResponse.errorMessage.toString())
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                val message = if (e.message == null) "empty" else e.message!!
+                _quotesApiStates.value = QuotesUiState(
+                    apiStatus = QuotesApiStates.Error(message)
+                )
+            }
+        }
+
+
+    }
+fun createPolicyHolder(insuranceType: InsuranceType) {
+        if (validFormValues(insuranceType)) {
+            screenModelScope.launch {
+                try {
+
+                    val body = CreatePolicyHolderBody(
+                        nationalId = nationalID,
+                        sellerNationalId = sellerNationalId.ifEmpty { null },
+                        dobMonth = selectedMonth.substring(1, 3),
+                        dobYear = selectedYear,
+                        sequenceNumber = sequenceNumber,
+                        userId = if (LogInManager.getLoggedInUser() != null && LogInManager.getLoggedInUser()!!.user != null) {
+                            LogInManager.getLoggedInUser()!!.user!!.id.toString()
+                        } else "15",
+                        insuranceType = when (insuranceType) {
+                            InsuranceType.INSURE_YOUR_VEHICLE -> "2"
+                            InsuranceType.OWNER_TRANSFER -> "2"
+                            InsuranceType.CUSTOM_CARD -> "2"
+                        },
+                        insuranceEffectiveDate = effectiveYear,
+                        customCard = customCard.ifEmpty { null },
+                        manufactureYear = manufacturingYear.ifEmpty { null },
+                        referenceNo = null,
+                        selectedTab = when (insuranceType) {
+                            InsuranceType.INSURE_YOUR_VEHICLE -> "OWNER_INSURANCE"
+                            InsuranceType.OWNER_TRANSFER -> "TRANSFER_OWNERSHIP"
+                            InsuranceType.CUSTOM_CARD -> "INSURANCE_BY_CUSTMOS_CARD"
+                        }
+                    )
+
                     val response = Ktor.client.post("/portal-api/insurance/rest/serviceList") {
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Application.Json)
-                        setBody(
-                            CreatePolicyHolderBody(
-                                nationalId = nationalID,
-                                sellerNationalId = sellerNationalId.ifEmpty { null },
-                                dobMonth = selectedMonth.substring(1, 3),
-                                dobYear = selectedYear,
-                                sequenceNumber = sequenceNumber,
-                                userId = if (LogInManager.getLoggedInUser() != null && LogInManager.getLoggedInUser()!!.user != null) {
-                                    LogInManager.getLoggedInUser()!!.user!!.id
-                                } else 15,
-                                insuranceType = when (insuranceType) {
-                                    InsuranceType.INSURE_YOUR_VEHICLE -> "2"
-                                    InsuranceType.OWNER_TRANSFER -> "2"
-                                    InsuranceType.CUSTOM_CARD -> "2"
-                                },
-                                insuranceEffectiveDate = effectiveYear,
-                                customCard = customCard.ifEmpty { null },
-                                manufactureYear = manufacturingYear.ifEmpty { null },
-                                referenceNo = null,
-                                selectedTab = when (insuranceType) {
-                                    InsuranceType.INSURE_YOUR_VEHICLE -> "OWNER_INSURANCE"
-                                    InsuranceType.OWNER_TRANSFER -> "TRANSFER_OWNERSHIP"
-                                    InsuranceType.CUSTOM_CARD -> "INSURANCE_BY_CUSTMOS_CARD"
-                                }
-                            )
-                        )
+                        setBody(body)
                     }.body<CreatePolicyHolderResponse>()
 
                     if (response.errorCode == null) {
@@ -337,6 +479,7 @@ class QuotesViewModel : ScreenModel {
             InsuranceTypeCodeModel(description = Description(en = "5", ar = "5"))
         )
     }
+
     private fun getAccidentCountList(): List<InsuranceTypeCodeModel?> {
         return listOf(
             InsuranceTypeCodeModel(description = Description(en = "1", ar = "1")),

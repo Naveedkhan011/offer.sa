@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import presentation.screen.quotes_screen.BottomSheet
 import presentation.screen.quotes_screen.QuotesViewModel
 import utils.AppConstants.Companion.getOutlineTextFieldColors
 
@@ -211,7 +211,32 @@ fun AddNewDriverSheet(
                 }
             )
 
-            DropdownField(
+            Text("Health Condition")
+
+            quoteViewModel.healthConditionList?.insuranceTypeCodeModels?.forEach {item->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                        .clickable {}) {
+                    Checkbox(
+                        checked = item?.isChecked ?: false,
+                        onCheckedChange = {
+                            item?.isChecked = it
+                        }
+                    )
+
+                    Text(
+                        text = item?.description?.en ?: "",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp)
+                    )
+                }
+            }
+
+           /* DropdownField(
                 label = "Health Condition",
                 value = quoteViewModel.healthCondition,
                 onClick = {
@@ -220,10 +245,37 @@ fun AddNewDriverSheet(
                 onValueChange = {
                     quoteViewModel.healthCondition = it
                 }
-            )
+            )*/
 
 
-            DropdownField(label = "Traffic Violations",
+
+
+            Text("Traffic Violations")
+
+            quoteViewModel.trafficViolationList?.insuranceTypeCodeModels?.forEach {item->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                        .clickable {}) {
+                    Checkbox(
+                        checked = item?.isChecked ?: false,
+                        onCheckedChange = {
+                            item?.isChecked = it
+                        }
+                    )
+
+                    Text(
+                        text = item?.description?.en ?: "",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp)
+                    )
+                }
+            }
+
+           /* DropdownField(label = "Traffic Violations",
                 value = quoteViewModel.trafficViolations,
                 onClick = {
                     addDriverSelectedSheet = AddNewDriverBottomSheetCaller.TRAFFIC_VIOLATIONS
@@ -231,7 +283,7 @@ fun AddNewDriverSheet(
                 onValueChange = {
                     quoteViewModel.trafficViolations = it
                 }
-            )
+            )*/
 
             DropdownField(
                 label = "Driver Business City",

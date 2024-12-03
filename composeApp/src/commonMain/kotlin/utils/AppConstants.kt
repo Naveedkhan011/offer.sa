@@ -68,6 +68,7 @@ class AppConstants {
             const val LANGUAGE = "LANGUAGE"
             const val LOGGED_IN_USER = "LOGGED_IN_USER"
             const val LOGGED_IN = "LOGGED_IN"
+            const val IS_ALREADY_VIEWED = "isAlreadyViewed"
         }
     }
 

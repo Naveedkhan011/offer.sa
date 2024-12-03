@@ -22,6 +22,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import presentation.screen.main_screen.MyHomeScreen
 import presentation.screen.onboarding_screen.OnboardingScreen
+import utils.AppConstants
 
 class Splash : Screen {
 
@@ -30,11 +31,11 @@ class Splash : Screen {
     override fun Content() {
         navigator = LocalNavigator.currentOrThrow
 
-        //val isAlreadyViewed = SHARED_PREFERENCE.getBool("isAlreadyViewed", false)
-        val isAlreadyViewed = false
+        val isAlreadyViewed = SHARED_PREFERENCE.getBool(AppConstants.SharedPreferenceKeys.IS_ALREADY_VIEWED, false)
+        //val isAlreadyViewed = false
 
         LaunchedEffect(Unit) {
-            delay(5000) // 5-second delay
+            delay(1000) // 5-second delay
             navigator.replace(if (isAlreadyViewed) MyHomeScreen() else OnboardingScreen()) // Navigate to the onboarding screen
         }
 

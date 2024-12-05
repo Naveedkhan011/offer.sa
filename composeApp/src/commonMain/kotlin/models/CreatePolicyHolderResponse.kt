@@ -8,7 +8,7 @@ data class CreatePolicyHolderResponse(
     @SerialName("code")
     val code: String? = "",
     @SerialName("data")
-    val `data`: DataXX? = DataXX(),
+    val data: DataXX = DataXX(),
     @SerialName("flag")
     val flag: Boolean? = false,
     @SerialName("message")

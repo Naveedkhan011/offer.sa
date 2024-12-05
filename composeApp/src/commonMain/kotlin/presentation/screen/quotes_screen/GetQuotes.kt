@@ -57,6 +57,7 @@ import cafe.adriel.voyager.koin.getScreenModel
 import isLoading
 import models.enums.InsuranceType
 import models.enums.ToastType
+import models.showVehiclesByPolicyholderIdAndOwnerIdResponseItem
 import navigator
 import offer.composeapp.generated.resources.Res
 import offer.composeapp.generated.resources.ic_baseline_alternate_email_24
@@ -118,11 +119,13 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
             })
         }) { padding ->
 
+
             Box(
                 modifier = Modifier.fillMaxSize().padding(
                     vertical = 10.dp, horizontal = 20.dp
                 )
             ) {
+
 
                 Column(
                     modifier = Modifier.fillMaxSize().padding(padding)
@@ -152,12 +155,15 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                         shape = androidx.compose.foundation.shape.CircleShape,
                         colors = getButtonColors(),
                         onClick = {
+                            //currentStep++
                             when (currentStep) {
                                 1 -> {
-                                    quoteViewModel.showDriverByVehicleId()
+                                    quoteViewModel.createPolicyHolder(insuranceType)
                                 }
 
-                                2 -> {}
+                                2 -> {
+                                    quoteViewModel.updateVehicle()
+                                }
 
                                 3 -> {}
 
@@ -223,8 +229,8 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                 },
                 onSelected = {
                     when (quoteViewModel.selectedSheet) {
-                        BottomSheetCaller.MONTH -> quoteViewModel.selectedMonth = it.description.en
-                        BottomSheetCaller.YEAR -> quoteViewModel.selectedYear = it.description.en
+                        BottomSheetCaller.MONTH -> quoteViewModel.selectedMonth = it
+                        BottomSheetCaller.YEAR -> quoteViewModel.selectedYear = it
                         BottomSheetCaller.PURPOSE -> quoteViewModel.purposeOfUse = it.description.en
                     }
                     quoteViewModel.isSheetVisible = false
@@ -257,7 +263,6 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                 onSelected = {}
             )
         }
-
     }
 }
 
@@ -290,7 +295,7 @@ fun GetQuoteForm(progress: Int) {
         }
 
         2 -> {
-            VehicleDetailsForm()
+            VehicleDetailsForm(quoteViewModel.vehicleList)
         }
 
         3 -> {
@@ -452,11 +457,17 @@ fun OtherDetailsCard(isVisible: Boolean, onClick: () -> Unit) {
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun VehicleDetailsForm() {
+fun VehicleDetailsForm(vehicleList: MutableList<showVehiclesByPolicyholderIdAndOwnerIdResponseItem>) {
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        val firstItem = vehicleList[0]
+        val sequenceNumber = firstItem.sequenceNumber
+        val vehiclePlateNumber = firstItem.vehiclePlateNumber
+        val vehiclePlateChar =
+            firstItem.vehiclePlateText1 + " " + firstItem.vehiclePlateText2 + " " + firstItem.vehiclePlateText3
+
         // Car Header Section
         Card(
             shape = MaterialTheme.shapes.medium,
@@ -481,17 +492,17 @@ fun VehicleDetailsForm() {
                 // Car Info
                 Column(modifier = Modifier.weight(2f)) {
                     Text(
-                        text = "هونداي اكستنت",
+                        text = firstItem.vehicleMaker + firstItem.vehicleModel,
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
                     Text(
-                        text = "2020",
+                        text = firstItem.vehicleModelYear.toString(),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray
                     )
                     Text(
-                        text = "Sequence Number: \n983236710",
+                        text = "Sequence Number: \n$sequenceNumber",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
@@ -510,7 +521,7 @@ fun VehicleDetailsForm() {
                         Text(
                             modifier = Modifier
                                 .weight(1f),
-                            text = "1",
+                            text = "$vehiclePlateNumber",
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center
                         )
@@ -520,7 +531,7 @@ fun VehicleDetailsForm() {
                         Text(
                             modifier = Modifier
                                 .weight(1f),
-                            text = "2",
+                            text = vehiclePlateChar,
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center
                         )
@@ -533,7 +544,7 @@ fun VehicleDetailsForm() {
                         Text(
                             modifier = Modifier
                                 .weight(1f),
-                            text = "3",
+                            text = "${firstItem.vehicleMajorColor}",
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center
                         )
@@ -543,7 +554,7 @@ fun VehicleDetailsForm() {
                         Text(
                             modifier = Modifier
                                 .weight(1f),
-                            text = "4",
+                            text = "${firstItem.vehiclePlateTypeCode}",
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center
                         )
@@ -552,6 +563,8 @@ fun VehicleDetailsForm() {
                 }
             }
         }
+
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -834,7 +847,7 @@ fun nationalIDForm(insuranceType: InsuranceType) {
             },
             modifier = Modifier.weight(1f),
             errorValue = quoteViewModel.dobError,
-            selectedOption = quoteViewModel.selectedMonth
+            selectedOption = getTitle(quoteViewModel.selectedMonth)
         )
 
         Spacer(modifier = Modifier.width(spaceBwFields))
@@ -846,7 +859,7 @@ fun nationalIDForm(insuranceType: InsuranceType) {
             },
             modifier = Modifier.weight(1f),
             errorValue = quoteViewModel.dobYearError,
-            selectedOption = quoteViewModel.selectedYear
+            selectedOption = getTitle(quoteViewModel.selectedYear)
         )
     }
 }

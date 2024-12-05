@@ -73,7 +73,7 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
             },
             modifier = Modifier.fillMaxWidth(),
             errorValue = viewModel.dobError,
-            selectedOption = viewModel.selectedMonth
+            selectedOption = getTitle(viewModel.selectedMonth)
         )
 
         Spacer(modifier = Modifier.width(spaceBwFields))
@@ -85,7 +85,7 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
             },
             modifier = Modifier.fillMaxWidth(),
             errorValue = viewModel.dobYearError,
-            selectedOption = viewModel.selectedYear
+            selectedOption = getTitle(viewModel.selectedYear)
         )
 
         Spacer(modifier = Modifier.height(spaceBwFields))

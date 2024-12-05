@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import models.DataXXX
 import models.InsuranceTypeCodeModel
+import presentation.screen.quotes_screen.currentLanguage
+import presentation.screen.quotes_screen.getTitle
 import utils.AppConstants.Companion.getOutlineTextFieldColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,10 +53,18 @@ fun BottomSheet(
     )
     val filteredList = remember(searchQuery) {
         data?.insuranceTypeCodeModels?.filter {
-            it?.description!!.en.contains(
-                searchQuery,
-                ignoreCase = true
-            )
+            if (currentLanguage.equals("en")) {
+                it?.description!!.en.contains(
+                    searchQuery,
+                    ignoreCase = true
+                )
+            } else {
+                it?.description!!.ar.contains(
+                    searchQuery,
+                    ignoreCase = true
+                )
+            }
+
         } as ArrayList
     }
 
@@ -113,51 +120,21 @@ fun BottomSheet(
             LazyColumn(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (!filteredList.isNullOrEmpty()) {
+                if (!filteredList.isEmpty()) {
                     items(filteredList.size) { pos ->
-
-                        if (data?.id == 29) {
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                                    .clickable {
-
-                                        filteredList[pos]?.let {
-                                            it.isChecked = !it.isChecked
-                                        }
-
-                                    }) {
-                                Checkbox(
-                                    checked = filteredList[pos]?.isChecked ?: false,
-                                    onCheckedChange = {
-                                        check(it)
-                                        filteredList[pos]?.isChecked = it
-                                    }
-                                )
-
-                                Text(
-                                    text = filteredList[pos]?.description?.en ?: "",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier
-                                        .align(Alignment.CenterVertically)
-                                        .fillMaxWidth()
-                                        .padding(vertical = 20.dp)
-                                )
+                        Box(modifier = Modifier.fillMaxWidth().clickable {
+                            println("Selected: $pos")
+                            if (filteredList[pos] != null){
+                                onSelected(filteredList[pos]!!)
                             }
-                        } else {
-                            Box(modifier = Modifier.fillMaxWidth().clickable {
-                                println("Selected: $pos")
-                                filteredList[pos]?.let { onSelected(it) }
-                            }) {
-                                Text(
-                                    text = filteredList[pos]?.description!!.en,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 20.dp)
-                                )
-                            }
+                        }) {
+                            Text(
+                                text = getTitle(filteredList[pos]),
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 20.dp)
+                            )
                         }
                     }
                 }

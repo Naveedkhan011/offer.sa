@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class InsuranceTypeCodeModel(
     @SerialName("code")
-    val code: Int = 1,
+    val code: Int = 0,
     @SerialName("description")
     val description: Description = Description(),
     @SerialName("id")

@@ -14,6 +14,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import utils.LogInManager
 
 object Ktor {
     private const val BASE_URL = "https://offer.sa"
@@ -52,6 +53,10 @@ object Ktor {
         defaultRequest {
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             header(HttpHeaders.Accept, ContentType.Application.Json)
+
+            /*if (LogInManager.getLoggedInUser() != null){
+                header(HttpHeaders.Authorization, "Bearer " + LogInManager.getLoggedInUser()!!.token)
+            }*/
             url(BASE_URL) // Set the base URL
         }
     }

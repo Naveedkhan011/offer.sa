@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DataXX(
+data class PolicyHolder(
     @SerialName("active")
     val active: Boolean? = null,
     @SerialName("additionalNumber")
@@ -36,10 +36,6 @@ data class DataXX(
     val dobYear: String? = null,
     @SerialName("email")
     val email: String? = null,
-    @SerialName("errorCode")
-    val errorCode: Int? = null,
-    @SerialName("errorMessage")
-    val errorMessage: String? = null,
     @SerialName("familyNameAr")
     val familyNameAr: String? = null,
     @SerialName("familyNameEn")
@@ -57,7 +53,7 @@ data class DataXX(
     @SerialName("grandFatherNameAr")
     val grandFatherNameAr: String? = null,
     @SerialName("id")
-    val id: Int = 0,
+    val id: Int? = null,
     @SerialName("insuranceEffectiveDate")
     val insuranceEffectiveDate: String? = null,
     @SerialName("insuranceId")

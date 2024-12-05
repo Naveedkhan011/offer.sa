@@ -15,7 +15,9 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.SlideTransition
 import data.MongoDB
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.receiveAsFlow
 import models.enums.ToastType
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
@@ -43,6 +45,7 @@ val darkRedColor = Color(color = 0xFF77000B)
 lateinit var SHARED_PREFERENCE: KMMPreference
 val layoutDirection =
     if (LanguageManager.currentStrings == ArabicStrings) LayoutDirection.Rtl else LayoutDirection.Ltr
+val errorChannel = Channel<Loader>(Channel.BUFFERED)
 
 data class Loader(
     var isToastVisible: Boolean = false,
@@ -104,6 +107,16 @@ fun App(sharedPreference: KMMPreference) {
     val language = SHARED_PREFERENCE.getString(AppConstants.SharedPreferenceKeys.LANGUAGE)
     language?.let { LanguageManager.switchLanguage(it) }
 
+    LaunchedEffect(Unit) {
+        errorChannel.receiveAsFlow().collect { data ->
+            loaderData = Loader(
+                isToastVisible = true,
+                messageToDisplay = data.messageToDisplay,
+                type = data.type
+            )
+        }
+    }
+
     dropDownValues.getDropDownValues()
 }
 
@@ -115,6 +128,24 @@ val mongoModule = module {
     single { SignupViewModel() }
     single { QuotesViewModel() }
     single { ForgotPasswordViewModel() }
+}
+
+suspend fun showError(message: String) {
+    errorChannel.send(
+        Loader(
+            messageToDisplay = message,
+            type = ToastType.ERROR
+        )
+    )
+}
+
+suspend fun showSuccessMessage(message: String) {
+    errorChannel.send(
+        Loader(
+            messageToDisplay = message,
+            type = ToastType.SUCCESS
+        )
+    )
 }
 
 @Composable

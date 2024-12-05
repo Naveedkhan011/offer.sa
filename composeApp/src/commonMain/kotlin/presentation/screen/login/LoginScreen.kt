@@ -53,7 +53,9 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import isLoading
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import layoutDirection
+import models.CreatePolicyHolderBody
 import models.LoggedUser
 import models.LoginResponse
 import models.enums.ToastType
@@ -456,14 +458,16 @@ class LoginScreen : Screen {
 private fun handleLoginSuccess(loggedUser: LoggedUser) {
     saveUser(loggedUser)
     LogInManager.setLoggedInValue(true)
+
     if (loggedUser.user?.changePassword != true)
         navigator.pop()
 }
 
 private fun saveUser(loggedUser: LoggedUser) {
+    val jsonString = Json.encodeToString(LoggedUser.serializer(), loggedUser)
     SHARED_PREFERENCE.put(
         AppConstants.SharedPreferenceKeys.LOGGED_IN_USER,
-        loggedUser.toString()
+        jsonString
     )
 }
 

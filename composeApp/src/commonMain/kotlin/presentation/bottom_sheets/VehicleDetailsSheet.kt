@@ -113,9 +113,9 @@ fun VehicleSpecificationsBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = quoteViewModel.accidentCountV,
+                value = quoteViewModel.vehicleData.accidentCount,
                 onValueChange = {
-                    quoteViewModel.accidentCountV = it
+                    quoteViewModel.vehicleData.accidentCount = it
                 },
                 trailingIcon = {
                     Icon(
@@ -290,6 +290,7 @@ fun VehicleSpecificationsBottomSheet(
                 quoteViewModel.vehicleSpecificationsFieldsSheetVisible = false
             },
             onSelected = {
+                quoteViewModel.vehicleData.accidentCount = it.code.toString()
                 quoteViewModel.vehicleSpecificationsFieldsSheetVisible = false
             }
         )

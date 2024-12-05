@@ -1,5 +1,6 @@
 package presentation.screen.quotes_screen
 
+import SHARED_PREFERENCE
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,18 +20,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import models.InsuranceTypeCodeModel
 import offer.composeapp.generated.resources.Res
 import offer.composeapp.generated.resources.ic_baseline_alternate_email_24
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import presentation.screen.login.signInViewModel
 import utils.AppColors
+import utils.AppConstants
 import utils.AppConstants.Companion.getOutlineTextFieldColors
-
+import utils.language.language_manager.LanguageManager
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun IqamaFormScreen(viewModel: QuotesViewModel) {
+
 
     Column(
         modifier = Modifier
@@ -75,7 +79,7 @@ fun IqamaFormScreen(viewModel: QuotesViewModel) {
             },
             modifier = Modifier.fillMaxWidth(),
             errorValue = viewModel.dobError,
-            selectedOption = viewModel.selectedMonth
+            selectedOption = getTitle(viewModel.selectedMonth)
         )
 
         Spacer(modifier = Modifier.width(spaceBwFields))
@@ -87,7 +91,7 @@ fun IqamaFormScreen(viewModel: QuotesViewModel) {
             },
             modifier = Modifier.fillMaxWidth(),
             errorValue = viewModel.dobYearError,
-            selectedOption = viewModel.selectedYear
+            selectedOption = getTitle(viewModel.selectedYear)
         )
 
         Spacer(modifier = Modifier.height(spaceBwFields))
@@ -130,6 +134,16 @@ fun IqamaFormScreen(viewModel: QuotesViewModel) {
         addErrorText(viewModel.effectiveYearError)
 
     }
+}
+
+fun getTitle(selectedMonth: InsuranceTypeCodeModel?): String {
+    selectedMonth?.let {
+        return if (currentLanguage == "en")
+            it.description.en
+        else
+            it.description.ar
+    }
+    return selectedMonth?.description?.en.toString()
 }
 
 

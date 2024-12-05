@@ -19,5 +19,5 @@ data class CreatePolicyHolderBody(
     val selectedTab: String = "",
     val sellerNationalId: String? = null,
     val sequenceNumber: String = "",
-    val userId: String = ""
+    val userId: Int = 0
 )

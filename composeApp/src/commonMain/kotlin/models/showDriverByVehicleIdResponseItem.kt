@@ -89,9 +89,9 @@ data class showDriverByVehicleIdResponseItem(
     @SerialName("education")
     val education: String? = "",
     @SerialName("fullArabicName")
-    val fullArabicName: String? = "",
+    val fullArabicName: String = "",
     @SerialName("fullEnglishName")
-    val fullEnglishName: String? = "",
+    val fullEnglishName: String = "",
     @SerialName("healthConditions")
     val healthConditions: String? = "",
     @SerialName("healthConditionsValue")

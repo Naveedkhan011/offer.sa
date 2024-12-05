@@ -100,59 +100,31 @@ class QuotesViewModel : ScreenModel {
     // Use MutableLiveData or State to hold the data
     var vehicleData by mutableStateOf(
         updateVehicleBody(
-            accidentCount = "",
-            approved = null,
-            capacity = 0,
-            deductibleValue = 0,
-            id = 0,
-            identificationType = 0,
-            insuranceType = 0,
-            km = 0,
-            manufactureYear = "",
-            modification = "",
-            policyHolderId = 0,
-            specificationCodeIds = listOf(),
+            accidentCount = "0",
+            approved = "",
+            capacity = 5,
+            deductibleValue = 500,
+            id = 384,
+            identificationType = 1,
+            insuranceType = 2,
+            km = 3000,
+            manufactureYear = "2020",
+            modification = "No",
+            policyHolderId = 384,
+            specificationCodeIds = listOf(1,3,4),
             transferOwnership = 0,
-            transmission = 0,
+            transmission = 2,
             vehicleAgencyRepair = 0,
-            vehicleMajorColorCode = "",
+            vehicleMajorColorCode = "فضي",
             vehicleModification = false,
             vehicleModificationDetails = null,
-            vehicleOvernightParkingLocationCode = 0,
-            vehicleRegExpiryDate = "",
-            vehicleUseCode = 0,
-            vehicleValue = ""
+            vehicleOvernightParkingLocationCode = 1,
+            vehicleRegExpiryDate = "14470603",
+            vehicleUseCode = 1,
+            vehicleValue = "25000"
         )
     )
 
-    // Function to update the vehicle data
-    fun updateAccidentCount(newAccidentCount: String) {
-
-        vehicleData = updateVehicleBody(
-            accidentCount = newAccidentCount,
-            approved = null,
-            capacity = 0,
-            deductibleValue = 0,
-            id = 0,
-            identificationType = 0,
-            insuranceType = 0,
-            km = 0,
-            manufactureYear = "",
-            modification = "",
-            policyHolderId = 0,
-            specificationCodeIds = listOf(),
-            transferOwnership = 0,
-            transmission = 0,
-            vehicleAgencyRepair = 0,
-            vehicleMajorColorCode = "",
-            vehicleModification = false,
-            vehicleModificationDetails = null,
-            vehicleOvernightParkingLocationCode = 0,
-            vehicleRegExpiryDate = "",
-            vehicleUseCode = 0,
-            vehicleValue = ""
-        )
-    }
 
     var createPolicyHolderBody by mutableStateOf(CreatePolicyHolderBody())
     private var createPolicyHolderResponse by mutableStateOf(CreatePolicyHolderResponse())
@@ -230,11 +202,6 @@ class QuotesViewModel : ScreenModel {
     var vehicleList: MutableList<showVehiclesByPolicyholderIdAndOwnerIdResponseItem> =
         mutableListOf()
     var driverList: MutableList<showDriverByVehicleIdResponseItem> = mutableListOf()
-
-    // Driver List
-    val drivers = mutableStateListOf(
-        Driver(name = "كاشف تسنيم خان", id = "2537995140"),
-    )
 
 
     // edit driver list variables
@@ -393,31 +360,34 @@ class QuotesViewModel : ScreenModel {
 
     }
 
-    fun updateVehicle() {
+    fun updateVehicle(vehicleId: Int) {
 
         screenModelScope.launch {
             try {
-
-                val body = updateVehicleBody()
-
+                isLoading = true
                 val response =
                     Ktor.client.post("/portal-api/insurance/rest/updateVehicle") {
                         header(HttpHeaders.ContentType, ContentType.Application.Json)
                         header(HttpHeaders.Accept, ContentType.Application.Json)
-                        setBody(body)
+                        if (LogInManager.getLoggedInUser() != null) {
+                            header(
+                                HttpHeaders.Authorization,
+                                "Bearer " + "eyJhbGciOiJIUzUxMiJ9.eyJjcmVhdGVkIjoxNzMzNDMwODYyMTE4LCJyb2xlcyI6WyJST0xFX0NMSUVOVCJdLCJ1c2VybmFtZSI6Im5hdmVlZGtoYW4wMTFAZ21haWwuY29tIiwiZXhwIjoxNzMzNDc0MDYyfQ.3hxyRFJMpTjaiPjUF6efk2IrVhirBinDasSMwebeNFb0RfrrJw6VVMPAYD7krGGyj2L1epOUUzR4T6vEyR_w-g"
+                            )
+                        }
+                        setBody(vehicleData)
                     }.body<updateVehicleBody>()
 
                 if (response.errorCode == null) {
-
-                } else
-                    _quotesApiStates.value = QuotesUiState(
-                        apiStatus = QuotesApiStates.Error(response.errorMessage.toString())
-                    )
+                    showDriverByVehicleId(vehicleId, createPolicyHolderResponse.data.id.toString())
+                } else{
+                    isLoading = false
+                    showError(response.errorMessage.toString())
+                }
             } catch (e: Exception) {
+                isLoading = false
                 val message = if (e.message == null) "empty" else e.message!!
-                _quotesApiStates.value = QuotesUiState(
-                    apiStatus = QuotesApiStates.Error(message)
-                )
+                showError(message)
             }
         }
     }
@@ -433,7 +403,6 @@ class QuotesViewModel : ScreenModel {
                 try {
                     val responseBody = response.bodyAsText()
 
-                    // Try to decode as a list (success case)
                     driverList =
                         Json.decodeFromString(
                             kotlinx.serialization.builtins.ListSerializer(
@@ -442,23 +411,26 @@ class QuotesViewModel : ScreenModel {
                             responseBody
                         ).toMutableList()
 
+                    _quotesApiStates.value = QuotesUiState(
+                        apiStatus = QuotesApiStates.VehicleInfo(driverList)
+                    )
+
                 } catch (e: SerializationException) {
-                    // If decoding as a list fails, try decoding as an error object
+
+                    isLoading = false
                     try {
                         val errorResponse: ErrorResponse =
                             Json.decodeFromString(ErrorResponse.serializer(), response.bodyAsText())
-
+                        showError(errorResponse.errorMessage)
                     } catch (ex: SerializationException) {
-                        // Handle unexpected errors
-                        throw Exception("Unexpected response format")
+                        showError("un Expected Error")
                     }
                 }
 
             } catch (e: Exception) {
+                isLoading = false
                 val message = if (e.message == null) "empty" else e.message!!
-                _quotesApiStates.value = QuotesUiState(
-                    apiStatus = QuotesApiStates.Error(message)
-                )
+                showError(message)
             }
         }
 

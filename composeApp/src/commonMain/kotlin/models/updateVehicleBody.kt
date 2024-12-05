@@ -15,7 +15,7 @@ data class updateVehicleBody(
     @SerialName("accidentCount")
     var accidentCount: String = "",
     @SerialName("approved")
-    val approved: String? = null,
+    val approved: String = "",
     @SerialName("capacity")
     val capacity: Int = 0,
     @SerialName("deductibleValue")

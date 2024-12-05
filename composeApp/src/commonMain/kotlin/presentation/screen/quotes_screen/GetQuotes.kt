@@ -57,6 +57,7 @@ import cafe.adriel.voyager.koin.getScreenModel
 import isLoading
 import models.enums.InsuranceType
 import models.enums.ToastType
+import models.showDriverByVehicleIdResponseItem
 import models.showVehiclesByPolicyholderIdAndOwnerIdResponseItem
 import navigator
 import offer.composeapp.generated.resources.Res
@@ -162,7 +163,7 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                                 }
 
                                 2 -> {
-                                    quoteViewModel.updateVehicle()
+                                    quoteViewModel.updateVehicle(quoteViewModel.vehicleList[0].id!!)
                                 }
 
                                 3 -> {}
@@ -349,7 +350,7 @@ fun policyHolderCompose() {
 
 @Composable
 fun DriversScreen() {
-    val drivers = remember { quoteViewModel.drivers }
+    val drivers = remember { quoteViewModel.driverList }
 
     Column(
         modifier = Modifier
@@ -390,7 +391,7 @@ fun DriversScreen() {
 
 
 @Composable
-fun DriverCard(driver: Driver) {
+fun DriverCard(driver: showDriverByVehicleIdResponseItem) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -405,12 +406,12 @@ fun DriverCard(driver: Driver) {
                 .padding(12.dp)
         ) {
             Text(
-                text = driver.name,
+                text = if (currentLanguage.equals("en")) driver.fullEnglishName else driver.fullArabicName,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Driver ID: ${driver.id}",
+                text = "Driver ID: ${driver.driverId}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray
             )

@@ -3,6 +3,8 @@ package utils.language.languages
 import utils.language.Strings
 
 object EnglishStrings : Strings {
+    override val pleaseLoginToContinue: String
+        get() = "Please Login To Continue"
     override val updatePassword: String
         get() = "Change Password"
     override val confirmPassword: String

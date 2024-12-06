@@ -4,6 +4,8 @@ import utils.language.Strings
 
 
 object ArabicStrings : Strings {
+    override val pleaseLoginToContinue: String
+        get() = "Please Login To Continue"
     override val updatePassword: String
         get() = "Change Password"
     override val confirmPassword: String

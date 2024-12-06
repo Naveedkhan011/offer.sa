@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,10 +30,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import presentation.screen.quotes_screen.QuotesViewModel
+import presentation.screen.quotes_screen.getTitle
+import utils.AppColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
 
 enum class SpecificationBottomSheetCaller {
-    EXPECTED_KM, VEHICLE_PARKED_AT_NIGHT, ACCIDENT_COUNT, TRANSMISSION_TYPE, ANY_MODIFICATION, VEHICLE_SPECIFICATION
+    EXPECTED_KM, VEHICLE_PARKED_AT_NIGHT, ACCIDENT_COUNT, TRANSMISSION_TYPE, ANY_MODIFICATION
 }
 
 var selectedSheet = SpecificationBottomSheetCaller.EXPECTED_KM
@@ -44,7 +47,6 @@ fun VehicleSpecificationsBottomSheet(
     onDismiss: () -> Unit,
     onSelected: (selectedMonth: String) -> Unit
 ) {
-
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -69,9 +71,9 @@ fun VehicleSpecificationsBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = quoteViewModel.expectedKM,
+                value = quoteViewModel.vehicleData.expectedKMTitle,
                 onValueChange = {
-                    quoteViewModel.expectedKM = it
+                    quoteViewModel.vehicleData.expectedKMTitle = it
                 },
                 trailingIcon = {
                     Icon(
@@ -91,9 +93,9 @@ fun VehicleSpecificationsBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = quoteViewModel.vehicleParkedAtNight,
+                value = quoteViewModel.vehicleData.vehicleOvernightParkingLocationTitle,
                 onValueChange = {
-                    quoteViewModel.vehicleParkedAtNight = it
+                    quoteViewModel.vehicleData.vehicleOvernightParkingLocationTitle = it
                 },
                 trailingIcon = {
                     Icon(
@@ -135,9 +137,9 @@ fun VehicleSpecificationsBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = quoteViewModel.transmissionTypeV,
+                value = quoteViewModel.vehicleData.transmissionTitle,
                 onValueChange = {
-                    quoteViewModel.transmissionTypeV = it
+                    quoteViewModel.vehicleData.transmissionTitle = it
                 },
                 trailingIcon = {
                     Icon(
@@ -157,9 +159,9 @@ fun VehicleSpecificationsBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = quoteViewModel.modificationV,
+                value = quoteViewModel.vehicleData.modification,
                 onValueChange = {
-                    quoteViewModel.modificationV = it
+                    quoteViewModel.vehicleData.modification = it
                 },
                 trailingIcon = {
                     Icon(
@@ -177,37 +179,14 @@ fun VehicleSpecificationsBottomSheet(
             )
 
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = quoteViewModel.modificationV,
-                onValueChange = {
-                    quoteViewModel.modificationV = it
-                },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null,
-                        modifier = Modifier.clickable {
-                            selectedSheet = SpecificationBottomSheetCaller.ANY_MODIFICATION
-                            quoteViewModel.vehicleSpecificationsFieldsSheetVisible = true
-                        }
-                    )
-                },
-                label = { Text("Any Modification") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = getOutlineTextFieldColors()
-            )
-
-
-            if (quoteViewModel.modificationV == "Yes"){
+            if (quoteViewModel.vehicleData.modification == "Yes" || quoteViewModel.vehicleData.modification == "نعم") {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = quoteViewModel.reasonForModification,
+                    value = quoteViewModel.vehicleData.vehicleModificationDetails,
                     onValueChange = {
-                        quoteViewModel.reasonForModification = it
+                        quoteViewModel.vehicleData.vehicleModificationDetails = it
                     },
                     label = { Text("Modification reason") },
                     modifier = Modifier.fillMaxWidth(),
@@ -219,20 +198,50 @@ fun VehicleSpecificationsBottomSheet(
 
             Text("Vehicle Specification")
 
-            quoteViewModel.vehicleSpecifications?.insuranceTypeCodeModels?.forEach {item->
+            quoteViewModel.vehicleSpecifications?.insuranceTypeCodeModels?.forEach { item ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                        .clickable {}) {
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            item?.code?.let { code ->
+                                if (quoteViewModel.newSpecificationCodeIds.contains(code)) {
+                                    quoteViewModel.newSpecificationCodeIds.remove(code)
+                                } else {
+                                    quoteViewModel.newSpecificationCodeIds.add(code)
+                                }
+                                // Assign updated list to vehicleData
+                                quoteViewModel.vehicleData = quoteViewModel.vehicleData.copy(
+                                    specificationCodeIds = ArrayList(quoteViewModel.newSpecificationCodeIds)
+                                )
+                            }
+                        }
+                ) {
                     Checkbox(
-                        checked = item?.isChecked ?: false,
-                        onCheckedChange = {
-                            item?.isChecked = it
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = AppColors.AppColor,
+                            uncheckedColor = AppColors.AppColor
+                        ),
+                        checked = item?.code?.let { code ->
+                            quoteViewModel.newSpecificationCodeIds.contains(code)
+                        } ?: false,
+                        onCheckedChange = { isChecked ->
+                            item?.code?.let { code ->
+                                if (isChecked) {
+                                    quoteViewModel.newSpecificationCodeIds.add(code)
+                                } else {
+                                    quoteViewModel.newSpecificationCodeIds.remove(code)
+                                }
+                                // Assign updated list to vehicleData
+                                quoteViewModel.vehicleData = quoteViewModel.vehicleData.copy(
+                                    specificationCodeIds = ArrayList(quoteViewModel.newSpecificationCodeIds)
+                                )
+                            }
                         }
                     )
 
                     Text(
-                        text = item?.description?.en ?: "",
+                        text = item?.description?.en.orEmpty(),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
@@ -242,25 +251,6 @@ fun VehicleSpecificationsBottomSheet(
                 }
             }
 
-            /*OutlinedTextField(
-                value = quoteViewModel.specification,
-                onValueChange = {
-                    quoteViewModel.specification = it
-                },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null,
-                        modifier = Modifier.clickable {
-                            selectedSheet = SpecificationBottomSheetCaller.VEHICLE_SPECIFICATION
-                            quoteViewModel.vehicleSpecificationsFieldsSheetVisible = true
-                        }
-                    )
-                },
-                label = { Text("Vehicle Specification") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = getOutlineTextFieldColors()
-            )*/
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -283,14 +273,40 @@ fun VehicleSpecificationsBottomSheet(
                 SpecificationBottomSheetCaller.VEHICLE_PARKED_AT_NIGHT -> quoteViewModel.vehicleParking
                 SpecificationBottomSheetCaller.ANY_MODIFICATION -> quoteViewModel.modificationTypes
                 SpecificationBottomSheetCaller.TRANSMISSION_TYPE -> quoteViewModel.transmissionType
-                SpecificationBottomSheetCaller.VEHICLE_SPECIFICATION -> quoteViewModel.vehicleSpecifications
                 else -> quoteViewModel.accidentCount
             },
             onDismiss = {
                 quoteViewModel.vehicleSpecificationsFieldsSheetVisible = false
             },
             onSelected = {
-                quoteViewModel.vehicleData.accidentCount = it.code.toString()
+                when (selectedSheet) {
+                    SpecificationBottomSheetCaller.EXPECTED_KM -> {
+                        quoteViewModel.vehicleData.expectedKMTitle = getTitle(it)
+                        quoteViewModel.vehicleData.km = it.code
+                    }
+
+                    SpecificationBottomSheetCaller.VEHICLE_PARKED_AT_NIGHT -> {
+                        quoteViewModel.vehicleData.vehicleOvernightParkingLocationTitle =
+                            getTitle(it)
+                        quoteViewModel.vehicleData.vehicleOvernightParkingLocationCode = it.code
+                    }
+
+                    SpecificationBottomSheetCaller.ANY_MODIFICATION -> {
+                        quoteViewModel.vehicleData.modification = getTitle(it)
+                        quoteViewModel.vehicleData.vehicleModification = it.description.en == "Yes"
+                    }
+
+                    SpecificationBottomSheetCaller.TRANSMISSION_TYPE -> {
+                        quoteViewModel.vehicleData.transmissionTitle = getTitle(it)
+                        quoteViewModel.vehicleData.transmission = it.code
+
+                    }
+
+                    SpecificationBottomSheetCaller.ACCIDENT_COUNT -> {
+                        quoteViewModel.vehicleData.accidentCount = getTitle(it)
+                    }
+                }
+
                 quoteViewModel.vehicleSpecificationsFieldsSheetVisible = false
             }
         )

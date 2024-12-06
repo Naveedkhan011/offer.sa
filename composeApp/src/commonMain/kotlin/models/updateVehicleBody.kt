@@ -3,57 +3,85 @@ package models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class updateVehicleBody(
 
-    @SerialName("errorCode")
-    val errorCode: Int? = null,
-    @SerialName("errorMessage")
-    val errorMessage: String? = null,
-
     @SerialName("accidentCount")
     var accidentCount: String = "",
+
     @SerialName("approved")
-    val approved: String = "",
+    var approved: String = "",
+
     @SerialName("capacity")
-    val capacity: Int = 0,
+    var capacity: Int = 0,
+
     @SerialName("deductibleValue")
-    val deductibleValue: Int = 0,
+    var deductibleValue: Int = 0,
+
     @SerialName("id")
-    val id: Int = 0,
+    var id: Int = 0,
+
     @SerialName("identificationType")
-    val identificationType: Int = 0,
+    var identificationType: Int? = null,
+
     @SerialName("insuranceType")
-    val insuranceType: Int = 0,
+    var insuranceType: Int = 0,
+
+
+    @Transient
+    var expectedKMTitle: String = "",
     @SerialName("km")
-    val km: Int = 0,
+    var km: Int = 0,
+
     @SerialName("manufactureYear")
-    val manufactureYear: String = "",
+    var manufactureYear: String = "",
+
     @SerialName("modification")
-    val modification: String = "",
+    var modification: String = "",
+
     @SerialName("policy_holder_id")
-    val policyHolderId: Int = 0,
+    var policyHolderId: Int = 0,
+
     @SerialName("specificationCodeIds")
-    val specificationCodeIds: List<Int> = listOf(),
+    var specificationCodeIds: ArrayList<Int> = arrayListOf(),
+
     @SerialName("transferOwnership")
-    val transferOwnership: Int = 0,
+    var transferOwnership: Int = 0,
+
+    @Transient
+    var transmissionTitle: String = "",
     @SerialName("transmission")
-    val transmission: Int = 0,
+    var transmission: Int = 0,
+
     @SerialName("vehicleAgencyRepair")
-    val vehicleAgencyRepair: Int = 0,
+    var vehicleAgencyRepair: Int = 0,
+
     @SerialName("vehicleMajorColorCode")
-    val vehicleMajorColorCode: String = "",
+    var vehicleMajorColorCode: String = "",
+
+    @Transient
+    var modificationTypeTitle: String = "",
     @SerialName("vehicleModification")
-    val vehicleModification: Boolean = false,
+    var vehicleModification: Boolean = false,
+
     @SerialName("vehicleModificationDetails")
-    val vehicleModificationDetails: String? = null,
+    var vehicleModificationDetails: String = "",
+
+    @Transient
+    var vehicleOvernightParkingLocationTitle: String = "",
     @SerialName("vehicleOvernightParkingLocationCode")
-    val vehicleOvernightParkingLocationCode: Int = 0,
+    var vehicleOvernightParkingLocationCode: Int = 0,
+
     @SerialName("vehicleRegExpiryDate")
-    val vehicleRegExpiryDate: String = "",
+    var vehicleRegExpiryDate: String = "",
+
+    @Transient
+    var vehicleUseTitle: String = "",
     @SerialName("vehicleUseCode")
-    val vehicleUseCode: Int = 0,
+    var vehicleUseCode: Int = 0,
+
     @SerialName("vehicleValue")
-    val vehicleValue: String = ""
+    var vehicleValue: String = ""
 )

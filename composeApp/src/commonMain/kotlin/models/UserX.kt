@@ -59,7 +59,7 @@ data class UserX(
     @SerialName("userPermissionList")
     val userPermissionList: List<String?>? = listOf(),
     @SerialName("userProfile")
-    val userProfile: UserProfileXX? = UserProfileXX(),
+    val userProfile: UserProfile? = UserProfile(),
     @SerialName("version")
     val version: Int? = 0
 )

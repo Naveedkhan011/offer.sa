@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import models.GeneralResponse
 import models.NationalIdResponse
 import models.SignUpRequest
-import models.UserProfile
+import models.UserProfileX
 import models.enums.SignUpStates
 import network.Ktor
 import utils.AppConstants
@@ -414,7 +414,7 @@ class SignupViewModel : ScreenModel {
                                 email = email,
                                 password = password,
                                 userName = email,
-                                userProfile = UserProfile(
+                                userProfile = UserProfileX(
                                     mobileNumber = mobileNumber,
                                     nationalId = nationalId
                                 ),

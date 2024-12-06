@@ -44,4 +44,5 @@ data class UserProfileX(
     val profilePicUrl: String? = null,
     @SerialName("version")
     val version: Int? = null
+
 )

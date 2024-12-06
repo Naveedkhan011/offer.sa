@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PolicyHolder(
+data class PolicyHolderX(
     @SerialName("active")
     val active: Boolean? = null,
     @SerialName("additionalNumber")
@@ -16,10 +16,10 @@ data class PolicyHolder(
     val buildingNumber: String? = null,
     @SerialName("clientId")
     val clientId: String? = null,
-    @SerialName("companyNameAr")
-    val companyNameAr: String? = null,
-    @SerialName("companyNameEn")
-    val companyNameEn: String? = null,
+    @SerialName("compStringNameAr")
+    val compStringNameAr: String? = null,
+    @SerialName("compStringNameEn")
+    val compStringNameEn: String? = null,
     @SerialName("createdBy")
     val createdBy: String? = null,
     @SerialName("createdDate")
@@ -59,7 +59,7 @@ data class PolicyHolder(
     @SerialName("insuranceId")
     val insuranceId: String? = null,
     @SerialName("insuranceType")
-    val insuranceType: Int = 0,
+    val insuranceType: Int? = null,
     @SerialName("insuredAddressCity")
     val insuredAddressCity: String? = null,
     @SerialName("insuredAddressCityCode")

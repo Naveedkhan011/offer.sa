@@ -8,6 +8,6 @@ data class SignUpRequest(
     val name: String = "Client",
     val password: String,
     val userName: String,
-    val userProfile: UserProfile,
+    val userProfile: UserProfileX,
     val userType: String = "Client"
 )

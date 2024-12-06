@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class FeatureActionX(
     @SerialName("action")
-    val action: ActionXX? = ActionXX(),
+    val action: Action? = Action(),
     @SerialName("active")
     val active: Boolean? = false,
     @SerialName("createdBy")

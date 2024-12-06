@@ -14,8 +14,9 @@ data class ActionXX(
     val createdBy: String? = "",
     @SerialName("createdDate")
     val createdDate: String? = "",
-    @SerialName("hibernateLazyInitializer")
-    val hibernateLazyInitializer: HibernateLazyInitializerX? = HibernateLazyInitializerX(),
+    /*@SerialName("hibernateLazyInitializer")
+    val hibernateLazyInitializer: HibernateLazyInitializer? = HibernateLazyInitializer(),
+    */
     @SerialName("id")
     val id: Int? = 0,
     @SerialName("lastModifiedBy")

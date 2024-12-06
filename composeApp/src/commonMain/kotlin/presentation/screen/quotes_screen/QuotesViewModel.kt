@@ -2,9 +2,9 @@ package presentation.screen.quotes_screen
 
 import SHARED_PREFERENCE
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import dropDownValues
@@ -29,11 +29,13 @@ import models.Description
 import models.ErrorResponse
 import models.InsuranceTypeCodeModel
 import models.QuotesListResponse
+import models.UpdateVehicleResponse
 import models.enums.InsuranceType
 import models.showDriverByVehicleIdResponseItem
 import models.showVehiclesByPolicyholderIdAndOwnerIdResponseItem
 import models.updateVehicleBody
 import network.Ktor
+import presentation.bottom_sheets.quoteViewModel
 import showError
 import utils.AppConstants
 import utils.LogInManager
@@ -74,9 +76,7 @@ data class Driver(val name: String, val id: String)
 
 class QuotesViewModel : ScreenModel {
 
-    var selectedTab by mutableStateOf(Tab.ThirdParty)
-    val tabs = listOf(Tab.ThirdParty, Tab.Comprehensive)
-
+    //lookup data
     val purposeList: DataXXX? = dropDownValues.getData(13)
     val months: DataXXX? = dropDownValues.getData(if (currentLanguage == "en") 39 else 38)
     val years: DataXXX? = dropDownValues.getData(37)
@@ -97,38 +97,29 @@ class QuotesViewModel : ScreenModel {
     val educationList: DataXXX? = dropDownValues.getData(12)
     val productType: DataXXX? = dropDownValues.getData(5)
 
-    // Use MutableLiveData or State to hold the data
-    var vehicleData by mutableStateOf(
-        updateVehicleBody(
-            accidentCount = "0",
-            approved = "",
-            capacity = 5,
-            deductibleValue = 500,
-            id = 384,
-            identificationType = 1,
-            insuranceType = 2,
-            km = 3000,
-            manufactureYear = "2020",
-            modification = "No",
-            policyHolderId = 384,
-            specificationCodeIds = listOf(1,3,4),
-            transferOwnership = 0,
-            transmission = 2,
-            vehicleAgencyRepair = 0,
-            vehicleMajorColorCode = "فضي",
-            vehicleModification = false,
-            vehicleModificationDetails = null,
-            vehicleOvernightParkingLocationCode = 1,
-            vehicleRegExpiryDate = "14470603",
-            vehicleUseCode = 1,
-            vehicleValue = "25000"
-        )
-    )
-
+    // user data variables
+    var dobMonth by mutableStateOf("")
+    var dobYear by mutableStateOf("")
+    var vehicleNightParking by mutableStateOf("")
+    var driverRelationship by mutableStateOf("")
+    var education by mutableStateOf("")
+    var noOfChildrenBelow16 by mutableStateOf("")
+    var driverBusinessCity by mutableStateOf("")
+    var driverNOALastFiveYears by mutableStateOf("")
+    var driverNocLastFiveYears by mutableStateOf("")
+    var drivingLicenceCountry by mutableStateOf("")
+    var licenceValidFor by mutableStateOf("")
 
     var createPolicyHolderBody by mutableStateOf(CreatePolicyHolderBody())
     private var createPolicyHolderResponse by mutableStateOf(CreatePolicyHolderResponse())
 
+
+    //vehicle info variables
+    var driverId by mutableStateOf("")
+    var vehicleData by mutableStateOf(updateVehicleBody())
+    var newSpecificationCodeIds = emptyList<Int>().toMutableStateList()
+    var healthCondition by mutableStateOf("")
+    var trafficViolations by mutableStateOf("")
     var expectedKM by mutableStateOf(
         vehicleMileageExpectedAnnual?.insuranceTypeCodeModels?.get(0)?.description?.en
             ?: ""
@@ -160,7 +151,7 @@ class QuotesViewModel : ScreenModel {
     var sellerNationalIdError by mutableStateOf<String?>(null)
 
     var selectedMonth by mutableStateOf(
-        months?.insuranceTypeCodeModels?.get(0)
+        months?.insuranceTypeCodeModels?.get(7)
     )
     var dobError by mutableStateOf<String?>(null)
 
@@ -192,6 +183,9 @@ class QuotesViewModel : ScreenModel {
 
     var buttonEnabled by mutableStateOf(false)  // State for dropdown menu
 
+    var selectedTab by mutableStateOf(Tab.ThirdParty)
+    val tabs = listOf(Tab.ThirdParty, Tab.Comprehensive)
+
 
     private val _quotesApiStates: MutableStateFlow<QuotesUiState> =
         MutableStateFlow(QuotesUiState())
@@ -199,65 +193,14 @@ class QuotesViewModel : ScreenModel {
 
 
     // vehicle list
-    var vehicleList: MutableList<showVehiclesByPolicyholderIdAndOwnerIdResponseItem> =
-        mutableListOf()
+    var vehicleList: MutableList<showVehiclesByPolicyholderIdAndOwnerIdResponseItem> = mutableListOf()
     var driverList: MutableList<showDriverByVehicleIdResponseItem> = mutableListOf()
 
 
     // edit driver list variables
-
-    var driverId by mutableStateOf("")
-    var dobMonth by mutableStateOf("")
-    var dobYear by mutableStateOf("")
-    var vehicleNightParking by mutableStateOf("")
-    var driverRelationship by mutableStateOf("")
-    var education by mutableStateOf("")
-    var noOfChildrenBelow16 by mutableStateOf("")
-    var healthCondition by mutableStateOf("")
-    var trafficViolations by mutableStateOf("")
-    var driverBusinessCity by mutableStateOf("")
-    var driverNOALastFiveYears by mutableStateOf("")
-    var driverNocLastFiveYears by mutableStateOf("")
-    var drivingLicenceCountry by mutableStateOf("")
-    var licenceValidFor by mutableStateOf("")
-
-
-    fun editDrivers() {
-        // Handle edit driver action here
-    }
-
     /*private val _uiState: MutableStateFlow<GetQuotesStates> = MutableStateFlow(GetQuotesStates())
     val uiState: StateFlow<GetQuotesStates> = _uiState
 */
-
-    fun checkButtonVisibility() {
-        buttonEnabled =
-            verifyIqamaLocally() && verifySequenceNumberLocally() && effectiveYear.isNotEmpty()
-
-    }
-
-    fun getQuotesList(referenceNo: String) {
-        screenModelScope.launch {
-            try {
-                val response =
-                    Ktor.client.get("portal-api/insurance/rest/ica-get-quotesErrorFree/$referenceNo")
-                        .body<QuotesListResponse>()
-
-                if (response.errorCode == null) {
-
-                } else
-                    _quotesApiStates.value = QuotesUiState(
-                        apiStatus = QuotesApiStates.Error(response.errorMessage.toString())
-                    )
-
-            } catch (e: Exception) {
-                val message = if (e.message == null) "empty" else e.message!!
-                _quotesApiStates.value = QuotesUiState(
-                    apiStatus = QuotesApiStates.Error(message)
-                )
-            }
-        }
-    }
 
     fun createPolicyHolder(insuranceType: InsuranceType) {
         if (validFormValues(insuranceType)) {
@@ -273,7 +216,7 @@ class QuotesViewModel : ScreenModel {
                         sequenceNumber = sequenceNumber,
                         userId = if (LogInManager.getLoggedInUser() != null && LogInManager.getLoggedInUser()!!.user != null) {
                             LogInManager.getLoggedInUser()!!.user!!.id
-                        } else 0,
+                        } else 15,
                         insuranceType = when (insuranceType) {
                             InsuranceType.INSURE_YOUR_VEHICLE -> "2"
                             InsuranceType.OWNER_TRANSFER -> "2"
@@ -316,7 +259,7 @@ class QuotesViewModel : ScreenModel {
         }
     }
 
-    fun showVehiclesByPolicyholderIdAndOwnerId(policyHolderID: Int, nationalID: String) {
+    private fun showVehiclesByPolicyholderIdAndOwnerId(policyHolderID: Int, nationalID: String) {
 
         screenModelScope.launch {
             try {
@@ -339,6 +282,7 @@ class QuotesViewModel : ScreenModel {
                     )
 
                 } catch (e: SerializationException) {
+                    val error = e.message
                     try {
                         val errorResponse: ErrorResponse =
                             Json.decodeFromString(ErrorResponse.serializer(), response.bodyAsText())
@@ -365,6 +309,17 @@ class QuotesViewModel : ScreenModel {
         screenModelScope.launch {
             try {
                 isLoading = true
+                val firstItem = vehicleList[0]
+                vehicleData.apply {
+                    id = createPolicyHolderResponse.data.id
+                    capacity = firstItem.vehicleSeating!!
+                    insuranceType = firstItem.policyHolder!!.insuranceType
+                    manufacturingYear = firstItem.manufactureYear!!
+                    policyHolderId = firstItem.policyHolderId!!
+                    specificationCodeIds =  ArrayList(newSpecificationCodeIds)
+                    vehicleMajorColorCode = firstItem.vehicleMajorColorCode!!
+                }
+
                 val response =
                     Ktor.client.post("/portal-api/insurance/rest/updateVehicle") {
                         header(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -376,7 +331,7 @@ class QuotesViewModel : ScreenModel {
                             )
                         }
                         setBody(vehicleData)
-                    }.body<updateVehicleBody>()
+                    }.body<UpdateVehicleResponse>()
 
                 if (response.errorCode == null) {
                     showDriverByVehicleId(vehicleId, createPolicyHolderResponse.data.id.toString())
@@ -392,7 +347,7 @@ class QuotesViewModel : ScreenModel {
         }
     }
 
-    fun showDriverByVehicleId(vehicleId: Int, policyHolderId: String) {
+    private fun showDriverByVehicleId(vehicleId: Int, policyHolderId: String) {
 
         screenModelScope.launch {
             try {
@@ -450,13 +405,36 @@ class QuotesViewModel : ScreenModel {
                                 driverId.toString() to percentage
                             )
                         )
-                    }.body<updateVehicleBody>()
+                    }.body<UpdateVehicleResponse>()
 
                 if (response.errorCode != null) {
                     _quotesApiStates.value = QuotesUiState(
                         apiStatus = QuotesApiStates.Error(response.errorMessage.toString())
                     )
                 }
+            } catch (e: Exception) {
+                val message = if (e.message == null) "empty" else e.message!!
+                _quotesApiStates.value = QuotesUiState(
+                    apiStatus = QuotesApiStates.Error(message)
+                )
+            }
+        }
+    }
+
+    fun getQuotesList(referenceNo: String) {
+        screenModelScope.launch {
+            try {
+                val response =
+                    Ktor.client.get("portal-api/insurance/rest/ica-get-quotesErrorFree/$referenceNo")
+                        .body<QuotesListResponse>()
+
+                if (response.errorCode == null) {
+
+                } else
+                    _quotesApiStates.value = QuotesUiState(
+                        apiStatus = QuotesApiStates.Error(response.errorMessage.toString())
+                    )
+
             } catch (e: Exception) {
                 val message = if (e.message == null) "empty" else e.message!!
                 _quotesApiStates.value = QuotesUiState(
@@ -586,6 +564,7 @@ class QuotesViewModel : ScreenModel {
 
     private fun getAccidentCountList(): List<InsuranceTypeCodeModel?> {
         return listOf(
+            InsuranceTypeCodeModel(code = 0, description = Description(en = "0", ar = "0")),
             InsuranceTypeCodeModel(code = 1, description = Description(en = "1", ar = "1")),
             InsuranceTypeCodeModel(code = 2, description = Description(en = "2", ar = "2")),
             InsuranceTypeCodeModel(code = 3, description = Description(en = "3", ar = "3")),

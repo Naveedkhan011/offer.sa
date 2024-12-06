@@ -67,10 +67,12 @@ import org.jetbrains.compose.resources.painterResource
 import presentation.bottom_sheets.AddNewDriverSheet
 import presentation.bottom_sheets.BottomSheet
 import presentation.bottom_sheets.VehicleSpecificationsBottomSheet
+import presentation.screen.login.LoginScreen
 import showToastUsingLaunchEffect
 import utils.AppColors
 import utils.AppConstants.Companion.getButtonColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
+import utils.LogInManager
 
 private const val TOTAL_STEPS = 5
 private var selectedInsuranceType: InsuranceType = InsuranceType.INSURE_YOUR_VEHICLE
@@ -156,21 +158,25 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                         shape = androidx.compose.foundation.shape.CircleShape,
                         colors = getButtonColors(),
                         onClick = {
-                            //currentStep++
-                            when (currentStep) {
-                                1 -> {
-                                    quoteViewModel.createPolicyHolder(insuranceType)
+                            if (LogInManager.loggedIn){
+                                //currentStep++
+                                when (currentStep) {
+                                    1 -> {
+                                        quoteViewModel.createPolicyHolder(insuranceType)
+                                    }
+
+                                    2 -> {
+                                        quoteViewModel.updateVehicle(quoteViewModel.vehicleList[0].id!!)
+                                    }
+
+                                    3 -> {}
+
+                                    4 -> {}
+
+                                    5 -> {}
                                 }
-
-                                2 -> {
-                                    quoteViewModel.updateVehicle(quoteViewModel.vehicleList[0].id!!)
-                                }
-
-                                3 -> {}
-
-                                4 -> {}
-
-                                5 -> {}
+                            }else{
+                                navigator.push(LoginScreen())
                             }
                         }, enabled = true, // Initially disabled
                         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
@@ -232,7 +238,10 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                     when (quoteViewModel.selectedSheet) {
                         BottomSheetCaller.MONTH -> quoteViewModel.selectedMonth = it
                         BottomSheetCaller.YEAR -> quoteViewModel.selectedYear = it
-                        BottomSheetCaller.PURPOSE -> quoteViewModel.purposeOfUse = it.description.en
+                        BottomSheetCaller.PURPOSE -> {
+                            quoteViewModel.vehicleData.vehicleUseTitle = getTitle(it)
+                            quoteViewModel.vehicleData.vehicleUseCode = it.code
+                        }
                     }
                     quoteViewModel.isSheetVisible = false
                 },
@@ -579,8 +588,8 @@ fun VehicleDetailsForm(vehicleList: MutableList<showVehiclesByPolicyholderIdAndO
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = quoteViewModel.purposeOfUse,
-            onValueChange = { quoteViewModel.purposeOfUse = it },
+            value = quoteViewModel.vehicleData.vehicleUseTitle,
+            onValueChange = { quoteViewModel.vehicleData.vehicleUseTitle = it },
             label = { Text("Purpose of use") },
             readOnly = true,
             trailingIcon = {
@@ -920,7 +929,3 @@ fun addErrorText(errorValue: String?) {
         )
     }
 }
-
-
-
-

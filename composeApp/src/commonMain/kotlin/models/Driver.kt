@@ -5,9 +5,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class showDriverByVehicleIdResponseItem(
+data class Driver(
     @SerialName("accidentCount")
-    val accidentCount: String? = "",
+    val accidentCount: String? = String(),
     @SerialName("active")
     val active: Boolean? = false,
     @SerialName("additionalDriver")
@@ -15,7 +15,7 @@ data class showDriverByVehicleIdResponseItem(
     @SerialName("childrenBelow16")
     val childrenBelow16: String? = "",
     @SerialName("childrenBelowSixteen")
-    val childrenBelowSixteen: String? = "",
+    val childrenBelowSixteen: String? = String(),
     @SerialName("createdBy")
     val createdBy: String? = "",
     @SerialName("createdDate")
@@ -29,7 +29,7 @@ data class showDriverByVehicleIdResponseItem(
     @SerialName("driverAddressCity")
     val driverAddressCity: String? = "",
     @SerialName("driverAddressCityCode")
-    val driverAddressCityCode: String? = "",
+    val driverAddressCityCode: String? = String(),
     @SerialName("driverBirthDateG")
     val driverBirthDateG: String? = "",
     @SerialName("driverBirthDateH")
@@ -37,7 +37,7 @@ data class showDriverByVehicleIdResponseItem(
     @SerialName("driverBusinessCity")
     val driverBusinessCity: String? = "",
     @SerialName("driverBusinessCityCode")
-    val driverBusinessCityCode: String? = "",
+    val driverBusinessCityCode: String? = String(),
     @SerialName("driverDrivingPercentage")
     val driverDrivingPercentage: Int? = 0,
     @SerialName("driverEducationCode")
@@ -85,17 +85,17 @@ data class showDriverByVehicleIdResponseItem(
     @SerialName("drivingPermissionToOtherCountry")
     val drivingPermissionToOtherCountry: Boolean? = false,
     @SerialName("drivingPermittedOtherCountryName")
-    val drivingPermittedOtherCountryName: String? = "",
+    val drivingPermittedOtherCountryName: String? = String(),
     @SerialName("education")
     val education: String? = "",
     @SerialName("fullArabicName")
-    val fullArabicName: String = "",
+    val fullArabicName: String? = "",
     @SerialName("fullEnglishName")
-    val fullEnglishName: String = "",
+    val fullEnglishName: String? = "",
     @SerialName("healthConditions")
-    val healthConditions: String? = "",
+    val healthConditions: String? = String(),
     @SerialName("healthConditionsValue")
-    val healthConditionsValue: String? = "",
+    val healthConditionsValue: String? = String(),
     @SerialName("id")
     val id: Int? = 0,
     @SerialName("lastModifiedBy")
@@ -103,15 +103,15 @@ data class showDriverByVehicleIdResponseItem(
     @SerialName("lastModifiedDate")
     val lastModifiedDate: String? = "",
     @SerialName("licenceCountry")
-    val licenceCountry: String? = "",
+    val licenceCountry: String? = String(),
     @SerialName("licenceYear")
-    val licenceYear: String? = "",
+    val licenceYear: String? = String(),
     @SerialName("ncdFreeYears")
-    val ncdFreeYears: String? = "",
+    val ncdFreeYears: String? = String(),
     @SerialName("ncdReference")
-    val ncdReference: String? = "",
+    val ncdReference: String? = String(),
     @SerialName("otherCountryTotalDrivingExperience")
-    val otherCountryTotalDrivingExperience: String? = "",
+    val otherCountryTotalDrivingExperience: String? = String(),
     @SerialName("overrideTraficLight")
     val overrideTraficLight: Boolean? = false,
     @SerialName("parkingViolation")
@@ -121,17 +121,17 @@ data class showDriverByVehicleIdResponseItem(
     @SerialName("referenceNo")
     val referenceNo: String? = "",
     @SerialName("restrictions")
-    val restrictions: String? = "",
+    val restrictions: String? = String(),
     @SerialName("speedTicket")
     val speedTicket: Boolean? = false,
     @SerialName("trafficViolations")
-    val trafficViolations: String? = "",
+    val trafficViolations: String? = String(),
     @SerialName("type")
     val type: String? = "",
     @SerialName("userId")
     val userId: Int? = 0,
     @SerialName("vehicleComprehensiveQuotation")
-    val vehicleComprehensiveQuotation: String? = "",
+    val vehicleComprehensiveQuotation: String? = String(),
     @SerialName("vehicleId")
     val vehicleId: Int? = 0,
     @SerialName("vehicleNightParking")
@@ -139,7 +139,7 @@ data class showDriverByVehicleIdResponseItem(
     @SerialName("version")
     val version: Int? = 0,
     @SerialName("violationCodeIds")
-    val violationCodeIds: String? = "",
+    val violationCodeIds: String? = String(),
     @SerialName("violations")
     val violations: List<String?>? = listOf(),
     @SerialName("workAndDrivingCitySame")

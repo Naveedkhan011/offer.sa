@@ -168,6 +168,13 @@ fun showToast(messageToDisplay: String, type: ToastType = ToastType.SUCCESS) {
     )
 }
 
+fun showLoading(){
+    isLoading = true
+}
+
+fun hideLoading(){
+    isLoading = false
+}
 
 object KoinInitializer {
     private var isInitialized = false

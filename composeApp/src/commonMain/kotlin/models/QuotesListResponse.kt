@@ -25,7 +25,7 @@ data class QuotesListResponse(
     @SerialName("referenceNo")
     val referenceNo: String? = null,
     @SerialName("responseComp")
-    val responseComp: List<String?>? = null,
+    val responseComp: List<ResponseTPL?>? = null,
     @SerialName("responseTPL")
     val responseTPL: List<ResponseTPL?>? = null,
     @SerialName("updatedAt")
@@ -36,5 +36,4 @@ data class QuotesListResponse(
     val errorCode: Int? = null,
     @SerialName("errorMessage")
     val errorMessage: String? = null
-) {
-}
+)

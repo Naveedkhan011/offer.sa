@@ -58,8 +58,9 @@ fun VehicleSpecificationsBottomSheet(
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
-                .fillMaxHeight(0.8f).verticalScroll(rememberScrollState())
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 45.dp)
+                .fillMaxHeight(0.8f)
+                .verticalScroll(rememberScrollState())
         ) {
             Text(
                 "Other Details",
@@ -184,9 +185,11 @@ fun VehicleSpecificationsBottomSheet(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = quoteViewModel.vehicleData.vehicleModificationDetails,
+                    value = quoteViewModel.reasonForModification,
                     onValueChange = {
-                        quoteViewModel.vehicleData.vehicleModificationDetails = it
+                        quoteViewModel.reasonForModification = it
+                        quoteViewModel.vehicleData.vehicleModificationDetails =
+                            quoteViewModel.reasonForModification
                     },
                     label = { Text("Modification reason") },
                     modifier = Modifier.fillMaxWidth(),
@@ -255,9 +258,10 @@ fun VehicleSpecificationsBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = quoteViewModel.claim,
+                value = quoteViewModel.claimText,
                 onValueChange = {
-                    quoteViewModel.claim = it
+                    quoteViewModel.claimText = it
+                    quoteViewModel.vehicleData.approved = it
                 },
                 label = { Text("In Case Of Accident And Claim Wakala Fix Of Approved Warshas") },
                 modifier = Modifier.fillMaxWidth(),
@@ -268,6 +272,7 @@ fun VehicleSpecificationsBottomSheet(
 
     if (quoteViewModel.vehicleSpecificationsFieldsSheetVisible) {
         BottomSheet(
+            title = "Vehicle Specification",
             data = when (selectedSheet) {
                 SpecificationBottomSheetCaller.EXPECTED_KM -> quoteViewModel.vehicleMileageExpectedAnnual
                 SpecificationBottomSheetCaller.VEHICLE_PARKED_AT_NIGHT -> quoteViewModel.vehicleParking

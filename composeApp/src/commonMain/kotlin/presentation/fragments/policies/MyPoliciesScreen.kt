@@ -176,7 +176,7 @@ fun ActiveQuotesTabContent() {
 }
 
 @Composable
-private fun MyTabIndicator(
+private fun MyPolicyTabIndicator(
     indicatorWidth: Dp,
     indicatorOffset: Dp,
     indicatorColor: Color,
@@ -184,18 +184,10 @@ private fun MyTabIndicator(
     Box(
         modifier = Modifier
             .fillMaxHeight()
-            .width(
-                width = indicatorWidth,
-            )
-            .offset(
-                x = indicatorOffset,
-            )
-            .clip(
-                shape = CircleShape,
-            )
-            .background(
-                color = indicatorColor,
-            ),
+            .width(width = indicatorWidth,)
+            .offset(x = indicatorOffset,)
+            .clip(shape = CircleShape)
+            .background(color = indicatorColor),
     )
 }
 
@@ -255,7 +247,7 @@ fun CustomTab(
             .background(tabBackgroundColor)
             .height(intrinsicSize = IntrinsicSize.Min),
     ) {
-        MyTabIndicator(
+        MyPolicyTabIndicator(
             indicatorWidth = tabWidth,
             indicatorOffset = indicatorOffset,
             indicatorColor = selectedTabColor,

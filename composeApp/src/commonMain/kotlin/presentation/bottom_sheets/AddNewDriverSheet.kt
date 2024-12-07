@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,12 +15,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +27,8 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,20 +75,19 @@ fun AddNewDriverSheet(
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     ) {
         Column(
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 30.dp)
-                .fillMaxHeight(0.8f)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 45.dp)
                 .verticalScroll(rememberScrollState())
         ) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Add New Driver?", style = MaterialTheme.typography.headlineMedium)
-                IconButton(onClick = { onDismiss() }) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
-                }
-            }
+            // Top title
+            Text(
+                text = "Add New Driver",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 16.dp),
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -211,9 +209,23 @@ fun AddNewDriverSheet(
                 }
             )
 
-            Text("Health Condition")
+            Spacer(modifier = Modifier.height(10.dp))
 
-            quoteViewModel.healthConditionList?.insuranceTypeCodeModels?.forEach {item->
+            Text(
+                "Health Condition",
+                modifier = Modifier.fillMaxWidth(),
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Start
+                    //color = Color(0xFF333333),
+                    //letterSpacing = 0.15.sp,
+                    //lineHeight = 24.sp,
+                    //fontFamily = FontFamily.Default // You can use a custom font here
+                )
+            )
+
+            quoteViewModel.healthConditionList?.insuranceTypeCodeModels?.forEach { item ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -236,23 +248,34 @@ fun AddNewDriverSheet(
                 }
             }
 
-           /* DropdownField(
-                label = "Health Condition",
-                value = quoteViewModel.healthCondition,
-                onClick = {
-                    addDriverSelectedSheet = AddNewDriverBottomSheetCaller.HEALTH_CONDITION
-                },
-                onValueChange = {
-                    quoteViewModel.healthCondition = it
-                }
-            )*/
+            /* DropdownField(
+                 label = "Health Condition",
+                 value = quoteViewModel.healthCondition,
+                 onClick = {
+                     addDriverSelectedSheet = AddNewDriverBottomSheetCaller.HEALTH_CONDITION
+                 },
+                 onValueChange = {
+                     quoteViewModel.healthCondition = it
+                 }
+             )*/
 
+            Spacer(modifier = Modifier.height(10.dp))
 
+            Text(
+                "Traffic Violations",
+                modifier = Modifier.fillMaxWidth(),
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Start
+                    //color = Color(0xFF333333),
+                    //letterSpacing = 0.15.sp,
+                    //lineHeight = 24.sp,
+                    //fontFamily = FontFamily.Default // You can use a custom font here
+                )
+            )
 
-
-            Text("Traffic Violations")
-
-            quoteViewModel.trafficViolationList?.insuranceTypeCodeModels?.forEach {item->
+            quoteViewModel.trafficViolationList?.insuranceTypeCodeModels?.forEach { item ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -275,15 +298,15 @@ fun AddNewDriverSheet(
                 }
             }
 
-           /* DropdownField(label = "Traffic Violations",
-                value = quoteViewModel.trafficViolations,
-                onClick = {
-                    addDriverSelectedSheet = AddNewDriverBottomSheetCaller.TRAFFIC_VIOLATIONS
-                },
-                onValueChange = {
-                    quoteViewModel.trafficViolations = it
-                }
-            )*/
+            /* DropdownField(label = "Traffic Violations",
+                 value = quoteViewModel.trafficViolations,
+                 onClick = {
+                     addDriverSelectedSheet = AddNewDriverBottomSheetCaller.TRAFFIC_VIOLATIONS
+                 },
+                 onValueChange = {
+                     quoteViewModel.trafficViolations = it
+                 }
+             )*/
 
             DropdownField(
                 label = "Driver Business City",
@@ -355,6 +378,7 @@ fun AddNewDriverSheet(
     if (quoteViewModel.vehicleSpecificationsFieldsSheetVisible) {
 
         BottomSheet(
+            title = "Vehicle Specification",
             data = when (addDriverSelectedSheet) {
                 AddNewDriverBottomSheetCaller.DOB_MONTH -> quoteViewModel.months
                 AddNewDriverBottomSheetCaller.DOB_YEAR -> quoteViewModel.years

@@ -42,6 +42,7 @@ import utils.AppConstants.Companion.getOutlineTextFieldColors
 @Composable
 fun BottomSheet(
     data: DataXXX? = DataXXX(),
+    title: String,
     onDismiss: () -> Unit,
     onSelected: (selectedData: InsuranceTypeCodeModel) -> Unit
 ) {
@@ -77,7 +78,7 @@ fun BottomSheet(
             modifier = Modifier.padding(16.dp)
                 .fillMaxHeight(0.8f)
         ) {
-            Text("DOB Month", fontSize = 18.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+            Text(title, fontSize = 18.sp, color = Color.Black, fontWeight = FontWeight.Bold)
 
             Spacer(modifier = Modifier.height(16.dp))
 

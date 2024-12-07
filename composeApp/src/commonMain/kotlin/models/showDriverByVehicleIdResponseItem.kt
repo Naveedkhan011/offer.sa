@@ -39,7 +39,7 @@ data class showDriverByVehicleIdResponseItem(
     @SerialName("driverBusinessCityCode")
     val driverBusinessCityCode: String? = "",
     @SerialName("driverDrivingPercentage")
-    val driverDrivingPercentage: Int? = 0,
+    var driverDrivingPercentage: Int? = 0,
     @SerialName("driverEducationCode")
     val driverEducationCode: String? = "",
     @SerialName("driverFirstNameAr")

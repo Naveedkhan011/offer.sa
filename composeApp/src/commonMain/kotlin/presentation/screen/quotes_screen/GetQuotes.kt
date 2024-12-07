@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -40,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,14 +51,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
-import isLoading
 import models.enums.InsuranceType
-import models.enums.ToastType
 import models.showDriverByVehicleIdResponseItem
 import models.showVehiclesByPolicyholderIdAndOwnerIdResponseItem
 import navigator
@@ -64,11 +65,12 @@ import offer.composeapp.generated.resources.Res
 import offer.composeapp.generated.resources.ic_baseline_alternate_email_24
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
-import presentation.bottom_sheets.AddNewDriverSheet
 import presentation.bottom_sheets.BottomSheet
+import presentation.bottom_sheets.DriverListSheet
 import presentation.bottom_sheets.VehicleSpecificationsBottomSheet
 import presentation.screen.login.LoginScreen
-import showToastUsingLaunchEffect
+import showError
+import showLoading
 import utils.AppColors
 import utils.AppConstants.Companion.getButtonColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
@@ -112,7 +114,12 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
         Scaffold(topBar = {
             CenterAlignedTopAppBar(title = { Text(text = "Get Quotes") }, navigationIcon = {
                 IconButton(onClick = {
-                    navigator.pop()
+                    if (currentStep == 1) {
+                        uiQuotesState = QuotesUiState(apiStatus = QuotesApiStates.None)
+                        navigator.pop()
+                    } else {
+                        currentStep--
+                    }
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -141,48 +148,66 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                     GetQuoteForm(currentStep)
                 }
 
-                Column(Modifier.fillMaxWidth().align(Alignment.BottomCenter)) {
+                if (currentStep <= 3) {
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Column(Modifier.fillMaxWidth().align(Alignment.BottomCenter)) {
 
-                    // Authorization Text and Button
-                    Text(
-                        text = "By clicking Next, I authorize Offer to access my personal and vehicle data to generate insurance quotes.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
-                    )
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        // Authorization Text and Button
+                        Text(
+                            text = "By clicking Next, I authorize Offer to access my personal and vehicle data to generate insurance quotes.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
 
-                    Button(
-                        shape = androidx.compose.foundation.shape.CircleShape,
-                        colors = getButtonColors(),
-                        onClick = {
-                            if (LogInManager.loggedIn){
-                                //currentStep++
-                                when (currentStep) {
-                                    1 -> {
-                                        quoteViewModel.createPolicyHolder(insuranceType)
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Button(
+                            shape = androidx.compose.foundation.shape.CircleShape,
+                            colors = getButtonColors(),
+                            onClick = {
+                                if (LogInManager.loggedIn) {
+                                    //currentStep++
+                                    when (currentStep) {
+                                        1 -> {
+                                            quoteViewModel.createPolicyHolder(insuranceType)
+                                        }
+
+                                        2 -> {
+                                            quoteViewModel.updateVehicle(quoteViewModel.vehicleList[0].id!!)
+                                        }
+
+                                        3 -> {
+                                            quoteViewModel.createPolicyHolderResponse.data.referenceNo?.let {
+                                                quoteViewModel.getQuotesList("RM5WLWDMAU00")
+                                            }
+                                        }
+
+                                        4 -> {
+                                            /*quoteViewModel.createInvoice(
+                                                "1007",
+                                                null,
+                                                1,
+                                                "RM5WLWDMAU00",
+                                                listOf("25","26"),
+                                                15)*/
+                                        }
+
+                                        5 -> {
+
+                                        }
                                     }
-
-                                    2 -> {
-                                        quoteViewModel.updateVehicle(quoteViewModel.vehicleList[0].id!!)
-                                    }
-
-                                    3 -> {}
-
-                                    4 -> {}
-
-                                    5 -> {}
+                                } else {
+                                    navigator.push(LoginScreen())
                                 }
-                            }else{
-                                navigator.push(LoginScreen())
-                            }
-                        }, enabled = true, // Initially disabled
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-                    ) {
-                        Text("Next")
+                            }, enabled = true, // Initially disabled
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                        ) {
+                            Text("Next")
+                        }
                     }
+
                 }
             }
         }
@@ -192,45 +217,41 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
             is QuotesApiStates.None -> {}
 
             is QuotesApiStates.Loading -> {
-                isLoading = true
+                showLoading()
             }
 
             is QuotesApiStates.CreatePolicyHolder -> {
-                isLoading = false
-                currentStep = 2
+                currentStep = 1
             }
 
             is QuotesApiStates.VehicleInfo -> {
-                isLoading = false
-                currentStep = 3
+                currentStep = 2
             }
 
             is QuotesApiStates.DriverInfo -> {
-                isLoading = false
-                currentStep = 4
+                currentStep = 3
             }
 
 
             is QuotesApiStates.QuotesList -> {
-                isLoading = false
-                currentStep = 5
-            }
-
-            is QuotesApiStates.Payment -> {
-                isLoading = false
                 currentStep = 4
             }
 
-            is QuotesApiStates.Error -> {
-                isLoading = false
-                val message = state.message
-                showToastUsingLaunchEffect(message, ToastType.ERROR)
+            is QuotesApiStates.Payment -> {
+                currentStep = 5
             }
 
+            is QuotesApiStates.Error -> {
+                val message = state.message
+                LaunchedEffect(message) {
+                    showError(message)
+                }
+            }
         }
 
         if (quoteViewModel.isSheetVisible) {
             BottomSheet(
+                title = "User Data",
                 onDismiss = {
                     quoteViewModel.isSheetVisible = false
                 },
@@ -239,7 +260,7 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                         BottomSheetCaller.MONTH -> quoteViewModel.selectedMonth = it
                         BottomSheetCaller.YEAR -> quoteViewModel.selectedYear = it
                         BottomSheetCaller.PURPOSE -> {
-                            quoteViewModel.vehicleData.vehicleUseTitle = getTitle(it)
+                            quoteViewModel.purposeOfVehicle = getTitle(it)
                             quoteViewModel.vehicleData.vehicleUseCode = it.code
                         }
                     }
@@ -264,11 +285,11 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                 })
         }
 
-        if (quoteViewModel.addNewDriverSheetVisible) {
-            AddNewDriverSheet(
+        if (quoteViewModel.driverListSheetVisible) {
+            DriverListSheet(
                 quoteViewModel,
                 onDismiss = {
-                    quoteViewModel.addNewDriverSheetVisible = false
+                    quoteViewModel.driverListSheetVisible = false
                 },
                 onSelected = {}
             )
@@ -337,6 +358,8 @@ fun GetQuoteForm(progress: Int) {
 @Composable
 fun PaymentCompose() {
 
+    Text(text = "Payment", modifier = Modifier.fillMaxSize())
+
 }
 
 
@@ -378,7 +401,7 @@ fun DriversScreen() {
             Text(
                 text = "Edit List",
                 style = MaterialTheme.typography.bodyMedium.copy(color = AppColors.AppColor),
-                modifier = Modifier.clickable { quoteViewModel.addNewDriverSheetVisible = true },
+                modifier = Modifier.clickable { quoteViewModel.driverListSheetVisible = true },
                 fontWeight = FontWeight.Bold
             )
         }
@@ -588,8 +611,8 @@ fun VehicleDetailsForm(vehicleList: MutableList<showVehiclesByPolicyholderIdAndO
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = quoteViewModel.vehicleData.vehicleUseTitle,
-            onValueChange = { quoteViewModel.vehicleData.vehicleUseTitle = it },
+            value = quoteViewModel.purposeOfVehicle,
+            onValueChange = { },
             label = { Text("Purpose of use") },
             readOnly = true,
             trailingIcon = {
@@ -616,8 +639,11 @@ fun VehicleDetailsForm(vehicleList: MutableList<showVehiclesByPolicyholderIdAndO
 
 
         OutlinedTextField(
-            value = quoteViewModel.vehicleEstimatedValue,
-            onValueChange = { quoteViewModel.vehicleEstimatedValue = it },
+            value = quoteViewModel.valueOfVehicle,
+            onValueChange = {
+                quoteViewModel.valueOfVehicle = it
+                quoteViewModel.vehicleData.vehicleValue = it
+            },
             label = { Text("Vehicle Estimated Value") },
             leadingIcon = {
                 Icon(
@@ -627,8 +653,9 @@ fun VehicleDetailsForm(vehicleList: MutableList<showVehiclesByPolicyholderIdAndO
                 )
             },
             trailingIcon = {
-                Text(text = "SAR")
+                Text(text = "SAR", modifier = Modifier.padding(5.dp))
             },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
             colors = getOutlineTextFieldColors()
         )

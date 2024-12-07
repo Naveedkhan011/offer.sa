@@ -29,7 +29,6 @@ data class updateVehicleBody(
     @SerialName("insuranceType")
     var insuranceType: Int = 0,
 
-
     @Transient
     var expectedKMTitle: String = "",
     @SerialName("km")
@@ -77,8 +76,8 @@ data class updateVehicleBody(
     @SerialName("vehicleRegExpiryDate")
     var vehicleRegExpiryDate: String = "",
 
-    @Transient
-    var vehicleUseTitle: String = "",
+/*    @Transient
+    var vehicleUseTitle: String = "",*/
     @SerialName("vehicleUseCode")
     var vehicleUseCode: Int = 0,
 

@@ -15,21 +15,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,15 +36,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -66,6 +60,7 @@ import offer.composeapp.generated.resources.ic_baseline_alternate_email_24
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import presentation.bottom_sheets.BottomSheet
+import presentation.bottom_sheets.DateBottomSheet
 import presentation.bottom_sheets.DriverListSheet
 import presentation.bottom_sheets.VehicleSpecificationsBottomSheet
 import presentation.screen.login.LoginScreen
@@ -109,16 +104,14 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
         quoteViewModel = getScreenModel<QuotesViewModel>()
         uiQuotesState = quoteViewModel.quotesApiStates.collectAsState().value
 
-        var currentStep by remember { mutableStateOf(1) }
-
         Scaffold(topBar = {
             CenterAlignedTopAppBar(title = { Text(text = "Get Quotes") }, navigationIcon = {
                 IconButton(onClick = {
-                    if (currentStep == 1) {
+                    if (quoteViewModel.currentStep == 1) {
                         uiQuotesState = QuotesUiState(apiStatus = QuotesApiStates.None)
                         navigator.pop()
                     } else {
-                        currentStep--
+                        quoteViewModel.currentStep--
                     }
                 }) {
                     Icon(
@@ -130,36 +123,66 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
         }) { padding ->
 
 
-            Box(
-                modifier = Modifier.fillMaxSize().padding(
-                    vertical = 10.dp, horizontal = 20.dp
-                )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 10.dp, horizontal = 20.dp)
             ) {
 
 
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(padding)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f) // Takes the remaining space
+                        .padding(padding)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    StepIndicator(currentStep)
+
+                    StepIndicator(quoteViewModel.currentStep)
 
                     Spacer(modifier = Modifier.height(30.dp))
 
-                    GetQuoteForm(currentStep)
+                    GetQuoteForm(quoteViewModel.currentStep)
                 }
 
-                if (currentStep <= 3) {
+                if (quoteViewModel.currentStep <= 3) {
 
-                    Column(Modifier.fillMaxWidth().align(Alignment.BottomCenter)) {
+                    Column(Modifier.fillMaxWidth()) {
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Authorization Text and Button
-                        Text(
-                            text = "By clicking Next, I authorize Offer to access my personal and vehicle data to generate insurance quotes.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
-                        )
+                        if (quoteViewModel.currentStep <= 2) {
+
+                            // Authorization Text and Button
+                            Text(
+                                text = "By clicking Next, I authorize Offer to access my personal and vehicle data to generate insurance quotes.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray
+                            )
+                        } else {
+                            val message =
+                                "I grant Offer Insurance Brokerage Ltd permission to use my information to obtain quotes from relevant agencies as necessary. See our, Privacy Policy"
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                                    .clickable {}) {
+                                Checkbox(
+                                    checked = false,
+                                    onCheckedChange = {}
+                                )
+
+                                Text(
+                                    text = message,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier
+                                        .align(Alignment.CenterVertically)
+                                        .fillMaxWidth()
+                                        .padding(vertical = 20.dp)
+                                )
+                            }
+
+                        }
 
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -169,7 +192,7 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                             onClick = {
                                 if (LogInManager.loggedIn) {
                                     //currentStep++
-                                    when (currentStep) {
+                                    when (quoteViewModel.currentStep) {
                                         1 -> {
                                             quoteViewModel.createPolicyHolder(insuranceType)
                                         }
@@ -221,24 +244,24 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
             }
 
             is QuotesApiStates.CreatePolicyHolder -> {
-                currentStep = 1
+                quoteViewModel.currentStep = 1
             }
 
             is QuotesApiStates.VehicleInfo -> {
-                currentStep = 2
+                quoteViewModel.currentStep = 2
             }
 
             is QuotesApiStates.DriverInfo -> {
-                currentStep = 3
+                quoteViewModel.currentStep = 3
             }
 
 
             is QuotesApiStates.QuotesList -> {
-                currentStep = 4
+                quoteViewModel.currentStep = 4
             }
 
             is QuotesApiStates.Payment -> {
-                currentStep = 5
+                quoteViewModel.currentStep = 5
             }
 
             is QuotesApiStates.Error -> {
@@ -294,6 +317,19 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                 onSelected = {}
             )
         }
+
+        if (quoteViewModel.datePickerSheetVisible) {
+            DateBottomSheet(
+                "Select Effective Date",
+                onDismissSheet = {
+                    quoteViewModel.datePickerSheetVisible = false
+                },
+                onDateSelected = {
+                    quoteViewModel.effectiveYear = it
+                    quoteViewModel.datePickerSheetVisible = false
+                }
+            )
+        }
     }
 }
 
@@ -321,7 +357,6 @@ fun GetQuoteForm(progress: Int) {
 
     when (progress) {
         1 -> {
-            //CheckboxListScreen()
             policyHolderCompose()
         }
 
@@ -341,25 +376,11 @@ fun GetQuoteForm(progress: Int) {
             PaymentCompose()
         }
     }
-
-
-    /*when (selectedInsuranceType) {
-               InsuranceType.INSURE_YOUR_VEHICLE,
-               InsuranceType.OWNER_TRANSFER -> {
-                   sequenceVerificationForm()
-               }
-
-               InsuranceType.CUSTOM_CARD -> {
-                   CustomCardsForm()
-               }
-           }*/
 }
 
 @Composable
 fun PaymentCompose() {
-
     Text(text = "Payment", modifier = Modifier.fillMaxSize())
-
 }
 
 
@@ -447,43 +468,6 @@ fun DriverCard(driver: showDriverByVehicleIdResponseItem) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray
             )
-        }
-    }
-}
-
-@Composable
-fun OtherDetailsCard(isVisible: Boolean, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = Color(0xFFF7F7F7),
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(16.dp)
-            .clickable { onClick() }
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "+",
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.Blue,
-                modifier = Modifier.padding(end = 8.dp)
-            )
-            Column {
-                Text(
-                    text = "Other Details",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                if (isVisible) {
-                    Text(
-                        text = "Some insurance companies are asking for more details like Vehicle Night Parking, Expected KM per year",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
-                    )
-                }
-            }
         }
     }
 }
@@ -708,196 +692,6 @@ fun VehicleDetailsForm(vehicleList: MutableList<showVehiclesByPolicyholderIdAndO
                 }
             }
         }
-    }
-}
-
-@Composable
-fun DetailItem(label: String, value: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                width = 1.dp,
-                color = Color(0xFFE0E0E0),
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(16.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleMedium
-        )
-    }
-}
-
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-fun CustomCardsForm() {
-
-    Spacer(modifier = Modifier.height(spaceBwFields))
-    OutlinedTextField(
-        value = quoteViewModel.customCard,
-        onValueChange = { quoteViewModel.customCard = it },
-        label = { Text("Custom Card") },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(Res.drawable.ic_baseline_alternate_email_24),
-                contentDescription = null,
-                tint = AppColors.AppColor
-            )
-        },
-        isError = quoteViewModel.customCardError != null,
-        modifier = Modifier.fillMaxWidth(),
-        colors = getOutlineTextFieldColors()
-    )
-    addErrorText(quoteViewModel.customCardError)
-
-    // National ID/Iqama ID Field
-    Spacer(modifier = Modifier.height(spaceBwFields))
-    OutlinedTextField(
-        value = quoteViewModel.manufacturingYear,
-        onValueChange = { quoteViewModel.manufacturingYear = it },
-        label = { Text(text = "Manufacturing Year") },
-        trailingIcon = { Icon(Icons.Default.Info, contentDescription = "Info") },
-        modifier = Modifier.fillMaxWidth(),
-        isError = quoteViewModel.manufacturingYearError != null,
-        colors = getOutlineTextFieldColors()
-    )
-    addErrorText(quoteViewModel.manufacturingYearError)
-
-}
-
-@Composable
-fun sequenceVerificationForm() {
-
-    Text(
-        fontWeight = FontWeight.Bold,
-        text = "Enter sequence number",
-        style = MaterialTheme.typography.bodyLarge,
-        color = AppColors.textColor
-    )
-    Spacer(modifier = Modifier.height(spaceBwFields))
-
-
-    OutlinedTextField(
-        value = quoteViewModel.sequenceNumber,
-        onValueChange = {
-            quoteViewModel.sequenceNumber = it
-        },
-        label = { Text("Sequence Number") },
-        modifier = Modifier.fillMaxWidth(),
-        colors = getOutlineTextFieldColors()
-    )
-
-    addErrorText(quoteViewModel.sequenceNumberError)
-
-    Spacer(modifier = Modifier.height(spaceBwFields))
-
-    TextButton(
-        modifier = Modifier
-            .background(Color.White, RoundedCornerShape(10.dp)),
-        onClick = {
-
-        }
-    ) {
-        // "Know more about types" Text
-        Text(
-            text = "Where can i find my car's sequence number?",
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = AppColors.AppColor,
-                fontWeight = FontWeight.Bold
-            )
-        )
-
-        Icon(
-            tint = AppColors.AppColor,
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = ""
-        )
-    }
-}
-
-@Composable
-fun nationalIDForm(insuranceType: InsuranceType) {
-
-    val title = when (insuranceType) {
-        InsuranceType.INSURE_YOUR_VEHICLE -> {
-            "National ID/Iqama ID/Company Unified ID"
-        }
-
-        InsuranceType.OWNER_TRANSFER -> {
-            "National ID/Iqama ID/Company Unified ID(Buyer)"
-        }
-
-        InsuranceType.CUSTOM_CARD -> {
-            "National ID/Iqama ID/Company Unified ID(NEW Owner)"
-        }
-    }
-
-    val label = "National ID/Iqama ID"
-
-    Text(
-        fontWeight = FontWeight.Bold,
-        text = title,
-        style = MaterialTheme.typography.bodyLarge,
-        color = AppColors.textColor
-    )
-
-    // National ID/Iqama ID Field
-    OutlinedTextField(
-        value = quoteViewModel.nationalID,
-        onValueChange = {
-            quoteViewModel.nationalID = it
-            quoteViewModel.verifyIqamaLocally()
-        },
-        label = {
-            Text(
-                text = label
-                //style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp)
-            )
-        },
-        trailingIcon = { Icon(Icons.Default.Info, contentDescription = "Info") },
-        modifier = Modifier.fillMaxWidth(),
-        isError = quoteViewModel.nationalIDError != null,
-        colors = getOutlineTextFieldColors()
-    )
-
-    addErrorText(quoteViewModel.nationalIDError)
-
-    Spacer(modifier = Modifier.height(spaceBwFields))
-
-    // DOB Month and Year Dropdowns
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        DropdownField(
-            label = "DOB Month",
-            onclick = {
-                quoteViewModel.selectedSheet = BottomSheetCaller.MONTH
-            },
-            modifier = Modifier.weight(1f),
-            errorValue = quoteViewModel.dobError,
-            selectedOption = getTitle(quoteViewModel.selectedMonth)
-        )
-
-        Spacer(modifier = Modifier.width(spaceBwFields))
-
-        DropdownField(
-            label = "DOB Year",
-            onclick = {
-                quoteViewModel.selectedSheet = BottomSheetCaller.YEAR
-            },
-            modifier = Modifier.weight(1f),
-            errorValue = quoteViewModel.dobYearError,
-            selectedOption = getTitle(quoteViewModel.selectedYear)
-        )
     }
 }
 

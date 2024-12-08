@@ -3,6 +3,7 @@ package presentation.screen.quotes_screen
 import SHARED_PREFERENCE
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import cafe.adriel.voyager.core.model.ScreenModel
@@ -17,6 +18,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.isSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -36,11 +38,14 @@ import models.enums.InsuranceType
 import models.showDriverByVehicleIdResponseItem
 import models.showVehiclesByPolicyholderIdAndOwnerIdResponseItem
 import models.updateVehicleBody
+import navigator
 import network.Ktor
+import presentation.screen.login.LoginScreen
 import showError
 import showLoading
 import utils.AppConstants
 import utils.LogInManager
+import utils.language.language_manager.LanguageManager
 
 enum class Tab(val title: String) {
     ThirdParty("Third Party"),
@@ -97,6 +102,9 @@ class QuotesViewModel : ScreenModel {
     val educationList: DataXXX? = dropDownValues.getData(12)
     val driverPercentageList: DataXXX? = dropDownValues.getData(15)
     val productType: DataXXX? = dropDownValues.getData(5)
+
+    var currentStep by mutableStateOf(1)
+
 
     // user data variables
     var nationalID by mutableStateOf("2537995140")
@@ -187,6 +195,7 @@ class QuotesViewModel : ScreenModel {
     var vehicleSpecificationsFieldsSheetVisible by mutableStateOf(false)  // State for dropdown menu
     var addNewDriverSheetVisible by mutableStateOf(false)  // State for dropdown menu
     var driverListSheetVisible by mutableStateOf(false)  // State for dropdown menu
+    var datePickerSheetVisible by mutableStateOf(false)  // State for dropdown menu
 
     var selectedSheet by mutableStateOf(BottomSheetCaller.MONTH)
     var purposeOfUse by mutableStateOf("")
@@ -222,7 +231,7 @@ class QuotesViewModel : ScreenModel {
                         nationalId = nationalID,
                         sellerNationalId = sellerNationalId.ifEmpty { null },
                         dobMonth = if (selectedMonth!!.code <= 9) "0" + selectedMonth?.code.toString() else selectedMonth?.code.toString(),
-                        dobYear = "1992"/*selectedYear?.description?.en.toString()*/,
+                        dobYear = selectedYear?.description?.en.toString(),
                         sequenceNumber = sequenceNumber,
                         userId = if (LogInManager.getLoggedInUser() != null && LogInManager.getLoggedInUser()!!.user != null) {
                             LogInManager.getLoggedInUser()!!.user!!.id
@@ -328,28 +337,23 @@ class QuotesViewModel : ScreenModel {
                     vehicleRegExpiryDate = firstItem.vehicleRegExpiryDate!!
                 }
 
-                val response =
-                    Ktor.client.post("/portal-api/insurance/rest/updateVehicle") {
-                        header(HttpHeaders.ContentType, ContentType.Application.Json)
-                        header(HttpHeaders.Accept, ContentType.Application.Json)
-                        if (LogInManager.getLoggedInUser() != null) {
-                            header(
-                                HttpHeaders.Authorization,
-                                "Bearer " + "eyJhbGciOiJIUzUxMiJ9.eyJjcmVhdGVkIjoxNzMzNjEwMTg2NTczLCJyb2xlcyI6WyJST0xFX0NMSUVOVCJdLCJ1c2VybmFtZSI6Im5hdmVlZGtoYW4wMTFAZ21haWwuY29tIiwiZXhwIjoxNzMzNjUzMzg2fQ._zd8KXP7lpqfUmrHrw9xCCxHbMHd6nDblnodHboxAE3oS8Ay0V_J0YezZFN3FiXRy69zzN7T7SGJ-zTaXxtScg"
-                            )
-                        }
-                        setBody(vehicleData)
-                    }.body<UpdateVehicleResponse>()
+                val response = Ktor.client.post("/portal-api/insurance/rest/updateVehicle") {
+                    header(HttpHeaders.ContentType, ContentType.Application.Json)
+                    header(HttpHeaders.Accept, ContentType.Application.Json)
+                    LogInManager.getLoggedInUser()?.token?.let { token ->
+                        header(HttpHeaders.Authorization, "Bearer $token")
+                    }
+                    setBody(vehicleData)
+                }
 
-                showDriverByVehicleId(vehicleId, createPolicyHolderResponse.data.id.toString())
-
-                /*if (response.errorCode == null) {
-                    showDriverByVehicleId(vehicleId, response.data?.policyHolderId.toString())
-                } else{
-                hideLoading()
-                    showError(response.errorMessage.toString())
-                }*/
-
+                val errorCode = response.status.value
+                if (errorCode == 401){
+                    LogInManager.setLoggedInValue(false)
+                    navigator.push(LoginScreen())
+                    showError(LanguageManager.currentStrings.unauthenticated)
+                }else{
+                    showDriverByVehicleId(vehicleId, createPolicyHolderResponse.data.id.toString())
+                }
                 hideLoading()
             } catch (e: Exception) {
                 hideLoading()

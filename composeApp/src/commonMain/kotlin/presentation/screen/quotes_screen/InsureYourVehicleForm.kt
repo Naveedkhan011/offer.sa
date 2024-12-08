@@ -1,15 +1,14 @@
 package presentation.screen.quotes_screen
 
-import SHARED_PREFERENCE
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.Icon
@@ -25,15 +24,12 @@ import offer.composeapp.generated.resources.Res
 import offer.composeapp.generated.resources.ic_baseline_alternate_email_24
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
-import presentation.screen.login.signInViewModel
 import utils.AppColors
-import utils.AppConstants
 import utils.AppConstants.Companion.getOutlineTextFieldColors
-import utils.language.language_manager.LanguageManager
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun IqamaFormScreen(viewModel: QuotesViewModel) {
+fun IqamaFormScreen(quoteViewModel: QuotesViewModel) {
 
 
     Column(
@@ -44,10 +40,10 @@ fun IqamaFormScreen(viewModel: QuotesViewModel) {
 
         // National ID/Iqama ID Field
         OutlinedTextField(
-            value = viewModel.nationalID,
+            value = quoteViewModel.nationalID,
             onValueChange = {
-                viewModel.nationalID = it
-                viewModel.verifyIqamaLocally()
+                quoteViewModel.nationalID = it
+                quoteViewModel.verifyIqamaLocally()
             },
             label = {
                 Text(
@@ -57,10 +53,10 @@ fun IqamaFormScreen(viewModel: QuotesViewModel) {
             },
             trailingIcon = { Icon(Icons.Default.Info, contentDescription = "Info") },
             modifier = Modifier.fillMaxWidth(),
-            isError = viewModel.nationalIDError != null,
+            isError = quoteViewModel.nationalIDError != null,
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(viewModel.nationalIDError)
+        addErrorText(quoteViewModel.nationalIDError)
 
         Spacer(modifier = Modifier.height(spaceBwFields))
 
@@ -75,11 +71,11 @@ fun IqamaFormScreen(viewModel: QuotesViewModel) {
         DropdownField(
             label = "DOB Month",
             onclick = {
-                viewModel.selectedSheet = BottomSheetCaller.MONTH
+                quoteViewModel.selectedSheet = BottomSheetCaller.MONTH
             },
             modifier = Modifier.fillMaxWidth(),
-            errorValue = viewModel.dobError,
-            selectedOption = getTitle(viewModel.selectedMonth)
+            errorValue = quoteViewModel.dobError,
+            selectedOption = getTitle(quoteViewModel.selectedMonth)
         )
 
         Spacer(modifier = Modifier.width(spaceBwFields))
@@ -87,19 +83,19 @@ fun IqamaFormScreen(viewModel: QuotesViewModel) {
         DropdownField(
             label = "DOB Year",
             onclick = {
-                viewModel.selectedSheet = BottomSheetCaller.YEAR
+                quoteViewModel.selectedSheet = BottomSheetCaller.YEAR
             },
             modifier = Modifier.fillMaxWidth(),
-            errorValue = viewModel.dobYearError,
-            selectedOption = getTitle(viewModel.selectedYear)
+            errorValue = quoteViewModel.dobYearError,
+            selectedOption = getTitle(quoteViewModel.selectedYear)
         )
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = viewModel.sequenceNumber,
+            value = quoteViewModel.sequenceNumber,
             onValueChange = {
-                viewModel.sequenceNumber = it
-                viewModel.verifySequenceNumberLocally()
+                quoteViewModel.sequenceNumber = it
+                quoteViewModel.verifySequenceNumberLocally()
             },
             label = { Text("Sequence Number") },
             leadingIcon = {
@@ -109,16 +105,16 @@ fun IqamaFormScreen(viewModel: QuotesViewModel) {
                     tint = AppColors.AppColor
                 )
             },
-            isError = viewModel.sequenceNumberError != null,
+            isError = quoteViewModel.sequenceNumberError != null,
             modifier = Modifier.fillMaxWidth(),
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(viewModel.sequenceNumberError)
+        addErrorText(quoteViewModel.sequenceNumberError)
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = viewModel.effectiveYear,
-            onValueChange = { viewModel.effectiveYear = it },
+            value = quoteViewModel.effectiveYear,
+            onValueChange = { quoteViewModel.effectiveYear = it },
             label = { Text("Effective Date") },
             leadingIcon = {
                 Icon(
@@ -127,11 +123,21 @@ fun IqamaFormScreen(viewModel: QuotesViewModel) {
                     tint = AppColors.AppColor
                 )
             },
-            isError = viewModel.effectiveYearError != null,
+            readOnly = true,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    modifier = Modifier.clickable {
+                        quoteViewModel.datePickerSheetVisible = true
+                    }
+                )
+            },
+            isError = quoteViewModel.effectiveYearError != null,
             modifier = Modifier.fillMaxWidth(),
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(viewModel.effectiveYearError)
+        addErrorText(quoteViewModel.effectiveYearError)
 
     }
 }

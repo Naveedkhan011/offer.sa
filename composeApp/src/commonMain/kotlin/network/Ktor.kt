@@ -44,11 +44,6 @@ object Ktor {
             level = LogLevel.ALL // Log everything
         }
 
-        Logging {
-            level = LogLevel.ALL
-            logger = Logger.DEFAULT
-        }
-
         // Default request setup
         defaultRequest {
             header(HttpHeaders.ContentType, ContentType.Application.Json)

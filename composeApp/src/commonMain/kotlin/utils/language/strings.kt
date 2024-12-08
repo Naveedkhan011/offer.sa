@@ -1,6 +1,7 @@
 package utils.language
 
 interface Strings {
+    val unauthenticated: String
     val pleaseLoginToContinue: String
     val updatePassword: String
     val confirmPassword: String

@@ -1,5 +1,6 @@
 package presentation.screen.quotes_screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.Icon
@@ -23,6 +25,7 @@ import offer.composeapp.generated.resources.Res
 import offer.composeapp.generated.resources.ic_baseline_alternate_email_24
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
+import presentation.bottom_sheets.quoteViewModel
 import utils.AppColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
 
@@ -122,6 +125,16 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
                     tint = AppColors.AppColor
                 )
             },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    modifier = Modifier.clickable {
+                        viewModel.datePickerSheetVisible = true
+                    }
+                )
+            },
+            readOnly = true,
             isError = viewModel.effectiveYearError != null,
             modifier = Modifier.fillMaxWidth(),
             colors = getOutlineTextFieldColors()

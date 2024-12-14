@@ -139,13 +139,16 @@ fun DriverListSheet(
                                 )
                             }*/
 
-                            // Delete Icon
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete Driver",
-                                tint = Color.Red,
-                                modifier = Modifier.clickable { /* Handle Delete Click */ }
-                            )
+                            if (quoteViewModel.driverList.size > 1){
+                                // Delete Icon
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete Driver",
+                                    tint = Color.Red,
+                                    modifier = Modifier.clickable { /* Handle Delete Click */ }
+                                )
+                            }
+
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -199,8 +202,10 @@ fun DriverListSheet(
                                             )
                                             .padding(horizontal = 10.dp, vertical = 4.dp)
                                             .clickable {
-                                                selectedPercentage = !selectedPercentage
-                                                driver.driverDrivingPercentage = percentage.code
+                                                if (quoteViewModel.driverList.size > 1){
+                                                    selectedPercentage = !selectedPercentage
+                                                    driver.driverDrivingPercentage = percentage.code
+                                                }
                                             },
                                         text = "${percentage?.code}%",
                                         style = MaterialTheme.typography.labelSmall.copy(

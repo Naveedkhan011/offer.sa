@@ -18,16 +18,16 @@ data class updateVehicleBody(
     var capacity: Int = 0,
 
     @SerialName("deductibleValue")
-    var deductibleValue: Int = 0,
+    var deductibleValue: Int = 500,
 
     @SerialName("id")
     var id: Int = 0,
 
     @SerialName("identificationType")
-    var identificationType: Int? = null,
+    var identificationType: Int? = 0,
 
     @SerialName("insuranceType")
-    var insuranceType: Int = 0,
+    var insuranceType: Int = 1,
 
     @Transient
     var expectedKMTitle: String = "",
@@ -76,8 +76,8 @@ data class updateVehicleBody(
     @SerialName("vehicleRegExpiryDate")
     var vehicleRegExpiryDate: String = "",
 
-/*    @Transient
-    var vehicleUseTitle: String = "",*/
+    @Transient
+    var vehicleUseTitle: String = "",
     @SerialName("vehicleUseCode")
     var vehicleUseCode: Int = 0,
 

@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import presentation.screen.quotes_screen.QuotesViewModel
 import presentation.screen.quotes_screen.getTitle
 import utils.AppColors
+import utils.AppConstants.Companion.getCheckBoxColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
 
 enum class SpecificationBottomSheetCaller {
@@ -221,10 +222,7 @@ fun VehicleSpecificationsBottomSheet(
                         }
                 ) {
                     Checkbox(
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = AppColors.AppColor,
-                            uncheckedColor = AppColors.AppColor
-                        ),
+                        colors = getCheckBoxColors(),
                         checked = item?.code?.let { code ->
                             quoteViewModel.newSpecificationCodeIds.contains(code)
                         } ?: false,

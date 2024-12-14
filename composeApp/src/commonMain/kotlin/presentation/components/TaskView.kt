@@ -19,6 +19,7 @@ import offer.composeapp.generated.resources.delete
 import offer.composeapp.generated.resources.star
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
+import utils.AppConstants.Companion.getCheckBoxColors
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -44,6 +45,7 @@ fun TaskView(
             Checkbox(
                 checked = task.completed,
                 onCheckedChange = { onComplete(task, !task.completed) },
+                colors = getCheckBoxColors()
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(

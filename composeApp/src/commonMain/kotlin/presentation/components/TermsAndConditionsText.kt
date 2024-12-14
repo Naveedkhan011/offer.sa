@@ -15,6 +15,7 @@ fun TermsAndConditionsText(onTermsClick: () -> Unit, onPrivacyClick: () -> Unit)
     val annotatedText = buildAnnotatedString {
         append(LanguageManager.currentStrings.iAgreeWith)
 
+
         // Add clickable text for "Terms and Conditions"
         pushStringAnnotation(tag = "TERMS", annotation = "terms")
         withStyle(style = SpanStyle(color = AppColors.AppColor, textDecoration = TextDecoration.Underline)) {

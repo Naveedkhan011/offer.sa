@@ -1,6 +1,9 @@
 package utils.language
 
 interface Strings {
+    val customCard: String
+    val ownerTransfer: String
+    val insureYourVehicle: String
     val unauthenticated: String
     val pleaseLoginToContinue: String
     val updatePassword: String

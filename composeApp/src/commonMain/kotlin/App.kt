@@ -9,14 +9,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.unit.LayoutDirection
-import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.SlideTransition
 import data.MongoDB
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import models.enums.ToastType
 import org.koin.core.context.startKoin
@@ -25,10 +24,8 @@ import preference.KMMPreference
 import presentation.components.CustomToast
 import presentation.components.FullScreenLoadingDialog
 import presentation.screen.forgot_password.ForgotPasswordViewModel
-import presentation.screen.login.LoginScreen
 import presentation.screen.login.SignInViewModel
 import presentation.screen.main_screen.HomeViewModel
-import presentation.screen.quotes_screen.GetQuotes
 import presentation.screen.quotes_screen.QuotesViewModel
 import presentation.screen.signup_screen.SignupViewModel
 import presentation.screen.splash.Splash
@@ -59,6 +56,8 @@ lateinit var navigator: Navigator
 var loaderData by mutableStateOf(Loader())
 var isLoading by mutableStateOf(false)
 val dropDownValues = DropDownManager()
+val currency: String = "SAR"
+lateinit var uriHandler: UriHandler
 
 @Composable
 fun App(sharedPreference: KMMPreference) {
@@ -70,6 +69,7 @@ fun App(sharedPreference: KMMPreference) {
         )
     )
 
+    uriHandler = LocalUriHandler.current
     initializeKoin() // Ensure this only runs once
 
     val lightColors = lightColorScheme(
@@ -168,11 +168,11 @@ fun showToast(messageToDisplay: String, type: ToastType = ToastType.SUCCESS) {
     )
 }
 
-fun showLoading(){
+fun showLoading() {
     isLoading = true
 }
 
-fun hideLoading(){
+fun hideLoading() {
     isLoading = false
 }
 

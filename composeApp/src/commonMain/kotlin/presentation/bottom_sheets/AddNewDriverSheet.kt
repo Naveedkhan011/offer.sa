@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import presentation.screen.quotes_screen.QuotesViewModel
+import utils.AppConstants.Companion.getCheckBoxColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
 
 
@@ -234,7 +235,8 @@ fun AddNewDriverSheet(
                         checked = item?.isChecked ?: false,
                         onCheckedChange = {
                             item?.isChecked = it
-                        }
+                        },
+                        colors = getCheckBoxColors()
                     )
 
                     Text(
@@ -284,7 +286,8 @@ fun AddNewDriverSheet(
                         checked = item?.isChecked ?: false,
                         onCheckedChange = {
                             item?.isChecked = it
-                        }
+                        },
+                        colors = getCheckBoxColors()
                     )
 
                     Text(

@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
@@ -23,6 +25,15 @@ class AppConstants {
                 unfocusedBorderColor = AppColors.AppColor,
                 errorBorderColor = AppColors.Red,
                 errorLabelColor = AppColors.Red
+            )
+        }
+
+        @Composable
+        fun getCheckBoxColors(): CheckboxColors {
+            return CheckboxDefaults.colors(
+                checkedColor = AppColors.AppColor,
+                uncheckedColor = AppColors.AppColor,
+                checkmarkColor = Color.White
             )
         }
 

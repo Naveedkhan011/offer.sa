@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import models.DataXXX
 import models.InsuranceTypeCodeModel
+import utils.AppConstants.Companion.getCheckBoxColors
 
 data class VehicleSpecifications(var isChecked: Boolean = false, val title: String = "")
 
@@ -128,7 +129,8 @@ fun VehicleSpecificationSheet(
                             }) {
                                 Checkbox(
                                     checked = false,
-                                    onCheckedChange = {}
+                                    onCheckedChange = {},
+                                    colors = getCheckBoxColors()
                                 )
 
                                 Text(

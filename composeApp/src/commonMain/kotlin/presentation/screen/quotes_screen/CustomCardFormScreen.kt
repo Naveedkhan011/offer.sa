@@ -80,7 +80,7 @@ fun CustomerTransferFormScreen(viewModel: QuotesViewModel) {
             selectedOption = getTitle(viewModel.selectedMonth)
         )
 
-        Spacer(modifier = Modifier.width(spaceBwFields))
+        Spacer(modifier = Modifier.height(spaceBwFields))
 
         DropdownField(
             label = "DOB Year",

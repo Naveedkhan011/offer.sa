@@ -3,7 +3,12 @@ package utils.language.languages
 import utils.language.Strings
 
 object EnglishStrings : Strings {
-
+    override val customCard: String
+        get() = "Custom Card"
+    override val ownerTransfer: String
+        get() = "Owner Transfer"
+    override val insureYourVehicle: String
+        get() = "Insure Your Vehicle"
     override val unauthenticated: String
         get() = "Unauthenticated"
     override val pleaseLoginToContinue: String
@@ -14,7 +19,6 @@ object EnglishStrings : Strings {
         get() = "Confirm Password"
     override val newPassword: String
         get() = "New Password"
-
     override val privacyPolicy: String
         get() = "Privacy Policy"
     override val andText: String
@@ -58,9 +62,7 @@ object EnglishStrings : Strings {
         get() = "Email"
     override val emailStar: String
         get() = "Email*"
-    override val signIn: String
-        get() = "Sign In"
-
+    override val signIn: String get() = "Sign In"
     override val changeLanguage = "Change Language"
     override val notificationSettings = "Notifications Settings"
     override val settings = "Settings"

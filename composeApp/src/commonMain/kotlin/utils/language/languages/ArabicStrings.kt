@@ -4,6 +4,12 @@ import utils.language.Strings
 
 
 object ArabicStrings : Strings {
+    override val customCard: String
+        get() = "Custom Card"
+    override val ownerTransfer: String
+        get() = "Owner Transfer"
+    override val insureYourVehicle: String
+        get() = "Insure Your Vehicle"
     override val unauthenticated: String
         get() = "Unauthenticated"
     override val pleaseLoginToContinue: String

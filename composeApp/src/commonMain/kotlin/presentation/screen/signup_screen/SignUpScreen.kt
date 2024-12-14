@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -58,6 +59,7 @@ import showToast
 import utils.AppColors
 import utils.AppConstants
 import utils.AppConstants.Companion.CustomButton
+import utils.AppConstants.Companion.getCheckBoxColors
 import utils.language.language_manager.LanguageManager
 
 
@@ -341,8 +343,11 @@ class SignUpScreen : Screen {
         Row(
             verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
         ) {
-            Checkbox(checked = signInViewModel.isTermsChecked,
-                onCheckedChange = { signInViewModel.isTermsChecked = it })
+            Checkbox(
+                checked = signInViewModel.isTermsChecked,
+                onCheckedChange = { signInViewModel.isTermsChecked = it },
+                colors = getCheckBoxColors()
+            )
 
             TermsAndConditionsText(
                 onTermsClick = {

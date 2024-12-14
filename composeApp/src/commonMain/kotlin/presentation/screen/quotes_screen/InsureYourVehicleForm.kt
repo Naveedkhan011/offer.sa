@@ -60,14 +60,6 @@ fun IqamaFormScreen(quoteViewModel: QuotesViewModel) {
 
         Spacer(modifier = Modifier.height(spaceBwFields))
 
-        /*// DOB Month and Year Dropdowns
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-        }*/
-
         DropdownField(
             label = "DOB Month",
             onclick = {
@@ -78,7 +70,7 @@ fun IqamaFormScreen(quoteViewModel: QuotesViewModel) {
             selectedOption = getTitle(quoteViewModel.selectedMonth)
         )
 
-        Spacer(modifier = Modifier.width(spaceBwFields))
+        Spacer(modifier = Modifier.height(spaceBwFields))
 
         DropdownField(
             label = "DOB Year",

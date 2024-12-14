@@ -44,6 +44,7 @@ import models.enums.InsuranceType
 import navigator
 import presentation.screen.quotes_screen.GetQuotes
 import utils.AppColors
+import utils.language.language_manager.LanguageManager
 
 class InsuranceTypeScreen : Screen {
 
@@ -56,7 +57,6 @@ class InsuranceTypeScreen : Screen {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
         ) {
             // Top App Bar with Back Button
             TopAppBar(
@@ -87,20 +87,20 @@ class InsuranceTypeScreen : Screen {
             // List of Insurance Options
             InsuranceCard(
                 onCardClick = { navigator.push(GetQuotes(InsuranceType.INSURE_YOUR_VEHICLE)) },
-                title = InsuranceType.INSURE_YOUR_VEHICLE.name,
+                title = LanguageManager.currentStrings.insureYourVehicle,
                 description = "Protect your car with comprehensive insurance coverage.",
                 icon = Icons.Default.MailOutline // Replace with appropriate icon resource
             )
 
             InsuranceCard(
-                title = InsuranceType.OWNER_TRANSFER.name,
+                title = LanguageManager.currentStrings.ownerTransfer,
                 onCardClick = { navigator.push(GetQuotes(InsuranceType.OWNER_TRANSFER)) },
                 description = "Easily transfer insurance for your newly purchased car.",
                 icon = Icons.Default.ShoppingCart // Replace with appropriate icon resource
             )
 
             InsuranceCard(
-                title = InsuranceType.CUSTOM_CARD.name,
+                title = LanguageManager.currentStrings.customCard,
                 onCardClick = { navigator.push(GetQuotes(InsuranceType.CUSTOM_CARD)) },
                 description = "Get specialized coverage for custom or imported cars.",
                 icon = Icons.Default.Info // Replace with appropriate icon resource

@@ -3,7 +3,6 @@ package presentation.screen.quotes_screen
 import SHARED_PREFERENCE
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import cafe.adriel.voyager.core.model.ScreenModel
@@ -18,7 +17,6 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import io.ktor.http.isSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -58,50 +56,29 @@ val currentLanguage = SHARED_PREFERENCE.getString(
     AppConstants.SharedPreferenceKeys.LANGUAGE
 )
 
-var quotesLocal by mutableStateOf(
-    listOf(
-        Quote(
-            "ACIG One",
-            "SAR 2,661.66",
-            listOf(
-                "Loss or Damage to the Insured Car",
-                "Liability to Third Parties",
-                "Natural Disasters"
-            ),
-            "404.03 SAR Total discount"
-        ),
-        Quote(
-            "SANAD Plus",
-            "SAR 1,760.65",
-            listOf("Estimated activation time: 12+ hours", "Third-party coverage"),
-            "No discount applied"
-        )
-    )
-)
-
 class QuotesViewModel : ScreenModel {
 
     //lookup data
-    val purposeList: DataXXX? = dropDownValues.getData(13)
-    val months: DataXXX? = dropDownValues.getData(if (currentLanguage == "en") 39 else 38)
-    val years: DataXXX? = dropDownValues.getData(37)
-    val vehicleSpecifications: DataXXX? = dropDownValues.getData(29)
-    val vehicleParking: DataXXX? = dropDownValues.getData(25)
-    val vehicleMileageExpectedAnnual: DataXXX? = dropDownValues.getData(30)
-    val transmissionType: DataXXX? = dropDownValues.getData(26)
-    val modificationTypes: DataXXX? = dropDownValues.getData(40)
+    val vehiclePurposeList: DataXXX = dropDownValues.getData(13)
+    val months: DataXXX = dropDownValues.getData(if (currentLanguage == "en") 39 else 38)
+    val years: DataXXX = dropDownValues.getData(37)
+    val vehicleSpecifications: DataXXX = dropDownValues.getData(29)
+    val vehicleParking: DataXXX = dropDownValues.getData(25)
+    val vehicleMileageExpectedAnnual: DataXXX = dropDownValues.getData(30)
+    val transmissionType: DataXXX = dropDownValues.getData(26)
+    val modificationTypes: DataXXX = dropDownValues.getData(40)
     val accidentCount: DataXXX =
         DataXXX(id = 1, name = "Accident Count", insuranceTypeCodeModels = getAccidentCountList())
     val noOfChildren: DataXXX =
         DataXXX(id = 1, name = "No of childrens", insuranceTypeCodeModels = getChildrenCount())
-    val driverRelation: DataXXX? = dropDownValues.getData(14)
-    val healthConditionList: DataXXX? = dropDownValues.getData(41)
-    val trafficViolationList: DataXXX? = dropDownValues.getData(24)
-    val driverBusinessCityList: DataXXX? = dropDownValues.getData(32)
-    val drivingLicenceCountryList: DataXXX? = dropDownValues.getData(33)
-    val educationList: DataXXX? = dropDownValues.getData(12)
-    val driverPercentageList: DataXXX? = dropDownValues.getData(15)
-    val productType: DataXXX? = dropDownValues.getData(5)
+    val driverRelation: DataXXX = dropDownValues.getData(14)
+    val healthConditionList: DataXXX = dropDownValues.getData(41)
+    val trafficViolationList: DataXXX = dropDownValues.getData(24)
+    val driverBusinessCityList: DataXXX = dropDownValues.getData(32)
+    val drivingLicenceCountryList: DataXXX = dropDownValues.getData(33)
+    val educationList: DataXXX = dropDownValues.getData(12)
+    val driverPercentageList: DataXXX = dropDownValues.getData(15)
+    val productType: DataXXX = dropDownValues.getData(5)
 
     var currentStep by mutableStateOf(1)
 
@@ -114,7 +91,7 @@ class QuotesViewModel : ScreenModel {
     var sellerNationalIdError by mutableStateOf<String?>(null)
 
     var selectedMonth by mutableStateOf(
-        months?.insuranceTypeCodeModels?.get(7)
+        months?.insuranceTypeCodeModels?.get(0)
     )
     var dobError by mutableStateOf<String?>(null)
 
@@ -142,12 +119,14 @@ class QuotesViewModel : ScreenModel {
 
     //vehicle info variables
     var driverId by mutableStateOf("")
-    var vehicleData by mutableStateOf(updateVehicleBody())
+    var vehicleData by mutableStateOf(
+        updateVehicleBody(
+            vehicleUseTitle = vehiclePurposeList.insuranceTypeCodeModels!![0]!!.description.en
+        )
+    )
     var newSpecificationCodeIds = emptyList<Int>().toMutableStateList()
     var reasonForModification by mutableStateOf("")
     var claimText by mutableStateOf("")
-    var valueOfVehicle by mutableStateOf("")
-    var purposeOfVehicle by mutableStateOf("")
 
 
     //driver info variables
@@ -165,6 +144,7 @@ class QuotesViewModel : ScreenModel {
     var driverNocLastFiveYears by mutableStateOf("")
     var drivingLicenceCountry by mutableStateOf("")
     var licenceValidFor by mutableStateOf("")
+    var privacyAccepted by mutableStateOf(false)
     var selectedPercentage by mutableStateOf(false)
 
     var expectedKM by mutableStateOf(
@@ -248,7 +228,7 @@ class QuotesViewModel : ScreenModel {
                         selectedTab = when (insuranceType) {
                             InsuranceType.INSURE_YOUR_VEHICLE -> "OWNER_INSURANCE"
                             InsuranceType.OWNER_TRANSFER -> "TRANSFER_OWNERSHIP"
-                            InsuranceType.CUSTOM_CARD -> "INSURANCE_BY_CUSTMOS_CARD"
+                            InsuranceType.CUSTOM_CARD -> "INSURANCE_BY_CUSTOMS_CARD"
                         }
                     )
 
@@ -329,12 +309,13 @@ class QuotesViewModel : ScreenModel {
                 vehicleData.apply {
                     id = createPolicyHolderResponse.data.id
                     capacity = firstItem.vehicleSeating!!
-                    insuranceType = firstItem.policyHolder!!.insuranceType
+                    //insuranceType = firstItem.policyHolder!!.insuranceType
                     manufacturingYear = firstItem.vehicleModelYear!!
                     policyHolderId = firstItem.policyHolderId!!
                     specificationCodeIds = ArrayList(newSpecificationCodeIds)
                     vehicleMajorColorCode = firstItem.vehicleMajorColorCode!!
                     vehicleRegExpiryDate = firstItem.vehicleRegExpiryDate!!
+                    identificationType = nationalID.first().toString().toIntOrNull()
                 }
 
                 val response = Ktor.client.post("/portal-api/insurance/rest/updateVehicle") {
@@ -347,11 +328,11 @@ class QuotesViewModel : ScreenModel {
                 }
 
                 val errorCode = response.status.value
-                if (errorCode == 401){
+                if (errorCode == 401) {
                     LogInManager.setLoggedInValue(false)
                     navigator.push(LoginScreen())
                     showError(LanguageManager.currentStrings.unauthenticated)
-                }else{
+                } else {
                     showDriverByVehicleId(vehicleId, createPolicyHolderResponse.data.id.toString())
                 }
                 hideLoading()
@@ -374,12 +355,13 @@ class QuotesViewModel : ScreenModel {
     )
 
     fun createInvoice(
-        companyCode : String,
-        deductibleValue : String?,
+        companyCode: String,
+        deductibleValue: String?,
         insuranceType: Int,
-        referenceNo : String,
-        selectedBenifitIds : List<String>,
-        userid : Int) {
+        referenceNo: String,
+        selectedBenifitIds: List<String>,
+        userid: Int
+    ) {
 
         val createInvoiceModel = CreateInvoiceModel(
             companyCode = companyCode,
@@ -393,15 +375,15 @@ class QuotesViewModel : ScreenModel {
             try {
                 showLoading()
                 val response =
-                    Ktor.client.post("/portal-api/insurance/rest/createInvoice"){
+                    Ktor.client.post("/portal-api/insurance/rest/createInvoice") {
                         setBody(createInvoiceModel)
                     }.body<InvoiceResponse>()
 
-                if (response.errorCode == null){
+                if (response.errorCode == null) {
                     _quotesApiStates.value = QuotesUiState(
                         apiStatus = QuotesApiStates.Payment(response)
                     )
-                }else
+                } else
                     showError(response.errorMessage.toString())
 
                 hideLoading()
@@ -484,7 +466,8 @@ class QuotesViewModel : ScreenModel {
         showLoading()
         screenModelScope.launch {
             try {
-                val response = Ktor.client.get("portal-api/insurance/rest/ica-get-quotesErrorFree/$referenceNo")
+                val response =
+                    Ktor.client.get("portal-api/insurance/rest/ica-get-quotesErrorFree/$referenceNo")
                         .body<QuotesListResponse>()
 
                 if (response.errorCode == null) {

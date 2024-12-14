@@ -16,13 +16,13 @@ class DropDownManager : ScreenModel {
 
     private var allDropDownValues by mutableStateOf(AllDropDownValues())
 
-    fun getData(id: Int): DataXXX? {
+    fun getData(id: Int): DataXXX {
         allDropDownValues.data?.let { it ->
             it.forEach {
                 if (it.id == id) return it
             }
         }
-        return null
+        return DataXXX()
     }
 
 

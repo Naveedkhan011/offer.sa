@@ -23,11 +23,13 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import models.CreateDriverBody
 import models.CreatePolicyHolderBody
 import models.CreatePolicyHolderResponse
 import models.DataXXX
 import models.Description
 import models.ErrorResponse
+import models.GeneralResponse
 import models.InsuranceTypeCodeModel
 import models.InvoiceResponse
 import models.QuotesListResponse
@@ -38,6 +40,7 @@ import models.showVehiclesByPolicyholderIdAndOwnerIdResponseItem
 import models.updateVehicleBody
 import navigator
 import network.Ktor
+import network.createDriverEndPoint
 import presentation.screen.login.LoginScreen
 import showError
 import showLoading
@@ -118,7 +121,6 @@ class QuotesViewModel : ScreenModel {
 
 
     //vehicle info variables
-    var driverId by mutableStateOf("")
     var vehicleData by mutableStateOf(
         updateVehicleBody(
             vehicleUseTitle = vehiclePurposeList.insuranceTypeCodeModels!![0]!!.description.en
@@ -130,8 +132,9 @@ class QuotesViewModel : ScreenModel {
 
 
     //driver info variables
-    var healthCondition by mutableStateOf("")
-    var trafficViolations by mutableStateOf("")
+
+    var driverList: MutableList<showDriverByVehicleIdResponseItem> = mutableListOf()
+    var createDriver by mutableStateOf(CreateDriverBody())
 
     var dobMonth by mutableStateOf("")
     var dobYear by mutableStateOf("")
@@ -146,28 +149,6 @@ class QuotesViewModel : ScreenModel {
     var licenceValidFor by mutableStateOf("")
     var privacyAccepted by mutableStateOf(false)
     var selectedPercentage by mutableStateOf(false)
-
-    var expectedKM by mutableStateOf(
-        vehicleMileageExpectedAnnual?.insuranceTypeCodeModels?.get(0)?.description?.en
-            ?: ""
-    )
-
-    var vehicleParkedAtNight by mutableStateOf(
-        vehicleParking?.insuranceTypeCodeModels?.get(0)?.description?.en
-            ?: ""
-    )
-    var accidentCountV by mutableStateOf("0")
-    var modificationV by mutableStateOf(
-        modificationTypes?.insuranceTypeCodeModels?.get(0)?.description?.en
-            ?: ""
-    )
-
-
-    var transmissionTypeV by mutableStateOf(
-        transmissionType?.insuranceTypeCodeModels?.get(0)?.description?.en
-            ?: ""
-    )
-    var specification by mutableStateOf("")
 
 
     var isSheetVisible by mutableStateOf(false)  // State for dropdown menu
@@ -195,7 +176,6 @@ class QuotesViewModel : ScreenModel {
     // vehicle list
     var vehicleList: MutableList<showVehiclesByPolicyholderIdAndOwnerIdResponseItem> =
         mutableListOf()
-    var driverList: MutableList<showDriverByVehicleIdResponseItem> = mutableListOf()
 
     //quotes list
 
@@ -385,6 +365,36 @@ class QuotesViewModel : ScreenModel {
                     )
                 } else
                     showError(response.errorMessage.toString())
+
+                hideLoading()
+            } catch (e: Exception) {
+                hideLoading()
+                val message = if (e.message == null) "empty" else e.message!!
+                showError(message)
+            }
+        }
+    }
+
+    fun createDriver() {
+
+        showLoading()
+        screenModelScope.launch {
+            try {
+
+                val response =
+                    Ktor.client.post(createDriverEndPoint) {
+                        setBody(createDriver)
+                    }
+
+                val responseBody = response.bodyAsText()
+
+                try {
+                    val createDriverResponse : GeneralResponse =
+                        Json.decodeFromString(GeneralResponse.serializer(), responseBody)
+                    showError(createDriverResponse.message.toString())
+                } catch (ex: SerializationException) {
+                    showError("Unexpected response format")
+                }
 
                 hideLoading()
             } catch (e: Exception) {

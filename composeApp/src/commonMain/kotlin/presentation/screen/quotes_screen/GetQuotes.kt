@@ -62,10 +62,6 @@ private const val TOTAL_STEPS = 5
 private var selectedInsuranceType: InsuranceType = InsuranceType.INSURE_YOUR_VEHICLE
 private lateinit var quoteViewModel: QuotesViewModel
 
-data class Quote(
-    val title: String, val price: String, val details: List<String>, val discount: String
-)
-
 enum class BottomSheetCaller {
     MONTH, YEAR, PURPOSE
 }

@@ -94,8 +94,10 @@ fun AddNewDriverSheet(
 
             // Driver ID
             OutlinedTextField(
-                value = quoteViewModel.driverId,
-                onValueChange = { quoteViewModel.driverId = it },
+                value = quoteViewModel.createDriver.driverId,
+                onValueChange = {
+                    quoteViewModel.createDriver = quoteViewModel.createDriver.copy(driverId = it)
+                },
                 label = { Text("Driver ID") },
                 modifier = Modifier.fillMaxWidth(),
                 colors = getOutlineTextFieldColors()

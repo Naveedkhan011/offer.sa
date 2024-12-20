@@ -1,8 +1,9 @@
-package presentation.screen.ReviewInsurance
+package presentation.screen.quotes_screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,26 +14,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.RadioButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -49,11 +44,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.core.screen.Screen
-import navigator
 import presentation.components.DashedBorderCard
-import presentation.screen.quotes_screen.spaceBwFields
 import utils.AppColors
+import utils.AppConstants
 
 var vehicleInfoDropped by mutableStateOf(false)
 var policyHolderInfoDropped by mutableStateOf(false)
@@ -61,174 +54,215 @@ var driversInfoDropped by mutableStateOf(false)
 var policyDetailsDropped by mutableStateOf(false)
 var selectedOption by mutableStateOf(1)
 
-class ReviewInsurancePolicy : Screen {
+@Composable
+fun ReviewInsurancePolicy(quoteViewModel: QuotesViewModel) {
+    var couponCode by remember { mutableStateOf(TextFieldValue("")) }
 
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    override fun Content() {
-        var couponCode by remember { mutableStateOf(TextFieldValue("")) }
+        Column(
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+        ) {
 
-        Scaffold(topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = "Review your insurance policy") },
-                navigationIcon = {
-                    IconButton(onClick = { navigator.pop() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Menu"
+            DashedBorderCard {
+                Column(modifier = Modifier.padding(10.dp)) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "GIG",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = "1,377.00 SAR",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
-                })
-        }) { padding ->
+                    Spacer(modifier = Modifier.height(8.dp))
 
-            Column(
-                modifier = Modifier.fillMaxSize()
-                    .padding(top = padding.calculateTopPadding(), start = 10.dp, end = 10.dp)
-            ) {
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                Column(
-                    modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
-                        .padding(vertical = 10.dp)
-                ) {
+                    PolicyRow("NCD Discount", "153.00 SAR", Color(0xFF28A745))
+                    PolicyRow("Base Premium", "1,530.00 SAR", Color(0xFF28A745))
+                    PolicyRow("Accident Loading", "0.00 SAR", Color(0xFF28A745))
+                    PolicyRow("Sub Total", "1,377.00 SAR", Color.Black)
+                    PolicyRow("VAT", "206.55 SAR", Color.Black)
 
-                    DashedBorderCard {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = "GIG",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp
-                                )
-                                Text(
-                                    text = "1,377.00 SAR",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                            HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
-                            Spacer(modifier = Modifier.height(8.dp))
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                            PolicyRow("NCD Discount", "153.00 SAR", Color(0xFF28A745))
-                            PolicyRow("Base Premium", "1,530.00 SAR", Color(0xFF28A745))
-                            PolicyRow("Accident Loading", "0.00 SAR", Color(0xFF28A745))
-                            PolicyRow("Sub Total", "1,377.00 SAR", Color.Black)
-                            PolicyRow("VAT", "206.55 SAR", Color.Black)
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = "Total Amount",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black
-                                )
-                                Text(
-                                    text = "1,583.55 SAR",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black
-                                )
-                            }
-
-                            Text(
-                                text = "Includes all fees and taxes",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    /*
-                                    // Coupon Code Section
-                                    CouponCodeSection(couponCode) { newCode -> couponCode = newCode }
-
-                                    Spacer(modifier = Modifier.height(16.dp))
-                    */
-
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-
-                        // Vehicle Information Section
-                        VehicleInformationSection()
-
-                        Spacer(modifier = Modifier.width(spaceBwFields))
-
-                        PolicyHolderInformationSection()
-
-                        Spacer(modifier = Modifier.width(spaceBwFields))
-
-                        DriverInformationSection()
-
-                        Spacer(modifier = Modifier.width(spaceBwFields))
-
-                        PolicyDetailSection()
-
-                        Spacer(modifier = Modifier.width(spaceBwFields))
-
-                        paymentSection()
-
-
+                        Text(
+                            text = "Total Amount",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Text(
+                            text = "1,583.55 SAR",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
                     }
-                }
 
-                // Next Button
-                Button(
-                    onClick = { /* Handle Next */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007BFF)),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp)
-                        .height(48.dp),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
                     Text(
-                        text = "Next",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        text = "Includes all fees and taxes",
+                        fontSize = 12.sp,
+                        color = Color.Gray
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /*
+                            // Coupon Code Section
+                            CouponCodeSection(couponCode) { newCode -> couponCode = newCode }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+            */
+
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                // Vehicle Information Section
+                VehicleInformationSection()
+
+                Spacer(modifier = Modifier.height(spaceBwFields))
+
+                PolicyHolderInformationSection()
+
+                Spacer(modifier = Modifier.height(spaceBwFields))
+
+                DriverInformationSection()
+
+                Spacer(modifier = Modifier.height(spaceBwFields))
+
+                PolicyDetailSection()
+
+                Spacer(modifier = Modifier.height(spaceBwFields * 2))
+
+                paymentSection()
+
+                Spacer(modifier = Modifier.height(spaceBwFields * 2))
+
+                termsAndConditionsCompose(quoteViewModel)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(spaceBwFields * 2))
+        // Next Button
+        Button(
+            onClick = { /* Handle Next */ },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007BFF)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = "Next",
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 
+}
+
+@Composable
+fun termsAndConditionsCompose(quoteViewModel: QuotesViewModel) {
+
+    Row(
+        modifier = Modifier.fillMaxWidth().clickable{
+            quoteViewModel.termsAndConditionAccepted = !quoteViewModel.termsAndConditionAccepted
+        },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = quoteViewModel.termsAndConditionAccepted,
+            onCheckedChange = {  },
+            colors = AppConstants.getCheckBoxColors()
+        )
+
+        Text(
+            text = "I Accept All of the below",
+            fontSize = 14.sp,
+            color = Color.Black,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .padding(start = 8.dp),
+            textAlign = TextAlign.Start
+        )
+    }
+
+    Column(modifier = Modifier.padding(horizontal = 10.dp)) {
+        termsText(text = "I have read and accept all the details written in quote page and this page.")
+        Spacer(modifier = Modifier.height(spaceBwFields))
+        termsText(text = "I agree that the estimated value for this vehicle is 2500 SAR.")
+        Spacer(modifier = Modifier.height(spaceBwFields))
+        termsText(text = "I accept the Terms & Conditions and the insurance company's Terms & Conditions.")
+    }
 
 }
 
+@Composable
+fun termsText(text: String) {
+    // Text
+    Text(
+        text = text,
+        fontSize = 12.sp,
+        //  fontWeight = FontWeight.Bold,
+        color = Color.Black,
+        modifier = Modifier
+            .padding(start = 8.dp),
+        textAlign = TextAlign.Start
+    )
+}
 
 @Composable
 private fun paymentSection() {
 
-    CustomRadioButton(text = "VISA", icon = Icons.Default.Star, isSelected = selectedOption == 1) {
+
+    CustomRadioButton(text = "Mada", icon = Icons.Default.Star, isSelected = selectedOption == 1) {
         selectedOption = 1
     }
 
     Spacer(modifier = Modifier.height(spaceBwFields))
 
-    CustomRadioButton(text = "MADA", icon = Icons.Default.Star, isSelected = selectedOption == 2) {
+    CustomRadioButton(text = "Visa", icon = Icons.Default.Star, isSelected = selectedOption == 2) {
         selectedOption = 2
     }
 
     Spacer(modifier = Modifier.height(spaceBwFields))
 
-    CustomRadioButton(text = "SADAD", icon = Icons.Default.Star, isSelected = selectedOption == 3) {
+    CustomRadioButton(
+        text = "MasterCard",
+        icon = Icons.Default.Star,
+        isSelected = selectedOption == 3
+    ) {
         selectedOption = 3
+    }
+
+    Spacer(modifier = Modifier.height(spaceBwFields))
+
+    CustomRadioButton(text = "SADAD", icon = Icons.Default.Star, isSelected = selectedOption == 4) {
+        selectedOption = 4
     }
 
 }
@@ -243,10 +277,15 @@ fun CustomRadioButton(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                color = if (isSelected) AppColors.AppColor else Color.LightGray.copy(alpha = 0.3f),
-                shape = RoundedCornerShape(10.dp)
+            .border(
+                shape = RoundedCornerShape(20.dp),
+                width = 2.dp,
+                color = if (isSelected) AppColors.AppColor else Color.LightGray.copy(alpha = 0.2f)
             )
+            /*.background(
+                color = if (isSelected) AppColors.AppColor else Color.LightGray.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(20.dp)
+            )*/
             .clickable { onClick() }
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -255,15 +294,20 @@ fun CustomRadioButton(
         // Radio Button
         RadioButton(
             selected = isSelected,
-            onClick = { onClick() }
+            onClick = { onClick() }, colors = RadioButtonColors(
+                selectedColor = AppColors.AppColor,
+                unselectedColor = Color.Gray,
+                disabledSelectedColor = Color.Gray,
+                disabledUnselectedColor = Color.Gray
+            )
         )
 
         // Text
         Text(
             text = text,
-            fontSize = 16.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
-            color = if (isSelected) Color.White else Color.Black,
+            color = Color.Black,
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 8.dp),
@@ -274,8 +318,8 @@ fun CustomRadioButton(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = if (isSelected) Color.White else Color.Gray,
-            modifier = Modifier.size(24.dp)
+            tint = Color.Gray,
+            modifier = Modifier.size(30.dp).padding(5.dp)
         )
     }
 }
@@ -393,7 +437,8 @@ fun PolicyHolderInformationSection() {
             modifier = Modifier.clickable {
                 policyHolderInfoDropped = !policyHolderInfoDropped
             },
-            imageVector = if (policyHolderInfoDropped) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+            imageVector = if (policyHolderInfoDropped)
+                Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
             contentDescription = "Menu"
         )
     }

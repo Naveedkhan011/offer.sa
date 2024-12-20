@@ -9,9 +9,9 @@ data class ResponseTPL(
     @SerialName("errors")
     val errors: List<String?>? = null,
     @SerialName("header")
-    val header: Header? = null,
+    val header: Header = Header(),
     @SerialName("products")
-    val products: List<Product?>? = null,
+    val products: List<Product?> = listOf(),
     @SerialName("responseMetaData")
     val responseMetaData: ResponseMetaData? = null,
     @SerialName("rootErrors")

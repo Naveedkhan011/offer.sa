@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Benefit(
+data class BenefitsObjectX(
     @SerialName("benefitCode")
     val benefitCode: Int? = null,
     @SerialName("benefitDescAr")
@@ -17,9 +17,9 @@ data class Benefit(
     @SerialName("benefitNameAr")
     val benefitNameAr: String? = null,
     @SerialName("benefitNameEn")
-    val benefitNameEn: String = "",
+    val benefitNameEn: String? = null,
     @SerialName("benefitPrice")
-    val benefitPrice: Double = 0.0,
+    val benefitPrice: Double? = null,
     @SerialName("preInvoiceBenefitId")
     val preInvoiceBenefitId: String? = null
 )

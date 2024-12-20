@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Description(
     @SerialName("ar")
-    val ar: String = "",
+    var ar: String = "",
     @SerialName("en")
-    val en: String = ""
+    var en: String = ""
 )

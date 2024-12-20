@@ -9,7 +9,7 @@ data class QuotesListResponse(
     @SerialName("agentId")
     val agentId: String? = null,
     @SerialName("completed")
-    val completed: Boolean? = null,
+    val completed: Boolean = false,
     @SerialName("createdAt")
     val createdAt: String? = null,
     @SerialName("email")
@@ -27,7 +27,7 @@ data class QuotesListResponse(
     @SerialName("responseComp")
     val responseComp: List<ResponseTPL?>? = null,
     @SerialName("responseTPL")
-    val responseTPL: List<ResponseTPL?>? = null,
+    val responseTPL: List<ResponseTPL?> = listOf(),
     @SerialName("updatedAt")
     val updatedAt: String? = null,
     @SerialName("userId")

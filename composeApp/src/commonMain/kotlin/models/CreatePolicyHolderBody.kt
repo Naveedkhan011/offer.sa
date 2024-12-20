@@ -4,10 +4,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreatePolicyHolderBody(
-    val agentId: String? = null,
-    val captchaCode: String? = null,
-    val captchaId: String? = null,
-    val clientId: String? = null,
+    var agentId: String? = null,
+    var captchaCode: String = "",
+    var captchaId: String = "",
+    var clientId: String? = null,
+
     val customCard: String? = null,
     val dobMonth: String = "",
     val dobYear: String = "",

@@ -16,7 +16,7 @@ fun DashedBorderCard(content: @Composable () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(2.dp)
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
             val stroke = Stroke(

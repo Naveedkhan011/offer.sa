@@ -7,11 +7,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Header(
     @SerialName("companyCode")
-    val companyCode: String? = null,
+    val companyCode: Int = 0,
     @SerialName("companyImage")
-    val companyImage: String? = null,
+    val companyImage: String = "",
     @SerialName("companyName")
-    val companyName: String? = null,
+    val companyName: String = "",
     @SerialName("companyNameAr")
     val companyNameAr: String? = null,
     @SerialName("termsAndConditions")

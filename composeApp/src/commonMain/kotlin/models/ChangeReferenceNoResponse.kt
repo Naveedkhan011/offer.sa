@@ -5,16 +5,11 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UpdateVehicleResponse(
-    @SerialName("errorCode")
-    val errorCode: Int? = null,
-    @SerialName("errorMessage")
-    val errorMessage: String? = "",
-
+data class ChangeReferenceNoResponse(
     @SerialName("code")
-    val code: String? = String(),
+    val code: String? = "",
     @SerialName("data")
-    val `data`: DataXXXX? = DataXXXX(),
+    val `data`: DataXXXXXXX? = DataXXXXXXX(),
     @SerialName("flag")
     val flag: Boolean? = false,
     @SerialName("message")

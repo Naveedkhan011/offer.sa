@@ -253,8 +253,8 @@ fun TabContent(quotes: List<ResponseTPL?>?) {
         if (quotes == null) return
         quotes.forEach { quote ->
             if (quote != null) {
-                //QuoteCard(quote)
-                InsuranceCard()
+                QuoteCard(quote)
+                //InsuranceCard()
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -372,16 +372,16 @@ fun QuoteCard(quote: ResponseTPL) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(quote.header?.companyName.toString(), style = MaterialTheme.typography.titleMedium)
+            Text(quote.header.companyName, style = MaterialTheme.typography.titleMedium)
             Text(
-                quote.products?.get(0)?.productPrice.toString(),
+                quote.products[0]?.productPrice.toString(),
                 style = MaterialTheme.typography.titleLarge
             )
             Spacer(modifier = Modifier.height(8.dp))
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "Discount: ${quote.header?.companyCode}",
+                "Discount: ${quote.header.companyCode}",
                 style = MaterialTheme.typography.bodySmall
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -394,14 +394,8 @@ fun QuoteCard(quote: ResponseTPL) {
                     disabledContentColor = Color.Gray
                 ),
                 onClick = {
-                    quoteViewModel.createInvoice(
-                        "1007",
-                        null,
-                        1,
-                        "RM5WLWDMAU00",
-                        listOf("25", "26"),
-                        15
-                    )
+                    quoteViewModel.selectedQuote = quote
+                    quoteViewModel.policyDetailsSheetVisible = true
                 },
                 modifier = Modifier.fillMaxWidth().clip(shape = RectangleShape)
             ) {

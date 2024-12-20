@@ -1,16 +1,14 @@
 package presentation.screen.quotes_screen
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.Icon
@@ -41,9 +39,11 @@ fun CustomerTransferFormScreen(viewModel: QuotesViewModel) {
 
         // National ID/Iqama ID Field
         OutlinedTextField(
-            value = viewModel.nationalID,
+            value = viewModel.policyHolderUiData.nationalId,
             onValueChange = {
-                viewModel.nationalID = it
+                viewModel.policyHolderUiData = viewModel.policyHolderUiData.copy(
+                    nationalId = it
+                )
                 viewModel.verifyIqamaLocally()
             },
             label = {
@@ -54,21 +54,21 @@ fun CustomerTransferFormScreen(viewModel: QuotesViewModel) {
             },
             trailingIcon = { Icon(Icons.Default.Info, contentDescription = "Info") },
             modifier = Modifier.fillMaxWidth(),
-            isError = viewModel.nationalIDError != null,
+            isError = viewModel.policyHolderUiData.nationalIDError != null,
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(viewModel.nationalIDError)
+        addErrorText(viewModel.policyHolderUiData.nationalIDError)
 
 
         Spacer(modifier = Modifier.height(spaceBwFields))
 
-       /* // DOB Month and Year Dropdowns
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        /* // DOB Month and Year Dropdowns
+         Row(
+             modifier = Modifier.fillMaxWidth(),
+             horizontalArrangement = Arrangement.SpaceBetween
+         ) {
 
-        }*/
+         }*/
 
         DropdownField(
             label = "DOB Month",
@@ -76,8 +76,8 @@ fun CustomerTransferFormScreen(viewModel: QuotesViewModel) {
                 viewModel.selectedSheet = BottomSheetCaller.MONTH
             },
             modifier = Modifier.fillMaxWidth(),
-            errorValue = viewModel.dobError,
-            selectedOption = getTitle(viewModel.selectedMonth)
+            errorValue = viewModel.policyHolderUiData.dobMonthError,
+            selectedOption = getTitle(viewModel.policyHolderUiData.dobMonth)
         )
 
         Spacer(modifier = Modifier.height(spaceBwFields))
@@ -88,18 +88,21 @@ fun CustomerTransferFormScreen(viewModel: QuotesViewModel) {
                 viewModel.selectedSheet = BottomSheetCaller.YEAR
             },
             modifier = Modifier.fillMaxWidth(),
-            errorValue = viewModel.dobYearError,
-            selectedOption = getTitle(viewModel.selectedYear)
+            errorValue = viewModel.policyHolderUiData.dobYearError,
+            selectedOption = getTitle(viewModel.policyHolderUiData.dobYear)
         )
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = viewModel.effectiveYear,
-            onValueChange = { viewModel.effectiveYear = it },
+            value = viewModel.policyHolderUiData.insuranceEffectiveDate,
+            onValueChange = {
+                viewModel.policyHolderUiData =
+                    viewModel.policyHolderUiData.copy(insuranceEffectiveDate = it)
+            },
             label = { Text("Effective Date") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.MailOutline,
+                    imageVector = Icons.Default.DateRange,
                     contentDescription = null,
                     tint = AppColors.AppColor
                 )
@@ -114,17 +117,19 @@ fun CustomerTransferFormScreen(viewModel: QuotesViewModel) {
                     }
                 )
             },
-            isError = viewModel.effectiveYearError != null,
+            isError = viewModel.policyHolderUiData.insuranceEffectiveDateError != null,
             modifier = Modifier.fillMaxWidth(),
             colors = getOutlineTextFieldColors()
         )
 
-        addErrorText(viewModel.effectiveYearError)
+        addErrorText(viewModel.policyHolderUiData.insuranceEffectiveDateError)
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = viewModel.customCard,
-            onValueChange = { viewModel.customCard = it },
+            value = viewModel.policyHolderUiData.customCard,
+            onValueChange = {
+                viewModel.policyHolderUiData = viewModel.policyHolderUiData.copy(customCard = it)
+            },
             label = { Text("Custom Card") },
             leadingIcon = {
                 Icon(
@@ -133,24 +138,24 @@ fun CustomerTransferFormScreen(viewModel: QuotesViewModel) {
                     tint = AppColors.AppColor
                 )
             },
-            isError = viewModel.customCardError != null,
+            isError = viewModel.policyHolderUiData.customCardError != null,
             modifier = Modifier.fillMaxWidth(),
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(viewModel.customCardError)
+        addErrorText(viewModel.policyHolderUiData.customCardError)
 
-        // National ID/Iqama ID Field
+
         Spacer(modifier = Modifier.height(spaceBwFields))
-        OutlinedTextField(
-            value = viewModel.manufacturingYear,
-            onValueChange = { viewModel.manufacturingYear = it },
-            label = { Text(text = "Manufacturing Year") },
-            trailingIcon = { Icon(Icons.Default.Info, contentDescription = "Info") },
+        DropdownField(
+            label = "Manufacturing Year",
+            onclick = {
+                viewModel.selectedSheet = BottomSheetCaller.MANUFACTURING_YEAR
+            },
             modifier = Modifier.fillMaxWidth(),
-            isError = viewModel.manufacturingYearError != null,
-            colors = getOutlineTextFieldColors()
+            errorValue = viewModel.policyHolderUiData.manufactureYearError,
+            selectedOption = getTitle(viewModel.policyHolderUiData.manufactureYear)
         )
-        addErrorText(viewModel.manufacturingYearError)
+        addErrorText(viewModel.policyHolderUiData.manufactureYearError)
     }
 }
 

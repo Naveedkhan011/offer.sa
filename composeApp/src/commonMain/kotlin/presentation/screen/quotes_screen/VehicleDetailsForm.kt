@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import currency
+import dropDownValues
 import offer.composeapp.generated.resources.Res
 import offer.composeapp.generated.resources.ic_baseline_alternate_email_24
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -59,8 +60,8 @@ fun VehicleDetailsForm(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val selectedCoverageType = quoteViewModel.vehicleData.insuranceType
-        val selectedRepairOption = quoteViewModel.vehicleData.vehicleAgencyRepair
+        val selectedCoverageType = quoteViewModel.vehicleUiData.insuranceType
+        val selectedRepairOption = quoteViewModel.vehicleUiData.vehicleAgencyRepair
 
         val firstItem = quoteViewModel.vehicleList[0]
         val sequenceNumber = firstItem.sequenceNumber
@@ -178,7 +179,7 @@ fun VehicleDetailsForm(
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = quoteViewModel.vehicleData.vehicleUseTitle,
+            value = getTitle(quoteViewModel.vehicleUiData.vehicleUse),
             onValueChange = { },
             label = { Text("Purpose of use") },
             readOnly = true,
@@ -205,9 +206,9 @@ fun VehicleDetailsForm(
         Spacer(modifier = Modifier.height(spaceBwFields))
 
         OutlinedTextField(
-            value = quoteViewModel.vehicleData.vehicleValue,
+            value = quoteViewModel.vehicleUiData.vehicleValue,
             onValueChange = {
-                quoteViewModel.vehicleData = quoteViewModel.vehicleData.copy(vehicleValue = it)
+                quoteViewModel.vehicleUiData = quoteViewModel.vehicleUiData.copy(vehicleValue = it)
             },
             label = { Text("Vehicle Estimated Value") },
             leadingIcon = {
@@ -239,9 +240,9 @@ fun VehicleDetailsForm(
         CoverageOptionCard(
             title = "Third-Party Insurance",
             description = "In the event of an accident, you'd seek to shield yourself from legal and financial responsibilities for third-party damages.",
-            isSelected = selectedCoverageType == 1,
+            isSelected = selectedCoverageType == dropDownValues.productType.insuranceTypeCodeModels[0],
             onClick = {
-                quoteViewModel.vehicleData = quoteViewModel.vehicleData.copy(insuranceType = 1)
+                quoteViewModel.vehicleUiData = quoteViewModel.vehicleUiData.copy(insuranceType = dropDownValues.productType.insuranceTypeCodeModels[0])
             },
             showRepairOptions = false
         )
@@ -252,15 +253,15 @@ fun VehicleDetailsForm(
         CoverageOptionCard(
             title = "Comprehensive",
             description = "Offers broader protection, including damages to your own vehicle.",
-            isSelected = selectedCoverageType == 2,
+            isSelected = selectedCoverageType == dropDownValues.productType.insuranceTypeCodeModels[1],
             onClick = {
-                quoteViewModel.vehicleData = quoteViewModel.vehicleData.copy(insuranceType = 2)
+                quoteViewModel.vehicleUiData = quoteViewModel.vehicleUiData.copy(insuranceType = dropDownValues.productType.insuranceTypeCodeModels[1])
             },
-            showRepairOptions = selectedCoverageType == 2,
+            showRepairOptions = selectedCoverageType == dropDownValues.productType.insuranceTypeCodeModels[1],
             selectedRepairOption = selectedRepairOption,
             onRepairOptionClick = {
-                quoteViewModel.vehicleData =
-                    quoteViewModel.vehicleData.copy(vehicleAgencyRepair = it)
+                quoteViewModel.vehicleUiData =
+                    quoteViewModel.vehicleUiData.copy(vehicleAgencyRepair = it)
             }
         )
 

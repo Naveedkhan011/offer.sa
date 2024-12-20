@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DataXX(
+data class PolicyHolderXX(
     @SerialName("active")
     val active: Boolean? = null,
     @SerialName("additionalNumber")
@@ -36,10 +36,6 @@ data class DataXX(
     val dobYear: String? = null,
     @SerialName("email")
     val email: String? = null,
-    @SerialName("errorCode")
-    val errorCode: Int? = null,
-    @SerialName("errorMessage")
-    val errorMessage: String? = null,
     @SerialName("familyNameAr")
     val familyNameAr: String? = null,
     @SerialName("familyNameEn")
@@ -57,7 +53,7 @@ data class DataXX(
     @SerialName("grandFatherNameAr")
     val grandFatherNameAr: String? = null,
     @SerialName("id")
-    val id: Int = 0,
+    val id: Int? = null,
     @SerialName("insuranceEffectiveDate")
     val insuranceEffectiveDate: String? = null,
     @SerialName("insuranceId")
@@ -109,7 +105,7 @@ data class DataXX(
     @SerialName("mobile")
     val mobile: String? = null,
     @SerialName("nationalId")
-    val nationalId: String = "",
+    val nationalId: String? = null,
     @SerialName("nationality")
     val nationality: String? = null,
     @SerialName("postCode")
@@ -119,7 +115,7 @@ data class DataXX(
     @SerialName("quotationPrepId")
     val quotationPrepId: Int? = null,
     @SerialName("referenceNo")
-    var referenceNo: String = "",
+    val referenceNo: String? = null,
     @SerialName("relationship")
     val relationship: String? = null,
     @SerialName("selectedTab")
@@ -129,7 +125,7 @@ data class DataXX(
     @SerialName("sequenceNo")
     val sequenceNo: String? = null,
     @SerialName("sequenceNumber")
-    val sequenceNumber: String = "",
+    val sequenceNumber: String? = null,
     @SerialName("sponsoredId")
     val sponsoredId: String? = null,
     @SerialName("street")

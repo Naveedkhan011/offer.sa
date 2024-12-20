@@ -1,47 +1,47 @@
-package models
+package models.VehicleListModels
 
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class showVehiclesByPolicyholderIdAndOwnerIdResponseItem(
+data class VehicleListModelItem(
     @SerialName("accidentCount")
-    val accidentCount: String? = null,
+    val accidentCount: String? = "",
     @SerialName("active")
     val active: Boolean? = false,
     @SerialName("approved")
-    val approved: String? = null,
+    val approved: String? = String(),
     @SerialName("bodyDescAr")
     val bodyDescAr: String? = "",
     @SerialName("bodyTypeCode")
     val bodyTypeCode: String? = "",
     @SerialName("createdBy")
-    val createdBy: String? = null,
+    val createdBy: String? = String(),
     @SerialName("createdDate")
     val createdDate: String? = "",
     @SerialName("customCard")
-    val customCard: String? = null,
+    val customCard: String? = String(),
     @SerialName("deductibleValue")
-    val deductibleValue: Int? = null,
+    val deductibleValue: Int? = 0,
     @SerialName("dobMonth")
-    val dobMonth: String? = null,
+    val dobMonth: String? = String(),
     @SerialName("dobYear")
-    val dobYear: String? = null,
+    val dobYear: String? = String(),
     @SerialName("drivers")
-    val drivers: List<Drivers?>? = listOf(),
+    val drivers: List<Driver>? = listOf(),
     @SerialName("id")
     val id: Int = 0,
     @SerialName("identificationType")
-    val identificationType: Int? = null,
+    val identificationType: Int? = 0,
     @SerialName("km")
-    val km: String? = null,
+    val km: String? = "",
     @SerialName("lastModifiedBy")
-    val lastModifiedBy: String? = null,
+    val lastModifiedBy: String? = "",
     @SerialName("lastModifiedDate")
     val lastModifiedDate: String? = "",
     @SerialName("manufactureYear")
-    val manufactureYear: Int? = null,
+    val manufactureYear: Int? = 0,
     @SerialName("ncdFreeYears")
     val ncdFreeYears: String? = "",
     @SerialName("ncdReferenceNo")
@@ -51,31 +51,31 @@ data class showVehiclesByPolicyholderIdAndOwnerIdResponseItem(
     @SerialName("policyHolderId")
     val policyHolderId: Int? = 0,
     @SerialName("postCode")
-    val postCode: String? = null,
+    val postCode: String? = String(),
     @SerialName("referenceNo")
     val referenceNo: String? = "",
     @SerialName("sellerNationalId")
-    val sellerNationalId: String? = null,
+    val sellerNationalId: String? = String(),
     @SerialName("sequenceNumber")
     val sequenceNumber: String? = "",
     @SerialName("specification")
     val specification: Boolean? = false,
     @SerialName("specificationCodeIds")
-    val specificationCodeIds: String? = null,
+    val specificationCodeIds: String? = String(),
     @SerialName("specifications")
     val specifications: List<String?>? = listOf(),
     @SerialName("transferOwnership")
     val transferOwnership: Boolean? = false,
     @SerialName("transmission")
-    val transmission: Int? = null,
+    val transmission: Int? = 0,
     @SerialName("user")
-    val user: UserX? = UserX(),
+    val user: User? = User(),
     @SerialName("userId")
     val userId: Int? = 0,
     @SerialName("vehicleAgencyRepair")
-    val vehicleAgencyRepair: String? = null,
+    val vehicleAgencyRepair: String? = String(),
     @SerialName("vehicleAxleWeightCode")
-    val vehicleAxleWeightCode: String? = null,
+    val vehicleAxleWeightCode: String? = String(),
     @SerialName("vehicleChassisNumber")
     val vehicleChassisNumber: String? = "",
     @SerialName("vehicleClassCode")
@@ -83,9 +83,9 @@ data class showVehiclesByPolicyholderIdAndOwnerIdResponseItem(
     @SerialName("vehicleClassDescAr")
     val vehicleClassDescAr: String? = "",
     @SerialName("vehicleCylinders")
-    val vehicleCylinders: String? = null,
+    val vehicleCylinders: String? = String(),
     @SerialName("vehicleEngineSizeCode")
-    val vehicleEngineSizeCode: String? = null,
+    val vehicleEngineSizeCode: String? = String(),
     @SerialName("vehicleId")
     val vehicleId: Int? = 0,
     @SerialName("vehicleMajorColor")
@@ -97,9 +97,9 @@ data class showVehiclesByPolicyholderIdAndOwnerIdResponseItem(
     @SerialName("vehicleMakerCode")
     val vehicleMakerCode: String? = "",
     @SerialName("vehicleMileage")
-    val vehicleMileage: String? = null,
+    val vehicleMileage: String? = String(),
     @SerialName("vehicleMileageExpectedAnnualCode")
-    val vehicleMileageExpectedAnnualCode: String? = null,
+    val vehicleMileageExpectedAnnualCode: String? = String(),
     @SerialName("vehicleModel")
     val vehicleModel: String? = "",
     @SerialName("vehicleModelCode")
@@ -109,9 +109,9 @@ data class showVehiclesByPolicyholderIdAndOwnerIdResponseItem(
     @SerialName("vehicleModification")
     val vehicleModification: Boolean? = false,
     @SerialName("vehicleModificationDetails")
-    val vehicleModificationDetails: String? = null,
+    val vehicleModificationDetails: String? = String(),
     @SerialName("vehicleOvernightParkingLocationCode")
-    val vehicleOvernightParkingLocationCode: String? = null,
+    val vehicleOvernightParkingLocationCode: String? = "",
     @SerialName("vehicleOwnerId")
     val vehicleOwnerId: Long? = 0,
     @SerialName("vehicleOwnerName")
@@ -139,13 +139,13 @@ data class showVehiclesByPolicyholderIdAndOwnerIdResponseItem(
     @SerialName("vehicleSeating")
     val vehicleSeating: Int = 0,
     @SerialName("vehicleTransmissionTypeCode")
-    val vehicleTransmissionTypeCode: Int? = null,
+    val vehicleTransmissionTypeCode: String? = "",
     @SerialName("vehicleTypeCode")
     val vehicleTypeCode: Int? = 0,
     @SerialName("vehicleUseCode")
-    val vehicleUseCode: Int? = null,
+    val vehicleUseCode: Int? = 0,
     @SerialName("vehicleValue")
-    val vehicleValue: Int? = null,
+    val vehicleValue: Int? = 0,
     @SerialName("vehicleWeight")
     val vehicleWeight: Int? = 0,
     @SerialName("version")

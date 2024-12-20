@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dropDownValues
 import presentation.screen.quotes_screen.QuotesViewModel
 import utils.AppConstants.Companion.getCheckBoxColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
@@ -228,7 +229,7 @@ fun AddNewDriverSheet(
                 )
             )
 
-            quoteViewModel.healthConditionList?.insuranceTypeCodeModels?.forEach { item ->
+            dropDownValues.healthConditionList.insuranceTypeCodeModels.forEach { item ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -279,7 +280,7 @@ fun AddNewDriverSheet(
                 )
             )
 
-            quoteViewModel.trafficViolationList?.insuranceTypeCodeModels?.forEach { item ->
+            dropDownValues.trafficViolationList?.insuranceTypeCodeModels?.forEach { item ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -385,18 +386,18 @@ fun AddNewDriverSheet(
         BottomSheet(
             title = "Vehicle Specification",
             data = when (addDriverSelectedSheet) {
-                AddNewDriverBottomSheetCaller.DOB_MONTH -> quoteViewModel.months
-                AddNewDriverBottomSheetCaller.DOB_YEAR -> quoteViewModel.years
-                AddNewDriverBottomSheetCaller.VEHICLE_NIGHT_PARKING -> quoteViewModel.vehicleParking
-                AddNewDriverBottomSheetCaller.DRIVER_RELATIONSHIP -> quoteViewModel.driverRelation
-                AddNewDriverBottomSheetCaller.EDUCATION -> quoteViewModel.educationList
-                AddNewDriverBottomSheetCaller.NO_OF_CHILDREN_BELOW_16 -> quoteViewModel.noOfChildren
-                AddNewDriverBottomSheetCaller.HEALTH_CONDITION -> quoteViewModel.healthConditionList
-                AddNewDriverBottomSheetCaller.TRAFFIC_VIOLATIONS -> quoteViewModel.trafficViolationList
-                AddNewDriverBottomSheetCaller.DRIVER_BUSINESS_CITY -> quoteViewModel.driverBusinessCityList
-                AddNewDriverBottomSheetCaller.DRIVER_NOA_LAST_FIVE_YEARS -> quoteViewModel.accidentCount
-                AddNewDriverBottomSheetCaller.DRIVER_NOC_LAST_FIVE_YEARS -> quoteViewModel.accidentCount
-                AddNewDriverBottomSheetCaller.DRIVING_LICENCE_COUNTRY -> quoteViewModel.drivingLicenceCountryList
+                AddNewDriverBottomSheetCaller.DOB_MONTH -> dropDownValues.monthsEnglish
+                AddNewDriverBottomSheetCaller.DOB_YEAR -> dropDownValues.englishYears
+                AddNewDriverBottomSheetCaller.VEHICLE_NIGHT_PARKING -> dropDownValues.vehicleParking
+                AddNewDriverBottomSheetCaller.DRIVER_RELATIONSHIP -> dropDownValues.driverRelation
+                AddNewDriverBottomSheetCaller.EDUCATION -> dropDownValues.educationList
+                AddNewDriverBottomSheetCaller.NO_OF_CHILDREN_BELOW_16 -> dropDownValues.noOfChildren
+                AddNewDriverBottomSheetCaller.HEALTH_CONDITION -> dropDownValues.healthConditionList
+                AddNewDriverBottomSheetCaller.TRAFFIC_VIOLATIONS -> dropDownValues.trafficViolationList
+                AddNewDriverBottomSheetCaller.DRIVER_BUSINESS_CITY -> dropDownValues.driverBusinessCityList
+                AddNewDriverBottomSheetCaller.DRIVER_NOA_LAST_FIVE_YEARS -> dropDownValues.accidentCount
+                AddNewDriverBottomSheetCaller.DRIVER_NOC_LAST_FIVE_YEARS -> dropDownValues.accidentCount
+                AddNewDriverBottomSheetCaller.DRIVING_LICENCE_COUNTRY -> dropDownValues.drivingLicenceCountryList
             },
             onDismiss = {
                 quoteViewModel.vehicleSpecificationsFieldsSheetVisible = false

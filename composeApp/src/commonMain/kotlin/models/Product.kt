@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Product(
     @SerialName("benefits")
-    val benefits: List<Benefit?>? = null,
+    val benefits: List<Benefit?> = listOf(),
     @SerialName("deductibleValue")
     val deductibleValue: String? = null,
     @SerialName("discount")

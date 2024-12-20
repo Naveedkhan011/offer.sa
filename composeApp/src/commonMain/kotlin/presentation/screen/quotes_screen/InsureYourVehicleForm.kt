@@ -6,11 +6,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -40,9 +39,11 @@ fun IqamaFormScreen(quoteViewModel: QuotesViewModel) {
 
         // National ID/Iqama ID Field
         OutlinedTextField(
-            value = quoteViewModel.nationalID,
+            value = quoteViewModel.policyHolderUiData.nationalId,
             onValueChange = {
-                quoteViewModel.nationalID = it
+                quoteViewModel.policyHolderUiData = quoteViewModel.policyHolderUiData.copy(
+                    nationalId = it
+                )
                 quoteViewModel.verifyIqamaLocally()
             },
             label = {
@@ -53,40 +54,45 @@ fun IqamaFormScreen(quoteViewModel: QuotesViewModel) {
             },
             trailingIcon = { Icon(Icons.Default.Info, contentDescription = "Info") },
             modifier = Modifier.fillMaxWidth(),
-            isError = quoteViewModel.nationalIDError != null,
+            isError = quoteViewModel.policyHolderUiData.nationalIDError != null,
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(quoteViewModel.nationalIDError)
+        addErrorText(quoteViewModel.policyHolderUiData.nationalIDError)
 
         Spacer(modifier = Modifier.height(spaceBwFields))
 
-        DropdownField(
-            label = "DOB Month",
-            onclick = {
-                quoteViewModel.selectedSheet = BottomSheetCaller.MONTH
-            },
-            modifier = Modifier.fillMaxWidth(),
-            errorValue = quoteViewModel.dobError,
-            selectedOption = getTitle(quoteViewModel.selectedMonth)
-        )
+        if (quoteViewModel.policyHolderUiData.nationalId.isNotEmpty()) {
+            DropdownField(
+                label = "DOB Month",
+                onclick = {
+                    quoteViewModel.selectedSheet = BottomSheetCaller.MONTH
+                },
+                modifier = Modifier.fillMaxWidth(),
+                errorValue = quoteViewModel.policyHolderUiData.dobMonthError,
+                selectedOption = getTitle(quoteViewModel.policyHolderUiData.dobMonth)
+            )
 
-        Spacer(modifier = Modifier.height(spaceBwFields))
+            Spacer(modifier = Modifier.height(spaceBwFields))
 
-        DropdownField(
-            label = "DOB Year",
-            onclick = {
-                quoteViewModel.selectedSheet = BottomSheetCaller.YEAR
-            },
-            modifier = Modifier.fillMaxWidth(),
-            errorValue = quoteViewModel.dobYearError,
-            selectedOption = getTitle(quoteViewModel.selectedYear)
-        )
+            DropdownField(
+                label = "DOB Year",
+                onclick = {
+                    quoteViewModel.selectedSheet = BottomSheetCaller.YEAR
+                },
+                modifier = Modifier.fillMaxWidth(),
+                errorValue = quoteViewModel.policyHolderUiData.dobYearError,
+                selectedOption = getTitle(quoteViewModel.policyHolderUiData.dobYear)
+            )
 
-        Spacer(modifier = Modifier.height(spaceBwFields))
+            Spacer(modifier = Modifier.height(spaceBwFields))
+        }
+
         OutlinedTextField(
-            value = quoteViewModel.sequenceNumber,
+            value = quoteViewModel.policyHolderUiData.sequenceNumber,
             onValueChange = {
-                quoteViewModel.sequenceNumber = it
+                quoteViewModel.policyHolderUiData = quoteViewModel.policyHolderUiData.copy(
+                    sequenceNumber = it
+                )
                 quoteViewModel.verifySequenceNumberLocally()
             },
             label = { Text("Sequence Number") },
@@ -97,20 +103,23 @@ fun IqamaFormScreen(quoteViewModel: QuotesViewModel) {
                     tint = AppColors.AppColor
                 )
             },
-            isError = quoteViewModel.sequenceNumberError != null,
+            isError = quoteViewModel.policyHolderUiData.sequenceNumberError != null,
             modifier = Modifier.fillMaxWidth(),
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(quoteViewModel.sequenceNumberError)
+        addErrorText(quoteViewModel.policyHolderUiData.sequenceNumberError)
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = quoteViewModel.effectiveYear,
-            onValueChange = { quoteViewModel.effectiveYear = it },
+            value = quoteViewModel.policyHolderUiData.insuranceEffectiveDate,
+            onValueChange = {
+                quoteViewModel.policyHolderUiData =
+                    quoteViewModel.policyHolderUiData.copy(insuranceEffectiveDate = it)
+            },
             label = { Text("Effective Date") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.MailOutline,
+                    imageVector = Icons.Default.DateRange,
                     contentDescription = null,
                     tint = AppColors.AppColor
                 )
@@ -125,12 +134,11 @@ fun IqamaFormScreen(quoteViewModel: QuotesViewModel) {
                     }
                 )
             },
-            isError = quoteViewModel.effectiveYearError != null,
+            isError = quoteViewModel.policyHolderUiData.insuranceEffectiveDate.isEmpty(),
             modifier = Modifier.fillMaxWidth(),
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(quoteViewModel.effectiveYearError)
-
+        addErrorText(quoteViewModel.policyHolderUiData.insuranceEffectiveDateError)
     }
 }
 

@@ -42,12 +42,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
+import dropDownValues
 import models.enums.InsuranceType
 import models.showDriverByVehicleIdResponseItem
 import navigator
 import presentation.bottom_sheets.BottomSheet
 import presentation.bottom_sheets.DateBottomSheet
 import presentation.bottom_sheets.DriverListSheet
+import presentation.bottom_sheets.InsuranceDetailSheet
 import presentation.bottom_sheets.VehicleSpecificationsBottomSheet
 import presentation.screen.login.LoginScreen
 import showError
@@ -59,11 +61,11 @@ import utils.AppConstants.Companion.getOutlineTextFieldColors
 import utils.LogInManager
 
 private const val TOTAL_STEPS = 5
-private var selectedInsuranceType: InsuranceType = InsuranceType.INSURE_YOUR_VEHICLE
+public var selectedInsuranceType: InsuranceType = InsuranceType.INSURE_YOUR_VEHICLE
 private lateinit var quoteViewModel: QuotesViewModel
 
 enum class BottomSheetCaller {
-    MONTH, YEAR, PURPOSE
+    MONTH, YEAR, PURPOSE, MANUFACTURING_YEAR
 }
 
 val spaceBwFields = 10.dp
@@ -80,9 +82,12 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
     @Composable
     override fun Content() {
 
-        selectedInsuranceType = insuranceType;
+        selectedInsuranceType = insuranceType
         quoteViewModel = getScreenModel<QuotesViewModel>()
         uiQuotesState = quoteViewModel.quotesApiStates.collectAsState().value
+        quoteViewModel.vehicleData =
+            quoteViewModel.vehicleData.copy(identificationType = if (insuranceType == InsuranceType.CUSTOM_CARD) 2 else 1)
+        //quoteViewModel.currentStep = 5
 
         Scaffold(topBar = {
             CenterAlignedTopAppBar(title = { Text(text = "Get Quotes") }, navigationIcon = {
@@ -141,8 +146,7 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
 
                             Row(verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth().clickable {
-                                    quoteViewModel.privacyAccepted =
-                                        !quoteViewModel.privacyAccepted
+                                    quoteViewModel.privacyAccepted = !quoteViewModel.privacyAccepted
                                 }) {
                                 Checkbox(
                                     checked = quoteViewModel.privacyAccepted, onCheckedChange = {
@@ -184,32 +188,25 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                                 // uriHandler.openUri("https://kotlinlang.org/docs/multiplatform.html")
 
                                 if (LogInManager.loggedIn) {
-                                    //currentStep++
+                                    //quoteViewModel.currentStep++
                                     when (quoteViewModel.currentStep) {
                                         1 -> {
                                             quoteViewModel.createPolicyHolder(insuranceType)
                                         }
 
                                         2 -> {
-                                            quoteViewModel.updateVehicle(quoteViewModel.vehicleList[0].id!!)
+                                            quoteViewModel.updateVehicle()
                                         }
 
                                         3 -> {
-                                            quoteViewModel.createPolicyHolderResponse.data.referenceNo?.let {
-                                                quoteViewModel.getQuotesList("RM5WLWDMAU00")
-                                                //quoteViewModel.getQuotesList(quoteViewModel.createPolicyHolderResponse.data.referenceNo!!)
-                                            }
+                                            quoteViewModel.changeReferenceNoOnQuotation(
+                                                quoteViewModel.createPolicyHolderResponse.data.referenceNo,
+                                                quoteViewModel.createPolicyHolderResponse.data.id
+                                            )
                                         }
 
                                         4 -> {
-                                            quoteViewModel.createInvoice(
-                                                "1007",
-                                                null,
-                                                1,
-                                                "RM5WLWDMAU00",
-                                                listOf("25", "26"),
-                                                15
-                                            )
+
                                         }
 
                                         5 -> {
@@ -268,24 +265,50 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
             }
         }
 
+
         if (quoteViewModel.isSheetVisible) {
             BottomSheet(title = "User Data", onDismiss = {
                 quoteViewModel.isSheetVisible = false
             }, onSelected = {
                 when (quoteViewModel.selectedSheet) {
-                    BottomSheetCaller.MONTH -> quoteViewModel.selectedMonth = it
-                    BottomSheetCaller.YEAR -> quoteViewModel.selectedYear = it
+                    BottomSheetCaller.MONTH -> {
+                        quoteViewModel.policyHolderUiData = quoteViewModel.policyHolderUiData.copy(
+                            dobMonth = it
+                        )
+                    }
+
+                    BottomSheetCaller.YEAR -> {
+                        quoteViewModel.policyHolderUiData = quoteViewModel.policyHolderUiData.copy(
+                            dobYear = it
+                        )
+                    }
+
                     BottomSheetCaller.PURPOSE -> {
-                        quoteViewModel.vehicleData =
-                            quoteViewModel.vehicleData.copy(vehicleUseTitle = getTitle(it))
-                        quoteViewModel.vehicleData.vehicleUseCode = it.code
+                        quoteViewModel.vehicleUiData =
+                            quoteViewModel.vehicleUiData.copy(vehicleUse = it)
+                    }
+
+                    BottomSheetCaller.MANUFACTURING_YEAR -> {
+                        quoteViewModel.policyHolderUiData = quoteViewModel.policyHolderUiData.copy(
+                            manufactureYear = it
+                        )
                     }
                 }
                 quoteViewModel.isSheetVisible = false
             }, data = when (quoteViewModel.selectedSheet) {
-                BottomSheetCaller.MONTH -> quoteViewModel.months
-                BottomSheetCaller.YEAR -> quoteViewModel.years
-                BottomSheetCaller.PURPOSE -> quoteViewModel.vehiclePurposeList
+                BottomSheetCaller.MONTH -> if (quoteViewModel.policyHolderUiData.nationalId.startsWith(
+                        "1"
+                    )
+                ) dropDownValues.monthsArabic else dropDownValues.monthsEnglish
+
+                BottomSheetCaller.YEAR -> if (quoteViewModel.policyHolderUiData.nationalId.startsWith(
+                        "1"
+                    )
+                ) dropDownValues.arabicYears else dropDownValues.englishYears
+
+                BottomSheetCaller.PURPOSE -> dropDownValues.vehiclePurposeList
+
+                BottomSheetCaller.MANUFACTURING_YEAR -> dropDownValues.manufactureYear
             }
             )
         }
@@ -308,9 +331,24 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
             DateBottomSheet("Select Effective Date", onDismissSheet = {
                 quoteViewModel.datePickerSheetVisible = false
             }, onDateSelected = {
-                quoteViewModel.effectiveYear = it
+                quoteViewModel.policyHolderUiData = quoteViewModel.policyHolderUiData.copy(
+                    insuranceEffectiveDate = it
+                )
                 quoteViewModel.datePickerSheetVisible = false
             })
+        }
+        if (quoteViewModel.policyDetailsSheetVisible) {
+            InsuranceDetailSheet(onDismiss = {
+                quoteViewModel.policyDetailsSheetVisible = false
+            }, onBuyPolicy = {
+                quoteViewModel.policyDetailsSheetVisible = false
+                print("some message")
+            }, quote = quoteViewModel.selectedQuote
+            )
+        }
+
+        if (quoteViewModel.buyButtonClicked) {
+            quoteViewModel.currentStep = 5
         }
     }
 }
@@ -355,16 +393,10 @@ fun GetQuoteForm(progress: Int) {
         }
 
         else -> {
-            PaymentCompose(quoteViewModel)
+            ReviewInsurancePolicy(quoteViewModel)
         }
     }
 }
-
-@Composable
-fun PaymentCompose(quoteViewModel: QuotesViewModel) {
-    Text(text = "Payment", modifier = Modifier.fillMaxSize())
-}
-
 
 @Composable
 fun policyHolderCompose() {
@@ -421,8 +453,7 @@ fun DropdownField(
 
     Column(modifier) {
 
-        OutlinedTextField(
-            value = selectedOption,
+        OutlinedTextField(value = selectedOption,
             onValueChange = {},
             isError = errorValue != null,
             label = { Text(text = label) },

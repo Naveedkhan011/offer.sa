@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.Icon
@@ -41,9 +42,11 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
 
         // National ID/Iqama ID Field
         OutlinedTextField(
-            value = viewModel.nationalID,
+            value = viewModel.policyHolderUiData.nationalId,
             onValueChange = {
-                viewModel.nationalID = it
+                viewModel.policyHolderUiData = viewModel.policyHolderUiData.copy(
+                    nationalId = it
+                )
                 viewModel.verifyIqamaLocally()
             },
             label = {
@@ -54,10 +57,10 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
             },
             trailingIcon = { Icon(Icons.Default.Info, contentDescription = "Info") },
             modifier = Modifier.fillMaxWidth(),
-            isError = viewModel.nationalIDError != null,
+            isError = viewModel.policyHolderUiData.nationalIDError != null,
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(viewModel.nationalIDError)
+        addErrorText(viewModel.policyHolderUiData.nationalIDError)
 
         Spacer(modifier = Modifier.height(spaceBwFields))
 
@@ -75,8 +78,8 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
                 viewModel.selectedSheet = BottomSheetCaller.MONTH
             },
             modifier = Modifier.fillMaxWidth(),
-            errorValue = viewModel.dobError,
-            selectedOption = getTitle(viewModel.selectedMonth)
+            errorValue = viewModel.policyHolderUiData.dobMonthError,
+            selectedOption = getTitle(viewModel.policyHolderUiData.dobMonth)
         )
 
         Spacer(modifier = Modifier.height(spaceBwFields))
@@ -87,15 +90,17 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
                 viewModel.selectedSheet = BottomSheetCaller.YEAR
             },
             modifier = Modifier.fillMaxWidth(),
-            errorValue = viewModel.dobYearError,
-            selectedOption = getTitle(viewModel.selectedYear)
+            errorValue = viewModel.policyHolderUiData.dobYearError,
+            selectedOption = getTitle(viewModel.policyHolderUiData.dobYear)
         )
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = viewModel.sequenceNumber,
+            value = viewModel.policyHolderUiData.sequenceNumber,
             onValueChange = {
-                viewModel.sequenceNumber = it
+                viewModel.policyHolderUiData = viewModel.policyHolderUiData.copy(
+                    sequenceNumber = it
+                )
                 viewModel.verifySequenceNumberLocally()
             },
             label = { Text("Sequence Number") },
@@ -106,25 +111,29 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
                     tint = AppColors.AppColor
                 )
             },
-            isError = viewModel.sequenceNumberError != null,
+            isError = viewModel.policyHolderUiData.sequenceNumberError != null,
             modifier = Modifier.fillMaxWidth(),
             colors = getOutlineTextFieldColors()
         )
 
-        addErrorText(viewModel.sequenceNumberError)
+        addErrorText(viewModel.policyHolderUiData.sequenceNumberError)
 
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = viewModel.effectiveYear,
-            onValueChange = { viewModel.effectiveYear = it },
+            value = viewModel.policyHolderUiData.insuranceEffectiveDate,
+            onValueChange = {
+                viewModel.policyHolderUiData =
+                    viewModel.policyHolderUiData.copy(insuranceEffectiveDate = it)
+            },
             label = { Text("Effective Date") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.MailOutline,
+                    imageVector = Icons.Default.DateRange,
                     contentDescription = null,
                     tint = AppColors.AppColor
                 )
             },
+            readOnly = true,
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
@@ -134,18 +143,21 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
                     }
                 )
             },
-            readOnly = true,
-            isError = viewModel.effectiveYearError != null,
+            isError = viewModel.policyHolderUiData.insuranceEffectiveDateError != null,
             modifier = Modifier.fillMaxWidth(),
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(viewModel.effectiveYearError)
+        addErrorText(viewModel.policyHolderUiData.insuranceEffectiveDateError)
 
         // National ID/Iqama ID Field
         Spacer(modifier = Modifier.height(spaceBwFields))
         OutlinedTextField(
-            value = viewModel.sellerNationalId,
-            onValueChange = { viewModel.sellerNationalId = it },
+            value = viewModel.policyHolderUiData.sellerNationalId,
+            onValueChange = {
+                viewModel.policyHolderUiData = viewModel.policyHolderUiData.copy(
+                    sellerNationalId = it
+                )
+            },
             label = {
                 Text(
                     text = "National ID/Iqama ID/Company Unified ID(Seller)",
@@ -154,10 +166,10 @@ fun OwnerTransferFormScreen(viewModel: QuotesViewModel) {
             },
             trailingIcon = { Icon(Icons.Default.Info, contentDescription = "Info") },
             modifier = Modifier.fillMaxWidth(),
-            isError = viewModel.sellerNationalIdError != null,
+            isError = viewModel.policyHolderUiData.sellerNationalIdError != null,
             colors = getOutlineTextFieldColors()
         )
-        addErrorText(viewModel.sellerNationalIdError)
+        addErrorText(viewModel.policyHolderUiData.sellerNationalIdError)
 
     }
 }

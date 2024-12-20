@@ -5,24 +5,19 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UpdateVehicleResponse(
-    @SerialName("errorCode")
-    val errorCode: Int? = null,
-    @SerialName("errorMessage")
-    val errorMessage: String? = "",
-
+data class CreateInvoiceResponse(
     @SerialName("code")
     val code: String? = String(),
     @SerialName("data")
-    val `data`: DataXXXX? = DataXXXX(),
+    val `data`: DataXXXXXX? = DataXXXXXX(),
     @SerialName("flag")
     val flag: Boolean? = false,
     @SerialName("message")
-    val message: String = "",
+    val message: String? = String(),
     @SerialName("objectData")
     val objectData: String? = String(),
     @SerialName("success")
-    val success: Boolean = false,
+    val success: Boolean? = false,
     @SerialName("total")
     val total: String? = String()
 )

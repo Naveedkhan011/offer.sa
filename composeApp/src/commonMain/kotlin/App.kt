@@ -23,7 +23,6 @@ import org.koin.dsl.module
 import preference.KMMPreference
 import presentation.components.CustomToast
 import presentation.components.FullScreenLoadingDialog
-import presentation.screen.ReviewInsurance.ReviewInsurancePolicy
 import presentation.screen.forgot_password.ForgotPasswordViewModel
 import presentation.screen.login.SignInViewModel
 import presentation.screen.main_screen.HomeViewModel
@@ -90,7 +89,7 @@ fun App(sharedPreference: KMMPreference) {
     )
     MaterialTheme(colorScheme = colors) {
 
-        Navigator(ReviewInsurancePolicy()) {
+        Navigator(Splash()) {
             SlideTransition(it)
         }
 

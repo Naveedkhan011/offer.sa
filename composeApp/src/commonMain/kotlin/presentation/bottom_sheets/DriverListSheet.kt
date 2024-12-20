@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import dropDownValues
 import presentation.screen.quotes_screen.QuotesViewModel
 import utils.AppColors
 
@@ -185,8 +186,8 @@ fun DriverListSheet(
                                 mutableStateOf(false)
                             }
 
-                            quoteViewModel.driverPercentageList?.insuranceTypeCodeModels!!.forEach { percentage ->
-                                selectedPercentage = percentage!!.code == driver.driverDrivingPercentage
+                            dropDownValues.driverPercentageList.insuranceTypeCodeModels.forEach { percentage ->
+                                selectedPercentage = percentage.code == driver.driverDrivingPercentage
 
                                 Box(
                                     modifier = Modifier
@@ -207,7 +208,7 @@ fun DriverListSheet(
                                                     driver.driverDrivingPercentage = percentage.code
                                                 }
                                             },
-                                        text = "${percentage?.code}%",
+                                        text = "${percentage.code}%",
                                         style = MaterialTheme.typography.labelSmall.copy(
                                             color = if (selectedPercentage) Color.White else Color.Black // Change text color
                                         ),

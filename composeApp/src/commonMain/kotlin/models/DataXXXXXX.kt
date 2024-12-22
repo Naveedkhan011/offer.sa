@@ -25,9 +25,9 @@ data class DataXXXXXX(
     @SerialName("quoteCreationTime")
     val quoteCreationTime: String? = "",
     @SerialName("subTotal")
-    val subTotal: Double? = 0.0,
+    val subTotal: Double = 0.0,
     @SerialName("totalAmountWithVat")
-    val totalAmountWithVat: Double? = 0.0,
+    val totalAmountWithVat: Double = 0.0,
     @SerialName("totalVat")
-    val totalVat: Double? = 0.0
+    val totalVat: Double = 0.0
 )

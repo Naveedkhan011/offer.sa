@@ -31,7 +31,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,8 +51,6 @@ import presentation.bottom_sheets.DriverListSheet
 import presentation.bottom_sheets.InsuranceDetailSheet
 import presentation.bottom_sheets.VehicleSpecificationsBottomSheet
 import presentation.screen.login.LoginScreen
-import showError
-import showLoading
 import utils.AppColors
 import utils.AppConstants.Companion.getButtonColors
 import utils.AppConstants.Companion.getCheckBoxColors
@@ -65,7 +62,7 @@ public var selectedInsuranceType: InsuranceType = InsuranceType.INSURE_YOUR_VEHI
 private lateinit var quoteViewModel: QuotesViewModel
 
 enum class BottomSheetCaller {
-    MONTH, YEAR, PURPOSE, MANUFACTURING_YEAR
+    MONTH, YEAR, PURPOSE, MANUFACTURING_YEAR, COUNTRY
 }
 
 val spaceBwFields = 10.dp
@@ -85,8 +82,8 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
         selectedInsuranceType = insuranceType
         quoteViewModel = getScreenModel<QuotesViewModel>()
         uiQuotesState = quoteViewModel.quotesApiStates.collectAsState().value
-        quoteViewModel.vehicleData =
-            quoteViewModel.vehicleData.copy(identificationType = if (insuranceType == InsuranceType.CUSTOM_CARD) 2 else 1)
+        quoteViewModel.updateVehicleBodyData =
+            quoteViewModel.updateVehicleBodyData.copy(identificationType = if (insuranceType == InsuranceType.CUSTOM_CARD) 2 else 1)
         //quoteViewModel.currentStep = 5
 
         Scaffold(topBar = {
@@ -228,7 +225,7 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
             }
         }
 
-        when (val state = uiQuotesState.apiStatus) {
+        /*when (val state = uiQuotesState.apiStatus) {
 
             is QuotesApiStates.None -> {}
 
@@ -263,14 +260,21 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                     showError(message)
                 }
             }
-        }
+        }*/
 
 
         if (quoteViewModel.isSheetVisible) {
-            BottomSheet(title = "User Data", onDismiss = {
+            BottomSheet(title = "Select a option", onDismiss = {
                 quoteViewModel.isSheetVisible = false
             }, onSelected = {
                 when (quoteViewModel.selectedSheet) {
+                    BottomSheetCaller.COUNTRY -> {
+                        quoteViewModel.billingDetailsUIData =
+                            quoteViewModel.billingDetailsUIData.copy(
+                                billingCountry = it
+                            )
+                    }
+
                     BottomSheetCaller.MONTH -> {
                         quoteViewModel.policyHolderUiData = quoteViewModel.policyHolderUiData.copy(
                             dobMonth = it
@@ -307,8 +311,8 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                 ) dropDownValues.arabicYears else dropDownValues.englishYears
 
                 BottomSheetCaller.PURPOSE -> dropDownValues.vehiclePurposeList
-
                 BottomSheetCaller.MANUFACTURING_YEAR -> dropDownValues.manufactureYear
+                BottomSheetCaller.COUNTRY -> dropDownValues.drivingLicenceCountryList
             }
             )
         }
@@ -338,12 +342,13 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
             })
         }
         if (quoteViewModel.policyDetailsSheetVisible) {
-            InsuranceDetailSheet(onDismiss = {
-                quoteViewModel.policyDetailsSheetVisible = false
-            }, onBuyPolicy = {
-                quoteViewModel.policyDetailsSheetVisible = false
-                print("some message")
-            }, quote = quoteViewModel.selectedQuote
+            InsuranceDetailSheet(
+                quotesViewModel = quoteViewModel,
+                onDismiss = {
+                    quoteViewModel.policyDetailsSheetVisible = false
+                }, onBuyPolicy = {
+                    quoteViewModel.policyDetailsSheetVisible = false
+                }, quote = quoteViewModel.selectedQuote
             )
         }
 
@@ -453,7 +458,8 @@ fun DropdownField(
 
     Column(modifier) {
 
-        OutlinedTextField(value = selectedOption,
+        OutlinedTextField(
+            value = selectedOption,
             onValueChange = {},
             isError = errorValue != null,
             label = { Text(text = label) },

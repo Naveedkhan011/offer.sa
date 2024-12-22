@@ -17,5 +17,7 @@ data class ResponseTPL(
     @SerialName("rootErrors")
     val rootErrors: List<String?>? = null,
     @SerialName("statusCode")
-    val statusCode: Int? = null
+    val statusCode: Int? = null,
+
+    var isExpended : Boolean = false
 )

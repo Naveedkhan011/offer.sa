@@ -13,7 +13,7 @@ data class Benefit(
     @SerialName("benefitDescEn")
     val benefitDescEn: String? = null,
     @SerialName("benefitId")
-    val benefitId: String? = null,
+    val benefitId: String = "",
     @SerialName("benefitNameAr")
     val benefitNameAr: String? = null,
     @SerialName("benefitNameEn")

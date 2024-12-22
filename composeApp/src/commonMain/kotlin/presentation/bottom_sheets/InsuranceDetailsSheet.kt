@@ -46,6 +46,8 @@ import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import models.ResponseTPL
 import openWeb
+import presentation.screen.quotes_screen.QuotesViewModel
+import presentation.screen.quotes_screen.currentLanguage
 import presentation.screen.quotes_screen.spaceBwFields
 import utils.AppConstants
 
@@ -54,16 +56,12 @@ import utils.AppConstants
 fun InsuranceDetailSheet(
     onDismiss: () -> Unit,
     onBuyPolicy: () -> Unit,
+    quotesViewModel: QuotesViewModel,
     quote: ResponseTPL
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-
-    var driverChecked by remember { mutableStateOf(false) }
-    var passengersChecked by remember { mutableStateOf(false) }
-    var roadsideChecked by remember { mutableStateOf(false) }
-
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -87,6 +85,7 @@ fun InsuranceDetailSheet(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Card(
+                        modifier = Modifier.padding(4.dp),
                         elevation = CardDefaults.cardElevation(2.dp),
                         shape = CircleShape
                     ) {
@@ -120,9 +119,10 @@ fun InsuranceDetailSheet(
                             )
                         }
                     }
+
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = "$currency ${quote.products?.get(0)?.productPrice.toString()}",
+                        text = "$currency ${quote.products[0]?.productPrice.toString()}",
                         fontSize = 14.sp,
                         textAlign = TextAlign.End,
                         fontWeight = FontWeight.Bold,
@@ -160,12 +160,24 @@ fun InsuranceDetailSheet(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 quote.products[0]?.benefits?.forEach { benefit ->
-                    if (benefit != null && benefit.benefitPrice != 0.0) {
+                    if (benefit != null && benefit.benefitPrice > 0.0) {
                         CheckboxItem(
-                            label = benefit.benefitNameEn,
+                            benefit.benefitId,
+                            label = if (currentLanguage == "en") {
+                                benefit.benefitNameEn ?: ""
+                            } else {
+                                benefit.benefitNameAr ?: ""
+                            },
                             price = "+ ${benefit.benefitPrice} $currency",
-                            checked = driverChecked,
-                            onCheckedChange = { driverChecked = it }
+                            checked = quotesViewModel.createInvoiceUiModel.selectedBenifitIds.contains(benefit.benefitId),
+                            onCheckedChange = { checked, id ->
+                                val list = ArrayList(quotesViewModel.createInvoiceUiModel.selectedBenifitIds)
+                                if (checked) { list.add(id) } else { list.remove(id) }
+
+                                quotesViewModel.createInvoiceUiModel = quotesViewModel.createInvoiceUiModel.copy(
+                                    selectedBenifitIds = list,
+                                )
+                            }
                         )
                     }
                 }
@@ -179,8 +191,7 @@ fun InsuranceDetailSheet(
                 onClick = {
                     quoteViewModel.createInvoice(
                         quote.header.companyCode,
-                        quote.products[0]?.deductibleValue,
-                        quoteViewModel.selectedBenefitsIds
+                        quote.products[0]?.deductibleValue
                     )
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007BFF)),
@@ -219,16 +230,17 @@ fun CoverageItem(text: String) {
 
 @Composable
 fun CheckboxItem(
+    benefit: String,
     label: String,
     price: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean, String) -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth().clickable {
-            onCheckedChange(!checked)
+            onCheckedChange(!checked, benefit)
         }
     ) {
         Row(
@@ -237,7 +249,9 @@ fun CheckboxItem(
         ) {
             Checkbox(
                 checked = checked,
-                onCheckedChange = onCheckedChange,
+                onCheckedChange = {
+                    onCheckedChange(it, benefit)
+                },
                 colors = AppConstants.getCheckBoxColors()
             )
             Text(

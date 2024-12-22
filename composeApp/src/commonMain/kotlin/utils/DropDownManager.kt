@@ -68,7 +68,8 @@ class DropDownManager : ScreenModel {
         year.insuranceTypeCodeModels.forEach { item ->
             if (arabic) {
                 item.description.en = item.description.ar
-            }
+            }else
+                item.description.ar = item.description.en
         }
         return year
     }
@@ -128,6 +129,9 @@ class DropDownManager : ScreenModel {
 
     val productType: DataXXX
         get() = getData(5)
+
+    val paymentMethodsList: DataXXX
+        get() = getData(43)
 
     // Static Data
     fun getChildrenCount(): List<InsuranceTypeCodeModel> {

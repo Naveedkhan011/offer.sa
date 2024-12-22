@@ -17,5 +17,5 @@ data class Discount(
     @SerialName("priceTypeCode")
     val priceTypeCode: String? = null,
     @SerialName("priceValue")
-    val priceValue: Double? = null
+    val priceValue: Double = 0.0
 )

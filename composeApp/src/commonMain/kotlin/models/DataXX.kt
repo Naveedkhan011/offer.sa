@@ -129,7 +129,7 @@ data class DataXX(
     @SerialName("sequenceNo")
     val sequenceNo: String? = null,
     @SerialName("sequenceNumber")
-    val sequenceNumber: String = "",
+    val sequenceNumber: String? = "",
     @SerialName("sponsoredId")
     val sponsoredId: String? = null,
     @SerialName("street")

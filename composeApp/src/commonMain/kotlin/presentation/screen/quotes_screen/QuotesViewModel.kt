@@ -25,27 +25,33 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import models.BillingDetailsBody
 import models.ChangeReferenceNoResponse
-import models.CreateDriverBody
+import models.ui_models.CreateDriverBody
 import models.CreateInvoiceResponse
 import models.CreatePolicyHolderBody
 import models.CreatePolicyHolderResponse
 import models.ErrorResponse
 import models.GeneralResponse
+import models.InsuranceTypeCodeModel
+import models.PaymentOTPResponse
 import models.QuotesListResponse
 import models.ResponseTPL
 import models.UpdateVehicleBodyDTO
 import models.UpdateVehicleResponse
 import models.VehicleListModels.VehicleListModelItem
 import models.VehiclesSequenceIdResponse
+import models.VerifyPaymentOTPResponse
 import models.enums.InsuranceType
 import models.showDriverByVehicleIdResponseItem
-import models.showVehiclesByPolicyholderIdAndOwnerIdResponseItem
+import models.ui_models.BillingDetailsUIData
+import models.ui_models.CreateInvoiceModel
 import models.ui_models.PolicyHolderUiData
 import models.ui_models.VehicleUiData
 import navigator
 import network.Ktor
 import network.createDriverEndPoint
+import presentation.bottom_sheets.quoteViewModel
 import presentation.screen.login.LoginScreen
 import showError
 import showLoading
@@ -72,32 +78,34 @@ class QuotesViewModel : ScreenModel {
     }
 
     private fun reset() {
-
+        currentStep = 1
     }
 
     // ui model
 
+    var paymentOTPResponse by mutableStateOf(PaymentOTPResponse())
     var currentStep by mutableStateOf(1)
-    var policyHolderUiData by mutableStateOf(
-        buildPolicyHolderUiData()
-    )
+    var policyHolderUiData by mutableStateOf(buildPolicyHolderUiData())
+    var updateVehicleBodyData by mutableStateOf(UpdateVehicleBodyDTO())
 
     var vehicleUiData by mutableStateOf(
         buildVehicleUiData()
     )
 
+    var billingDetailsUIData by mutableStateOf(
+        BillingDetailsUIData(
+            billingCountry = dropDownValues.drivingLicenceCountryList.insuranceTypeCodeModels[0]
+        )
+    )
 
     var createPolicyHolderResponse by mutableStateOf(CreatePolicyHolderResponse())
     var createInvoiceResponse by mutableStateOf(CreateInvoiceResponse())
 
     //vehicle info variables
-    var vehicleData by mutableStateOf(
-        UpdateVehicleBodyDTO()
-    )
 
 
     var newSpecificationCodeIds = emptyList<Int>().toMutableStateList()
-    var isFromInvoice = false;
+    private var isFromInvoice = false
 
 
     //driver info variables
@@ -119,6 +127,7 @@ class QuotesViewModel : ScreenModel {
     var selectedPercentage by mutableStateOf(false)
 
     var isSheetVisible by mutableStateOf(false)  // State for dropdown menu
+    var paymentOTPVisible by mutableStateOf(false)  // State for dropdown menu
     var isVehicleSpecificationSheetVisible by mutableStateOf(false)  // State for dropdown menu
     var vehicleSpecificationsFieldsSheetVisible by mutableStateOf(false)  // State for dropdown menu
     var addNewDriverSheetVisible by mutableStateOf(false)  // State for dropdown menu
@@ -142,7 +151,8 @@ class QuotesViewModel : ScreenModel {
 
     // vehicle list
     var vehicleList: MutableList<VehicleListModelItem> = mutableListOf()
-    var selectedBenefitsIds: MutableList<String> = mutableListOf()
+    var createInvoiceUiModel by mutableStateOf(CreateInvoiceModel())
+
 
     //quotes list
     var quotes by mutableStateOf(QuotesListResponse())
@@ -177,6 +187,9 @@ class QuotesViewModel : ScreenModel {
                         Ktor.client.post("/portal-api/insurance/rest/createPolicyHolder") {
                             header(HttpHeaders.ContentType, ContentType.Application.Json)
                             header(HttpHeaders.Accept, ContentType.Application.Json)
+                            LogInManager.getLoggedInUser()?.token?.let { token ->
+                                header(HttpHeaders.Authorization, "Bearer $token")
+                            }
                             setBody(body)
                         }.body<CreatePolicyHolderResponse>()
 
@@ -189,10 +202,11 @@ class QuotesViewModel : ScreenModel {
                         )
 
                         getVehiclesSequenceId(
-                            createPolicyHolderResponse.data.nationalId,
-                            createPolicyHolderResponse.data.sequenceNumber
+                            policyHolderUiData.nationalId,
+                            //createPolicyHolderResponse.data.nationalId,
+                            //createPolicyHolderResponse.data.sequenceNumber
+                            policyHolderUiData.sequenceNumber
                         )
-
                     } else {
                         hideLoading()
                         showError(response.errorMessage.toString())
@@ -211,29 +225,39 @@ class QuotesViewModel : ScreenModel {
         screenModelScope.launch {
             try {
                 val response =
-                    Ktor.client.get("/portal-api/insurance/rest/showVehiclesByPolicyholderIdAndOwnerId/$policyHolderID/$nationalID")
+                    Ktor.client.get("/portal-api/insurance/rest/showVehiclesByPolicyholderIdAndOwnerId/$policyHolderID/$nationalID") {
+                        LogInManager.getLoggedInUser()?.token?.let { token ->
+                            header(HttpHeaders.Authorization, "Bearer $token")
+                        }
+                    }
 
                 try {
                     val responseBody = response.bodyAsText()
-                    vehicleList =
-                        json.decodeFromString(
-                            kotlinx.serialization.builtins.ListSerializer(
-                                VehicleListModelItem.serializer()
-                            ),
-                            responseBody
-                        ).toMutableList()
+                    vehicleList = json.decodeFromString(
+                        kotlinx.serialization.builtins.ListSerializer(
+                            VehicleListModelItem.serializer()
+                        ),
+                        responseBody
+                    ).toMutableList()
 
                     if (isFromInvoice) {
-                        _quotesApiStates.value = QuotesUiState(
-                            apiStatus = QuotesApiStates.Payment(createInvoiceResponse, vehicleList)
-                        )
-                    } else {
-                        vehicleData =
-                            vehicleData.copy(id = vehicleList[0].id)
 
-                        _quotesApiStates.value = QuotesUiState(
+                        buildBillingDetailsData(vehicleList[0])
+
+
+                        currentStep = 5
+                        /* _quotesApiStates.value = QuotesUiState(
+                             apiStatus = QuotesApiStates.Payment(createInvoiceResponse, vehicleList)
+                         )*/
+                    } else {
+                        updateVehicleBodyData =
+                            updateVehicleBodyData.copy(id = vehicleList[0].id)
+
+
+                        currentStep = 2
+                        /*_quotesApiStates.value = QuotesUiState(
                             apiStatus = QuotesApiStates.VehicleInfo(vehicleList)
-                        )
+                        )*/
                     }
 
 
@@ -256,12 +280,35 @@ class QuotesViewModel : ScreenModel {
         }
     }
 
+    private fun buildBillingDetailsData(vehicleListModelItem: VehicleListModelItem) {
+        val policyHolder = vehicleListModelItem.policyHolder
+        val user = vehicleListModelItem.user
+
+        billingDetailsUIData = billingDetailsUIData.copy(
+            billingCity = if (policyHolder?.insuredAddressCity != null) policyHolder.insuredAddressCity else "",
+            billingCountry = InsuranceTypeCodeModel(),
+            billingIban = "0380000000608010167519",
+            billingMobileNo = user?.userProfile?.mobileNumber ?: "",
+            billingPostcode = policyHolder?.postCode ?: "",
+            billingState = policyHolder?.district ?: "",
+            billingStreet1 = if (policyHolder?.street != null) policyHolder.street else "",
+            billingVat = "",
+            customerEmail = if (user?.email != null) user.email else "",
+            customerGivenName = if (policyHolder?.firstNameEn != null) policyHolder.firstNameEn else "",
+            customerSurname = if (policyHolder?.middleNameEn != null) policyHolder.middleNameEn else ""
+        )
+    }
+
     private fun getVehiclesSequenceId(nationalID: String, sequenceID: String) {
 
         screenModelScope.launch {
             try {
                 val response =
-                    Ktor.client.get("/portal-api/insurance/rest/getVehiclesSequenceId/$sequenceID/$nationalID")
+                    Ktor.client.get("/portal-api/insurance/rest/getVehiclesSequenceId/$sequenceID/$nationalID") {
+                        LogInManager.getLoggedInUser()?.token?.let { token ->
+                            header(HttpHeaders.Authorization, "Bearer $token")
+                        }
+                    }
 
                 try {
                     val responseBody = response.bodyAsText()
@@ -270,8 +317,8 @@ class QuotesViewModel : ScreenModel {
                         VehiclesSequenceIdResponse.serializer(),
                         responseBody
                     )
-                    vehicleData =
-                        vehicleData.copy(vehicleRegExpiryDate = getVehiclesSequenceResponse.vehicleInfo.registrationExpiryDate)
+                    updateVehicleBodyData =
+                        updateVehicleBodyData.copy(vehicleRegExpiryDate = getVehiclesSequenceResponse.vehicleInfo.registrationExpiryDate)
 
                 } catch (e: SerializationException) {
                     showError("Unexpected response format")
@@ -293,7 +340,7 @@ class QuotesViewModel : ScreenModel {
             try {
                 showLoading()
                 val firstItem = vehicleList[0]
-                vehicleData = vehicleData.copy(
+                updateVehicleBodyData = updateVehicleBodyData.copy(
                     capacity = firstItem.vehicleSeating,
                     manufactureYear = firstItem.vehicleModelYear,
                     policy_holder_id = createPolicyHolderResponse.data.id,
@@ -322,7 +369,7 @@ class QuotesViewModel : ScreenModel {
                     LogInManager.getLoggedInUser()?.token?.let { token ->
                         header(HttpHeaders.Authorization, "Bearer $token")
                     }
-                    setBody(vehicleData)
+                    setBody(updateVehicleBodyData)
                 }
 
                 val errorCode = response.status.value
@@ -350,9 +397,7 @@ class QuotesViewModel : ScreenModel {
                     }
 
                     401 -> {
-                        LogInManager.setLoggedInValue(false)
-                        navigator.push(LoginScreen())
-                        showError(LanguageManager.currentStrings.unauthenticated)
+                        logoutAndNavigateToLoginScreen()
                     }
 
                     else -> {
@@ -373,55 +418,27 @@ class QuotesViewModel : ScreenModel {
         }
     }
 
-    /*private fun mapToNewUpdateVehicleBody(source: UpdateVehicleBody): UpdateVehicleBodyDTO {
-        return UpdateVehicleBodyDTO(
-            accidentCount = source.accidentCount,
-            approved = source.approved,
-            capacity = source.capacity,
-            deductibleValue = source.deductibleValue,
-            id = source.id,
-            identificationType = vehicleData.identificationType!!,
-            insuranceType = source.insuranceType,
-            km = source.km,
-            manufactureYear = source.manufactureYear,
-            modification = source.modification,
-            policy_holder_id = source.policyHolderId,
-            specificationCodeIds = ArrayList(source.specificationCodeIds), // Deep copy the list
-            transferOwnership = source.transferOwnership,
-            transmission = source.transmission,
-            vehicleAgencyRepair = source.vehicleAgencyRepair,
-            vehicleMajorColorCode = source.vehicleMajorColorCode,
-            vehicleModification = source.vehicleModification,
-            vehicleModificationDetails = source.vehicleModificationDetails,
-            vehicleOvernightParkingLocationCode = source.vehicleOvernightParkingLocationCode,
-            vehicleRegExpiryDate = source.vehicleRegExpiryDate,
-            vehicleUseCode = source.vehicleUseCode,
-            vehicleValue = source.vehicleValue
-        )
-    }*/
-
     @Serializable
-    data class CreateInvoiceModel(
-        val companyCode: String,
-        val deductibleValue: String?,
-        val insuranceTypeId: Int?,
-        val referenceNo: String,
-        val selectedBenifitIds: List<String>,
-        val userid: Int,
+    data class CreateInvoiceBody(
+        val companyCode: String = "",
+        val deductibleValue: String? = null,
+        val insuranceTypeId: Int? = null,
+        val referenceNo: String = "",
+        val selectedBenifitIds: List<String> = listOf(),
+        val userid: Int = 0,
     )
 
     fun createInvoice(
         companyCode: Int,
-        deductibleValue: String?,
-        selectedBenefitIds: List<String>
+        deductibleValue: String?
     ) {
 
-        val createInvoiceModel = CreateInvoiceModel(
+        val createInvoiceModel = CreateInvoiceBody(
             companyCode = companyCode.toString(),
             deductibleValue = deductibleValue,
             insuranceTypeId = 1,
             referenceNo = createPolicyHolderResponse.data.referenceNo,
-            selectedBenifitIds = selectedBenefitIds,
+            selectedBenifitIds = createInvoiceUiModel.selectedBenifitIds,
             userid = if (LogInManager.getLoggedInUser() != null && LogInManager.getLoggedInUser()!!.user != null) {
                 LogInManager.getLoggedInUser()!!.user!!.id
             } else 0
@@ -434,6 +451,9 @@ class QuotesViewModel : ScreenModel {
                     Ktor.client.post("/portal-api/insurance/rest/createInvoice") {
                         header(HttpHeaders.ContentType, ContentType.Application.Json)
                         header(HttpHeaders.Accept, ContentType.Application.Json)
+                        LogInManager.getLoggedInUser()?.token?.let { token ->
+                            header(HttpHeaders.Authorization, "Bearer $token")
+                        }
                         setBody(createInvoiceModel)
                     }
 
@@ -448,7 +468,7 @@ class QuotesViewModel : ScreenModel {
                         createPolicyHolderResponse.data.id,
                         createPolicyHolderResponse.data.nationalId
                     )
-                } else{
+                } else {
                     hideLoading()
                     showError("error while creating invoice")
                 }
@@ -469,6 +489,9 @@ class QuotesViewModel : ScreenModel {
 
                 val response =
                     Ktor.client.post(createDriverEndPoint) {
+                        LogInManager.getLoggedInUser()?.token?.let { token ->
+                            header(HttpHeaders.Authorization, "Bearer $token")
+                        }
                         setBody(createDriver)
                     }
 
@@ -496,7 +519,11 @@ class QuotesViewModel : ScreenModel {
         screenModelScope.launch {
             try {
                 val response =
-                    Ktor.client.get("/portal-api/insurance/rest/showDriverByVehicleId/$vehicleId/$policyHolderId")
+                    Ktor.client.get("/portal-api/insurance/rest/showDriverByVehicleId/$vehicleId/$policyHolderId") {
+                        LogInManager.getLoggedInUser()?.token?.let { token ->
+                            header(HttpHeaders.Authorization, "Bearer $token")
+                        }
+                    }
                 //.body<ArrayList<showVehiclesByPolicyholderIdAndOwnerIdResponseItem>>()
 
                 try {
@@ -510,10 +537,12 @@ class QuotesViewModel : ScreenModel {
                             responseBody
                         ).toMutableList()
 
-                    _quotesApiStates.value = QuotesUiState(
+
+                    currentStep = 3
+                    /*_quotesApiStates.value = QuotesUiState(
                         apiStatus = QuotesApiStates.DriverInfo(driverList)
                     )
-
+*/
                     updateDriverPercentage(100)
 
                 } catch (e: SerializationException) {
@@ -543,6 +572,9 @@ class QuotesViewModel : ScreenModel {
                     Ktor.client.post("/portal-api/insurance/rest/updateDriverPercentage?referenceNo=${createPolicyHolderResponse.data.referenceNo}") {
                         header(HttpHeaders.ContentType, ContentType.Application.Json)
                         header(HttpHeaders.Accept, ContentType.Application.Json)
+                        LogInManager.getLoggedInUser()?.token?.let { token ->
+                            header(HttpHeaders.Authorization, "Bearer $token")
+                        }
                         setBody(
                             mapOf(
                                 createPolicyHolderResponse.data.nationalId to percentage
@@ -578,18 +610,27 @@ class QuotesViewModel : ScreenModel {
         screenModelScope.launch {
             try {
                 val response =
-                    Ktor.client.get("/portal-api/insurance/rest/ica-get-quotesErrorFree/$referenceNo")
+                    Ktor.client.get("/portal-api/insurance/rest/ica-get-quotesErrorFree/$referenceNo") {
+                        LogInManager.getLoggedInUser()?.token?.let { token ->
+                            header(HttpHeaders.Authorization, "Bearer $token")
+                        }
+                    }
                         .body<QuotesListResponse>()
 
                 if (response.errorCode == null) {
                     quotes = response
-                    _quotesApiStates.value = QuotesUiState(
-                        apiStatus = QuotesApiStates.QuotesList(quotes)
-                    )
 
-                    delay(1000)
-                    if (!response.completed)
+                    /*_quotesApiStates.value = QuotesUiState(
+                                            apiStatus = QuotesApiStates.QuotesList(quotes)
+                                        )*/
+
+                    if (currentStep < 4)
+                        currentStep = 4
+
+                    if (!response.completed) {
+                        delay(1000)
                         getQuotesList(referenceNo, true)
+                    }
                 } else
                     showError(response.errorMessage.toString())
 
@@ -602,13 +643,17 @@ class QuotesViewModel : ScreenModel {
         }
     }
 
-    public fun changeReferenceNoOnQuotation(referenceNo: String, policyHolderId: Int) {
+    fun changeReferenceNoOnQuotation(referenceNo: String, policyHolderId: Int) {
         screenModelScope.launch {
             try {
                 showLoading()
 
                 val response =
-                    Ktor.client.get("/portal-api/insurance/rest/changeReferenceNoOnQuotation/$referenceNo/$policyHolderId")
+                    Ktor.client.get("/portal-api/insurance/rest/changeReferenceNoOnQuotation/$referenceNo/$policyHolderId") {
+                        LogInManager.getLoggedInUser()?.token?.let { token ->
+                            header(HttpHeaders.Authorization, "Bearer $token")
+                        }
+                    }
 
                 try {
                     val data = json.decodeFromString(
@@ -616,8 +661,11 @@ class QuotesViewModel : ScreenModel {
                         response.bodyAsText()
                     )
                     if (data.success) {
-                        createPolicyHolderResponse.data.referenceNo =
-                            data.data?.policyHolder?.referenceNo!!
+                        if (!data.code.equals("FIRST_ATTEMPT_UPDATED")) {
+                            createPolicyHolderResponse.data.referenceNo =
+                                data.data?.policyHolder?.referenceNo!!
+                        }
+
                         getQuotesList(createPolicyHolderResponse.data.referenceNo, false)
                     } else {
                         hideLoading()
@@ -635,6 +683,155 @@ class QuotesViewModel : ScreenModel {
                 showError(message)
             }
         }
+    }
+
+    fun sendPaymentOTP() {
+        screenModelScope.launch {
+            try {
+                showLoading()
+
+                val response =
+                    Ktor.client.post("/portal-api/insurance/rest/paymentOtpSend") {
+                        header(HttpHeaders.ContentType, ContentType.Application.Json)
+                        header(HttpHeaders.Accept, ContentType.Application.Json)
+                        LogInManager.getLoggedInUser()?.token?.let { token ->
+                            header(HttpHeaders.Authorization, "Bearer $token")
+                        }
+                    }
+                try {
+                    paymentOTPResponse = json.decodeFromString(
+                        PaymentOTPResponse.serializer(),
+                        response.bodyAsText()
+                    )
+
+                    if (paymentOTPResponse.errorCode == null) {
+                        paymentOTPVisible = true
+                    } else if (paymentOTPResponse.errorCode == 401) {
+                        logoutAndNavigateToLoginScreen()
+                    } else {
+                        hideLoading()
+                        showError(paymentOTPResponse.errorMessage.toString())
+                    }
+
+                    hideLoading()
+                } catch (e: Exception) {
+                    hideLoading()
+                    showError("failed to update some information")
+                }
+
+            } catch (e: Exception) {
+                hideLoading()
+                val message = if (e.message == null) "unknown error" else e.message!!
+                showError(message)
+            }
+        }
+    }
+
+    fun verifyPaymentOTPAndCreateInvoice() {
+        screenModelScope.launch {
+            try {
+                showLoading()
+
+                val billingDetailsBody = BillingDetailsBody(
+                    billingCity = billingDetailsUIData.billingCity,
+                    billingCountry = "SA" /*billingDetailsUIData.billingCountry.description.en*/,
+                    billingIban = "SA${billingDetailsUIData.billingIban}",
+                    billingMobileNo = billingDetailsUIData.billingMobileNo,
+                    billingPostcode = billingDetailsUIData.billingPostcode,
+                    billingState = billingDetailsUIData.billingState,
+                    billingStreet1 = billingDetailsUIData.billingStreet1,
+                    billingVat = billingDetailsUIData.billingVat,
+                    cardType = billingDetailsUIData.cardType,
+                    customerEmail = billingDetailsUIData.customerEmail,
+                    customerGivenName = billingDetailsUIData.customerGivenName,
+                    customerSurname = billingDetailsUIData.customerSurname,
+                    lang = currentLanguage,
+                    otp = billingDetailsUIData.otp,
+                    referenceNo = createPolicyHolderResponse.data.referenceNo
+                )
+
+                val response =
+                    Ktor.client.post("/portal-api/insurance/rest/otpVerifyAndCreateInvoice") {
+                        header(HttpHeaders.ContentType, ContentType.Application.Json)
+                        header(HttpHeaders.Accept, ContentType.Application.Json)
+                        LogInManager.getLoggedInUser()?.token?.let { token ->
+                            header(HttpHeaders.Authorization, "Bearer $token")
+                        }
+                        setBody(billingDetailsBody)
+                    }
+
+                try {
+                    val data = json.decodeFromString(
+                        VerifyPaymentOTPResponse.serializer(),
+                        response.bodyAsText()
+                    )
+                    when (data.errorCode) {
+                        null -> {
+                            if (data.success != null && data.success) {
+                                quoteViewModel.paymentOTPVisible = false
+                                currentStep = 1
+                                navigator.pop()
+                            } else showError(data.message.toString())
+                        }
+
+                        401 -> {
+                            logoutAndNavigateToLoginScreen()
+                        }
+
+                        else -> {
+                            hideLoading()
+                            showError(data.message.toString())
+                        }
+                    }
+
+                    hideLoading()
+                } catch (e: Exception) {
+                    hideLoading()
+                    showError("failed to update some information")
+                }
+
+            } catch (e: Exception) {
+                hideLoading()
+                val message = if (e.message == null) "unknown error" else e.message!!
+                showError(message)
+            }
+        }
+    }
+
+    private suspend fun logoutAndNavigateToLoginScreen() {
+        LogInManager.setLoggedInValue(false)
+        navigator.push(LoginScreen())
+        showError(LanguageManager.currentStrings.unauthenticated)
+    }
+
+    private fun validateForm(insuranceType: InsuranceType): Boolean {
+        var isValid = true
+
+        if (currentStep == 1){
+            isValid = validFormValues(insuranceType)
+        }else if(currentStep == 2){
+            isValid = vaidateVehicleForm()
+        }else if (currentStep == 3){
+            isValid = validateDriverForm()
+        }else if (currentStep == 4){
+            isValid = true
+        }else{
+            isValid = validateBillingInfo()
+        }
+
+        return isValid
+    }
+
+    private fun validateDriverForm(): Boolean {
+        return true
+    }
+
+    private fun validateBillingInfo(): Boolean {
+        return true
+    }
+
+    private fun vaidateVehicleForm() : Boolean{
+        return true
     }
 
     private fun validFormValues(insuranceType: InsuranceType): Boolean {
@@ -722,6 +919,9 @@ class QuotesViewModel : ScreenModel {
                 // Replace with your base Ktor client
                 val response =
                     Ktor.client.get("/portal-api/insurance/rest/foreignEqamaSearch/${policyHolderUiData.nationalId}") {
+                        LogInManager.getLoggedInUser()?.token?.let { token ->
+                            header(HttpHeaders.Authorization, "Bearer $token")
+                        }
                         url {
                             parameters.append(
                                 "dob",
@@ -738,12 +938,6 @@ class QuotesViewModel : ScreenModel {
         }
     }
 
-
-    private fun buildVehicleData(): VehicleUiData {
-        return VehicleUiData(
-
-        )
-    }
 
     private fun buildPolicyHolderUiData(): PolicyHolderUiData {
 

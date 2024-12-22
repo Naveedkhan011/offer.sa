@@ -19,7 +19,7 @@ data class BenefitsObjectX(
     @SerialName("benefitNameEn")
     val benefitNameEn: String? = null,
     @SerialName("benefitPrice")
-    val benefitPrice: Double? = null,
+    val benefitPrice: Double = 0.0,
     @SerialName("preInvoiceBenefitId")
     val preInvoiceBenefitId: String? = null
 )

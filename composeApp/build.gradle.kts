@@ -74,7 +74,6 @@ kotlin {
             implementation(libs.kotlin.coroutines)
             implementation(libs.stately.common)
 
-
         }
     }
 }

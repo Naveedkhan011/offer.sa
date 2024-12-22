@@ -11,7 +11,7 @@ data class Product(
     @SerialName("deductibleValue")
     val deductibleValue: String? = null,
     @SerialName("discount")
-    val discount: List<Discount?>? = null,
+    val discount: List<Discount>? = null,
     @SerialName("priceDetails")
     val priceDetails: List<PriceDetail?>? = null,
     @SerialName("productDescAr")

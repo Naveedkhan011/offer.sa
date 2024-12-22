@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -27,13 +28,18 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dropDownValues
+import models.AddLicense
 import presentation.screen.quotes_screen.QuotesViewModel
+import presentation.screen.quotes_screen.currentLanguage
+import presentation.screen.quotes_screen.getTitle
+import presentation.screen.quotes_screen.spaceBwFields
 import utils.AppConstants.Companion.getCheckBoxColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
 
@@ -44,11 +50,9 @@ enum class AddNewDriverBottomSheetCaller {
     DOB_MONTH,
     DOB_YEAR,
     VEHICLE_NIGHT_PARKING,
-    DRIVER_RELATIONSHIP,
-    EDUCATION,
-    NO_OF_CHILDREN_BELOW_16,
-    HEALTH_CONDITION,
-    TRAFFIC_VIOLATIONS,
+    DRIVER_RELATION,
+    DRIVER_EDUCATION,
+    DRIVER_CHILDREN_BELOW_16,
     DRIVER_BUSINESS_CITY,
     DRIVER_NOA_LAST_FIVE_YEARS,
     DRIVER_NOC_LAST_FIVE_YEARS,
@@ -91,7 +95,7 @@ fun AddNewDriverSheet(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(spaceBwFields))
 
             // Driver ID
             OutlinedTextField(
@@ -104,7 +108,7 @@ fun AddNewDriverSheet(
                 colors = getOutlineTextFieldColors()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(spaceBwFields))
 
             // DOB Month & Year
             Row(
@@ -113,8 +117,8 @@ fun AddNewDriverSheet(
             ) {
 
                 OutlinedTextField(
-                    value = quoteViewModel.dobMonth,
-                    onValueChange = { quoteViewModel.dobMonth = it },
+                    value = getTitle(quoteViewModel.createDriver.dobMonth),
+                    onValueChange = {},
                     label = {
                         Text(
                             modifier = Modifier.fillMaxWidth(),
@@ -134,16 +138,16 @@ fun AddNewDriverSheet(
                             }
                         )
                     },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1.2f),
                     readOnly = true,
                     colors = getOutlineTextFieldColors()
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(spaceBwFields))
 
                 OutlinedTextField(
-                    value = quoteViewModel.dobYear,
-                    onValueChange = { quoteViewModel.dobYear = it },
+                    value = getTitle(quoteViewModel.createDriver.dobYear),
+                    onValueChange = {},
                     label = {
                         Text(
                             modifier = Modifier.fillMaxWidth(),
@@ -169,13 +173,13 @@ fun AddNewDriverSheet(
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(spaceBwFields))
 
             // Dropdown Fields
             DropdownField(
                 label = "Vehicle Night Parking",
-                value = quoteViewModel.vehicleNightParking,
-                onValueChange = { quoteViewModel.vehicleNightParking = it },
+                value = getTitle(quoteViewModel.createDriver.vehicleNightParking),
+                onValueChange = { },
                 onClick = {
                     addDriverSelectedSheet =
                         AddNewDriverBottomSheetCaller.VEHICLE_NIGHT_PARKING
@@ -183,34 +187,30 @@ fun AddNewDriverSheet(
 
             DropdownField(
                 label = "Driver Relationship",
-                value = quoteViewModel.driverRelationship,
+                value = getTitle(quoteViewModel.createDriver.driverRelationship),
                 onClick = {
                     addDriverSelectedSheet =
-                        AddNewDriverBottomSheetCaller.DRIVER_RELATIONSHIP
+                        AddNewDriverBottomSheetCaller.DRIVER_RELATION
                 },
-                onValueChange = { quoteViewModel.driverRelationship = it }
+                onValueChange = { }
             )
 
             DropdownField(
                 label = "Education",
-                value = quoteViewModel.education,
+                value = getTitle(quoteViewModel.createDriver.education),
                 onClick = {
                     addDriverSelectedSheet =
-                        AddNewDriverBottomSheetCaller.EDUCATION
+                        AddNewDriverBottomSheetCaller.DRIVER_EDUCATION
                 },
-                onValueChange = {
-                    quoteViewModel.education = it
-                })
+                onValueChange = {})
 
             DropdownField(
                 label = "No Of Children Below 16",
-                value = quoteViewModel.noOfChildrenBelow16,
+                value = getTitle(quoteViewModel.createDriver.childrenBelow16),
                 onClick = {
-                    addDriverSelectedSheet = AddNewDriverBottomSheetCaller.NO_OF_CHILDREN_BELOW_16
+                    addDriverSelectedSheet = AddNewDriverBottomSheetCaller.DRIVER_CHILDREN_BELOW_16
                 },
-                onValueChange = {
-                    quoteViewModel.noOfChildrenBelow16 = it
-                }
+                onValueChange = {}
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -235,15 +235,15 @@ fun AddNewDriverSheet(
                     modifier = Modifier.fillMaxWidth()
                         .clickable {}) {
                     Checkbox(
-                        checked = item?.isChecked ?: false,
+                        checked = item.isChecked,
                         onCheckedChange = {
-                            item?.isChecked = it
+                            item.isChecked = it
                         },
                         colors = getCheckBoxColors()
                     )
 
                     Text(
-                        text = item?.description?.en ?: "",
+                        text = item.description.en,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
@@ -280,21 +280,21 @@ fun AddNewDriverSheet(
                 )
             )
 
-            dropDownValues.trafficViolationList?.insuranceTypeCodeModels?.forEach { item ->
+            dropDownValues.trafficViolationList.insuranceTypeCodeModels.forEach { item ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                         .clickable {}) {
                     Checkbox(
-                        checked = item?.isChecked ?: false,
+                        checked = item.isChecked,
                         onCheckedChange = {
-                            item?.isChecked = it
+                            item.isChecked = it
                         },
                         colors = getCheckBoxColors()
                     )
 
                     Text(
-                        text = item?.description?.en ?: "",
+                        text = item.description.en,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
@@ -314,54 +314,64 @@ fun AddNewDriverSheet(
                  }
              )*/
 
+
+            Spacer(modifier = Modifier.height(10.dp))
             DropdownField(
                 label = "Driver Business City",
-                value = quoteViewModel.driverBusinessCity,
+                value = getTitle(quoteViewModel.createDriver.driverBusinessCity),
                 onClick = {
                     addDriverSelectedSheet = AddNewDriverBottomSheetCaller.DRIVER_BUSINESS_CITY
                 },
-                onValueChange = {
-                    quoteViewModel.driverBusinessCity = it
-                }
+                onValueChange = {}
             )
 
+            Spacer(modifier = Modifier.height(10.dp))
             DropdownField(
                 label = "Driver NOA Last Five Years",
-                value = quoteViewModel.driverNOALastFiveYears,
+                value = getTitle(quoteViewModel.createDriver.driverNoaLastFiveYears),
                 onClick = {
                     addDriverSelectedSheet =
                         AddNewDriverBottomSheetCaller.DRIVER_NOA_LAST_FIVE_YEARS
                 },
-                onValueChange = {
-                    quoteViewModel.driverNOALastFiveYears = it
-                }
+                onValueChange = {}
             )
+
+            Spacer(modifier = Modifier.height(10.dp))
             DropdownField(
                 label = "Driver NOC Last Five Years",
-                value = quoteViewModel.driverNocLastFiveYears,
+                value = getTitle(quoteViewModel.createDriver.driverNocLastFiveYears),
                 onClick = {
                     addDriverSelectedSheet =
                         AddNewDriverBottomSheetCaller.DRIVER_NOC_LAST_FIVE_YEARS
                 },
-                onValueChange = {
-                    quoteViewModel.driverNocLastFiveYears = it
-                }
+                onValueChange = {}
             )
 
+
+            Spacer(modifier = Modifier.height(10.dp))
+            HorizontalDivider(modifier = Modifier.height(2.dp))
+
+            if (quoteViewModelParameter.createDriver.driverLicenses?.isEmpty() != true){
+                Text(text = "Licence", color = Color.White)
+            }
+
+            quoteViewModelParameter.createDriver.driverLicenses?.forEach {
+                Text(text = "${it.licenseCountryCode} - ${it.licenseNumberYears}")
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
             DropdownField(
                 label = "Driving Licence Country",
-                value = quoteViewModel.drivingLicenceCountry,
+                value = getTitle(quoteViewModel.createDriver.licenseCountryCode),
                 onClick = {
                     addDriverSelectedSheet = AddNewDriverBottomSheetCaller.DRIVING_LICENCE_COUNTRY
                 },
-                onValueChange = {
-                    quoteViewModel.drivingLicenceCountry = it
-                }
+                onValueChange = {}
             )
 
-            // Driver ID
+            Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(
-                value = quoteViewModel.licenceValidFor,
+                value = quoteViewModel.createDriver.driverId,
                 onValueChange = { quoteViewModel.licenceValidFor = it },
                 label = { Text("Licence Valid For") },
                 modifier = Modifier.fillMaxWidth(),
@@ -372,10 +382,21 @@ fun AddNewDriverSheet(
 
             // Add Licence Button
             Button(
-                onClick = { /* Handle Add Licence */ },
+                onClick = {
+                    if (!quoteViewModel.createDriver.licenseCountryCode.description.en.isEmpty() ||
+                        !quoteViewModel.createDriver.driverLicense.isEmpty()){
+
+                        val item = ArrayList(quoteViewModel.createDriver.driverLicenses ?: emptyList())
+                        item.add(AddLicense(1, quoteViewModel.createDriver.driverLicense))
+
+                        quoteViewModel.createDriver = quoteViewModel.createDriver.copy(
+                            driverLicenses = item
+                        )
+                    }
+                },
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("Add Licence")
+                Text(text = "Add Licence", color = Color.White)
             }
 
         }
@@ -386,24 +407,86 @@ fun AddNewDriverSheet(
         BottomSheet(
             title = "Vehicle Specification",
             data = when (addDriverSelectedSheet) {
-                AddNewDriverBottomSheetCaller.DOB_MONTH -> dropDownValues.monthsEnglish
-                AddNewDriverBottomSheetCaller.DOB_YEAR -> dropDownValues.englishYears
+                AddNewDriverBottomSheetCaller.DOB_MONTH -> if (currentLanguage == "en") dropDownValues.monthsEnglish else dropDownValues.monthsArabic
+                AddNewDriverBottomSheetCaller.DOB_YEAR -> if (currentLanguage == "en") dropDownValues.englishYears else dropDownValues.arabicYears
                 AddNewDriverBottomSheetCaller.VEHICLE_NIGHT_PARKING -> dropDownValues.vehicleParking
-                AddNewDriverBottomSheetCaller.DRIVER_RELATIONSHIP -> dropDownValues.driverRelation
-                AddNewDriverBottomSheetCaller.EDUCATION -> dropDownValues.educationList
-                AddNewDriverBottomSheetCaller.NO_OF_CHILDREN_BELOW_16 -> dropDownValues.noOfChildren
-                AddNewDriverBottomSheetCaller.HEALTH_CONDITION -> dropDownValues.healthConditionList
-                AddNewDriverBottomSheetCaller.TRAFFIC_VIOLATIONS -> dropDownValues.trafficViolationList
+                AddNewDriverBottomSheetCaller.DRIVER_EDUCATION -> dropDownValues.educationList
+                AddNewDriverBottomSheetCaller.DRIVER_CHILDREN_BELOW_16 -> dropDownValues.noOfChildren
                 AddNewDriverBottomSheetCaller.DRIVER_BUSINESS_CITY -> dropDownValues.driverBusinessCityList
                 AddNewDriverBottomSheetCaller.DRIVER_NOA_LAST_FIVE_YEARS -> dropDownValues.accidentCount
                 AddNewDriverBottomSheetCaller.DRIVER_NOC_LAST_FIVE_YEARS -> dropDownValues.accidentCount
                 AddNewDriverBottomSheetCaller.DRIVING_LICENCE_COUNTRY -> dropDownValues.drivingLicenceCountryList
+                AddNewDriverBottomSheetCaller.DRIVER_RELATION -> dropDownValues.driverRelation
             },
             onDismiss = {
                 quoteViewModel.vehicleSpecificationsFieldsSheetVisible = false
             },
             onSelected = {
                 quoteViewModel.vehicleSpecificationsFieldsSheetVisible = false
+
+                when (addDriverSelectedSheet) {
+                    AddNewDriverBottomSheetCaller.DOB_MONTH ->
+                        quoteViewModelParameter.createDriver =
+                            quoteViewModelParameter.createDriver.copy(
+                                dobMonth = it
+                            )
+
+                    AddNewDriverBottomSheetCaller.DOB_YEAR ->
+                        quoteViewModelParameter.createDriver =
+                            quoteViewModelParameter.createDriver.copy(
+                                dobYear = it
+                            )
+
+                    AddNewDriverBottomSheetCaller.VEHICLE_NIGHT_PARKING ->
+                        quoteViewModelParameter.createDriver =
+                            quoteViewModelParameter.createDriver.copy(
+                                vehicleNightParking = it
+                            )
+
+                    AddNewDriverBottomSheetCaller.DRIVER_EDUCATION ->
+                        quoteViewModelParameter.createDriver =
+                            quoteViewModelParameter.createDriver.copy(
+                                education = it
+                            )
+
+                    AddNewDriverBottomSheetCaller.DRIVER_CHILDREN_BELOW_16 ->
+                        quoteViewModelParameter.createDriver =
+                            quoteViewModelParameter.createDriver.copy(
+                                childrenBelow16 = it
+                            )
+
+                    AddNewDriverBottomSheetCaller.DRIVER_BUSINESS_CITY ->
+                        quoteViewModelParameter.createDriver =
+                            quoteViewModelParameter.createDriver.copy(
+                                driverBusinessCity = it
+                            )
+
+                    AddNewDriverBottomSheetCaller.DRIVER_NOA_LAST_FIVE_YEARS ->
+                        quoteViewModelParameter.createDriver =
+                            quoteViewModelParameter.createDriver.copy(
+                                driverNoaLastFiveYears = it
+                            )
+
+                    AddNewDriverBottomSheetCaller.DRIVER_NOC_LAST_FIVE_YEARS ->
+                        quoteViewModelParameter.createDriver =
+                            quoteViewModelParameter.createDriver.copy(
+                                driverNocLastFiveYears = it
+                            )
+
+                    AddNewDriverBottomSheetCaller.DRIVING_LICENCE_COUNTRY ->
+                        quoteViewModelParameter.createDriver =
+                            quoteViewModelParameter.createDriver.copy(
+                                licenseCountryCode = it
+                            )
+
+                    AddNewDriverBottomSheetCaller.DRIVER_RELATION ->
+                        quoteViewModelParameter.createDriver =
+                            quoteViewModelParameter.createDriver.copy(
+                                driverRelationship = it
+                            )
+
+                }
+
             }
         )
     }

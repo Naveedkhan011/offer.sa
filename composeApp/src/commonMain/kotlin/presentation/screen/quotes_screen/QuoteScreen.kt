@@ -25,11 +25,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +50,7 @@ import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -53,6 +59,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import currency
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
+import models.Discount
 import models.ResponseTPL
 import presentation.bottom_sheets.quoteViewModel
 import presentation.components.MyTabIndicator
@@ -82,9 +92,19 @@ fun QuoteScreen(screenModel: QuotesViewModel) {
 
         // Content based on selected tab
         when (screenModel.selectedTab) {
-            Tab.ThirdParty -> TabContent(screenModel.quotes.responseTPL)
-            Tab.OwnDamage -> TabContent(screenModel.quotes.responseTPL) // Replace with specific data
-            Tab.Comprehensive -> TabContent(screenModel.quotes.responseComp) // Replace with specific data
+            Tab.ThirdParty -> TabContent(
+                screenModel.quotes.responseTPL,
+                screenModel.quotes.completed
+            )
+
+            Tab.OwnDamage -> TabContent(
+                screenModel.quotes.responseTPL,
+                screenModel.quotes.completed
+            ) // Replace with specific data
+            Tab.Comprehensive -> TabContent(
+                screenModel.quotes.responseComp,
+                screenModel.quotes.completed
+            ) // Replace with specific data
         }
 
     }
@@ -248,7 +268,7 @@ fun CustomTab(
 }
 
 @Composable
-fun TabContent(quotes: List<ResponseTPL?>?) {
+fun TabContent(quotes: List<ResponseTPL?>?, completed: Boolean) {
     Column {
         if (quotes == null) return
         quotes.forEach { quote ->
@@ -258,9 +278,16 @@ fun TabContent(quotes: List<ResponseTPL?>?) {
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
+
+        if (!completed) {
+            Spacer(modifier = Modifier.height(spaceBwFields))
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                color = AppColors.AppColor
+            )
+        }
     }
 }
-
 
 
 @Composable
@@ -318,7 +345,7 @@ fun InsuranceCard() {
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
-                Text(text = "View Policy Details", color = Color.White)
+                Text(text = "View Policy Details", color = White)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -371,37 +398,165 @@ fun QuoteCard(quote: ResponseTPL) {
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(quote.header.companyName, style = MaterialTheme.typography.titleMedium)
-            Text(
-                quote.products[0]?.productPrice.toString(),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "Discount: ${quote.header.companyCode}",
-                style = MaterialTheme.typography.bodySmall
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                colors = ButtonColors(
-                    containerColor = AppColors.AppColor,
-                    contentColor = White,
-                    disabledContainerColor = Color.Gray,
-                    disabledContentColor = Color.Gray
-                ),
-                onClick = {
-                    quoteViewModel.selectedQuote = quote
-                    quoteViewModel.policyDetailsSheetVisible = true
-                },
-                modifier = Modifier.fillMaxWidth().clip(shape = RectangleShape)
+        Column {
+            Column(
+                modifier = Modifier.padding(16.dp)
             ) {
-                Text("View Policy Details")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Card(
+                        modifier = Modifier.background(White, CircleShape),
+                        elevation = CardDefaults.cardElevation(2.dp),
+                        shape = CircleShape
+                    ) {
+                        KamelImage(
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .size(50.dp)
+                                .clip(CircleShape)
+                                .background(White),
+                            resource = asyncPainterResource(data = quote.header.companyImage),
+                            contentScale = ContentScale.Crop,
+                            contentDescription = "A picture of ${quote.header.companyName}"
+                        )
+                    }
+
+                    Text(
+                        modifier = Modifier.weight(1f).padding(5.dp),
+                        text = quote.header.companyName,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+
+                    Row(
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            modifier = Modifier,
+                            text = currency,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Normal
+                        )
+
+                        Text(
+                            modifier = Modifier,
+                            text = quote.products[0]?.productPrice.toString(),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                }
+
+                Spacer(modifier = Modifier.height(spaceBwFields))
+                Text(
+                    "Discount: ${quote.header.companyCode}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    colors = ButtonColors(
+                        containerColor = AppColors.AppColor,
+                        contentColor = White,
+                        disabledContainerColor = Color.Gray,
+                        disabledContentColor = Color.Gray
+                    ),
+                    onClick = {
+                        quoteViewModel.selectedQuote = quote
+                        quoteViewModel.policyDetailsSheetVisible = true
+                    },
+                    modifier = Modifier.fillMaxWidth().clip(shape = RectangleShape)
+                ) {
+                    Text("View Policy Details")
+                }
+
             }
 
+            Column(
+                modifier = Modifier.fillMaxWidth().background(AppColors.tabBackgroundColor)
+            ) {
+
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp)
+                ) {
+                    Row {
+
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = "Total Discount"
+                        )
+
+                        Text(
+                            modifier = Modifier
+                                .padding(horizontal = 2.dp)
+                                .fillMaxHeight(),
+                            textAlign = TextAlign.End,
+                            text = "$currency ${
+                                if (quote.products.isNotEmpty() && quote.products[0]!!.discount!!.isNotEmpty())
+                                    getTotalDiscount(quote.products[0]!!.discount!!).toString() else "0"
+                            }",
+                            fontWeight = FontWeight.Normal
+                        )
+
+                        /*Icon(
+                            if (quote.isExpended) Icons.Default.KeyboardArrowUp else Icons.Default.ArrowDropDown,
+                            contentDescription = "Dropdown",
+                            modifier = Modifier.clickable {
+                                quote = quote.copy(isExpended = !quote.isExpended)
+                            }
+                        )*/
+                    }
+                    if (quote.products.isNotEmpty() && quote.products[0]!!.discount!!.isNotEmpty()) {
+                        quote.products[0]!!.discount!!.forEach {
+
+                            Row(modifier = Modifier.padding(10.dp)) {
+                                Text(
+                                    modifier = Modifier.weight(1f),
+                                    text = if (currentLanguage == "en") {
+                                        it.priceNameEn ?: ""
+                                    } else {
+                                        it.priceNameAr ?: ""
+                                    }
+                                )
+
+                                Text(
+                                    modifier = Modifier
+                                        .padding(horizontal = 2.dp)
+                                        .fillMaxHeight(),
+                                    textAlign = TextAlign.End,
+                                    text = "$currency ${
+                                        if (quote.products.isNotEmpty() && quote.products[0]!!.discount!!.isNotEmpty())
+                                            getTotalDiscount(quote.products[0]!!.discount!!).toString() else "0"
+                                    }",
+                                    fontWeight = FontWeight.Normal
+                                )
+                            }
+                        }
+                    }
+
+
+                    /*AnimatedVisibility(
+                        visible = quote.isDiscountVisible,
+                        enter = androidx.compose.animation.expandVertically(animationSpec = tween(300)),
+                        exit = androidx.compose.animation.shrinkVertically(animationSpec = tween(300))
+                    ) {
+
+                    }*/
+                }
+            }
         }
     }
+}
+
+fun getTotalDiscount(discount: List<Discount>): Double {
+    var totalDiscount = 0.0
+
+    discount.let {
+        discount.forEach {
+            totalDiscount += it.priceValue
+        }
+    }
+    return totalDiscount
 }

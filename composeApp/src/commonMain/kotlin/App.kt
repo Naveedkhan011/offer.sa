@@ -120,7 +120,7 @@ fun App(sharedPreference: KMMPreference) {
     dropDownValues.getDropDownValues()
 }
 
-fun openWeb(url : String){
+fun openWeb(url: String) {
     uriHandler.openUri(url)
 }
 
@@ -190,4 +190,8 @@ object KoinInitializer {
             isInitialized = true
         }
     }
+}
+
+fun getFormatedAmount(value: Any): String {
+    return "$currency $value"
 }

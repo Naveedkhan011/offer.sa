@@ -38,5 +38,5 @@ data class CreateDriverBody(
     val vehicleId: Int? = 0,
     val vehicleNightParking: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
     val violationCodeIds: ArrayList<String> = arrayListOf(""),
-    val driverLicense: String = ""
+    var driverLicense: String = ""
 )

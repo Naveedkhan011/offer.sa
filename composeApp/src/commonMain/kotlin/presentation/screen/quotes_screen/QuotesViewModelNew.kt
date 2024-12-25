@@ -7,6 +7,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import dropDownValues
 import models.CreatePolicyHolderBody
 import models.DataXXX
+import utils.language.language_manager.LanguageManager.currentLanguage
 
 class QuotesViewModelNew : ScreenModel {
 

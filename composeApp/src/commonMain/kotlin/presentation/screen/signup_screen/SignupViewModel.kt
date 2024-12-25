@@ -77,7 +77,7 @@ class SignupViewModel : ScreenModel {
             screenModelScope.launch {
                 verifyingEmail = true
                 try {
-                    val endPoints = "/portal-api/insurance/rest/checkAvailability"
+                    val endPoints = "/insurance/rest/checkAvailability"
                     val response = Ktor.client.post(endPoints) {
                         setBody(mapOf("email" to email))
                         contentType(ContentType.Application.Json)
@@ -104,7 +104,7 @@ class SignupViewModel : ScreenModel {
         screenModelScope.launch {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/portal-api/insurance/rest/sendVerificationCodeAny"
+                    val endPoints = "/insurance/rest/sendVerificationCodeAny"
                     val response = Ktor.client.post(endPoints) {
                         setBody(mapOf("email" to email))
                         contentType(ContentType.Application.Json)
@@ -126,7 +126,7 @@ class SignupViewModel : ScreenModel {
         screenModelScope.launch {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/portal-api/insurance/rest/verifyEmailCodeAny"
+                    val endPoints = "/insurance/rest/verifyEmailCodeAny"
                     val response = Ktor.client.post(endPoints) {
                         setBody(mapOf("email" to email, "code" to otp))
                         contentType(ContentType.Application.Json)
@@ -164,7 +164,7 @@ class SignupViewModel : ScreenModel {
             screenModelScope.launch {
                 verifyingNationalID = true
                 try {
-                    val endPoints = "/portal-api/insurance/rest/checkAvailability"
+                    val endPoints = "/insurance/rest/checkAvailability"
                     val response = Ktor.client.post(endPoints) {
                         setBody(mapOf("nationalId" to nationalId))
                         contentType(ContentType.Application.Json)
@@ -191,7 +191,7 @@ class SignupViewModel : ScreenModel {
         if (isValidIqama()) {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/portal-api/insurance/rest/sendNationalIdOtp"
+                    val endPoints = "/insurance/rest/sendNationalIdOtp"
                     val response = Ktor.client.post(endPoints) {
                         setBody(
                             mapOf(
@@ -224,7 +224,7 @@ class SignupViewModel : ScreenModel {
         if (isValidIqama()) {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/portal-api/insurance/rest/verifyNationalIdByOtp"
+                    val endPoints = "/insurance/rest/verifyNationalIdByOtp"
                     val response = Ktor.client.post(endPoints) {
                         setBody(
                             mapOf(
@@ -276,7 +276,7 @@ class SignupViewModel : ScreenModel {
             screenModelScope.launch {
                 verifyingMobile = true
                 try {
-                    val endPoints = "/portal-api/insurance/rest/checkAvailability"
+                    val endPoints = "/insurance/rest/checkAvailability"
                     val response = Ktor.client.post(endPoints) {
                         setBody(
                             mapOf(
@@ -307,7 +307,7 @@ class SignupViewModel : ScreenModel {
         if (isValidMobile()) {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/portal-api/insurance/rest/sendVerificationCodeSMS"
+                    val endPoints = "/insurance/rest/sendVerificationCodeSMS"
                     val response = Ktor.client.post(endPoints) {
                         setBody(
                             mapOf(
@@ -336,7 +336,7 @@ class SignupViewModel : ScreenModel {
         if (isValidMobile()) {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/portal-api/insurance/rest/verifySMSCodeAny"
+                    val endPoints = "/insurance/rest/verifySMSCodeAny"
                     val response = Ktor.client.post(endPoints) {
                         setBody(
                             mapOf(
@@ -407,7 +407,7 @@ class SignupViewModel : ScreenModel {
         if (validateForm()) {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/portal-api/insurance/rest/signup"
+                    val endPoints = "/insurance/rest/signup"
                     val response = Ktor.client.post(endPoints) {
                         setBody(
                             SignUpRequest(

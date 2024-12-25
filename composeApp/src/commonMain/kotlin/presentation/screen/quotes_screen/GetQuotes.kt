@@ -56,6 +56,7 @@ import utils.AppConstants.Companion.getButtonColors
 import utils.AppConstants.Companion.getCheckBoxColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
 import utils.LogInManager
+import utils.language.language_manager.LanguageManager.currentLanguage
 
 private const val TOTAL_STEPS = 5
 public var selectedInsuranceType: InsuranceType = InsuranceType.INSURE_YOUR_VEHICLE
@@ -151,20 +152,6 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                                     }, colors = getCheckBoxColors()
                                 )
 
-                                /* Text(
-                                     text = "By clicking Next, I authorize Offer to access my personal and vehicle data to generate insurance quotes.",
-                                     modifier = Modifier.fillMaxWidth(),
-                                     style = TextStyle(
-                                         fontSize = 12.sp,
-                                         fontWeight = FontWeight.Bold,
-                                         textAlign = TextAlign.Start
-                                         //color = Color(0xFF333333),
-                                         //letterSpacing = 0.15.sp,
-                                         //lineHeight = 24.sp,
-                                         //fontFamily = FontFamily.Default // You can use a custom font here
-                                     )
-                                 )*/
-
                                 Text(
                                     text = message,
                                     style = MaterialTheme.typography.bodySmall,
@@ -181,8 +168,6 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                             shape = androidx.compose.foundation.shape.CircleShape,
                             colors = getButtonColors(),
                             onClick = {
-
-                                // uriHandler.openUri("https://kotlinlang.org/docs/multiplatform.html")
 
                                 if (LogInManager.loggedIn) {
                                     //quoteViewModel.currentStep++
@@ -224,44 +209,6 @@ class GetQuotes(private val insuranceType: InsuranceType = InsuranceType.INSURE_
                 }
             }
         }
-
-        /*when (val state = uiQuotesState.apiStatus) {
-
-            is QuotesApiStates.None -> {}
-
-            is QuotesApiStates.Loading -> {
-                showLoading()
-            }
-
-            is QuotesApiStates.CreatePolicyHolder -> {
-                quoteViewModel.currentStep = 1
-            }
-
-            is QuotesApiStates.VehicleInfo -> {
-                quoteViewModel.currentStep = 2
-            }
-
-            is QuotesApiStates.DriverInfo -> {
-                quoteViewModel.currentStep = 3
-            }
-
-
-            is QuotesApiStates.QuotesList -> {
-                quoteViewModel.currentStep = 4
-            }
-
-            is QuotesApiStates.Payment -> {
-                quoteViewModel.currentStep = 5
-            }
-
-            is QuotesApiStates.Error -> {
-                val message = state.message
-                LaunchedEffect(message) {
-                    showError(message)
-                }
-            }
-        }*/
-
 
         if (quoteViewModel.isSheetVisible) {
             BottomSheet(title = "Select a option", onDismiss = {

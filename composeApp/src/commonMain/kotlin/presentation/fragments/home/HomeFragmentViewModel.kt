@@ -25,7 +25,7 @@ class HomeFragmentViewModel() : ViewModel() {
     fun getServices() {
         viewModelScope.launch {
             try {
-                val servicesResponse = Ktor.client.get("/portal-api/insurance/rest/serviceList")
+                val servicesResponse = Ktor.client.get("/insurance/rest/serviceList")
                     .body<ServicesResponse>()
                 _uiState.value = HomeUiState(
                     apiStatus = ApiStatus.SUCCESS,

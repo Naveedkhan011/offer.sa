@@ -2,41 +2,26 @@ package models.ui_models
 
 
 import kotlinx.serialization.Serializable
-import models.AddLicense
 import models.InsuranceTypeCodeModel
 
 @Serializable
-data class CreateDriverBody(
+data class CreateDriverUiModel(
+    var driverId : String = "",
     val childrenBelow16: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
     val dobMonth: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
     val dobYear: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
     val driverAddressCity: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
     val driverBusinessCity: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
-    val driverFirstNameAr: String? = "",
-    val driverFirstNameEn: String? = "",
-    val driverId: String = "",
-    val driverLastNameAr: String? = "",
-    val driverLastNameEn: String? = "",
-    val driverLicenses: List<AddLicense>? = listOf(),
-    val driverMiddleNameAr: String? = "",
-    val driverMiddleNameEn: String? = "",
+    val driverLicenses: List<AddLicenseUiData> = listOf(),
     val driverNoaLastFiveYears: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
     val driverNocLastFiveYears: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
     val driverRelationship: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
-    val driverTypeCode: Int? = 0,
     val education: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
-    val fullArabicName: String? = "",
-    val fullEnglishName: String? = "",
-    val healthConditions: ArrayList<String> = arrayListOf(""),
-    val id: String? = "",
-    val isAdditionalDriver: Boolean? = false,
+    val healthConditions: ArrayList<Int> = arrayListOf(),
     val licenseCountryCode: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
-    val licenseNumberYears: String? = "",
-    val policyHolderId: Int? = 0,
-    val referenceNo: String? = "",
-    val type: String? = "",
-    val vehicleId: Int? = 0,
     val vehicleNightParking: InsuranceTypeCodeModel = InsuranceTypeCodeModel(),
-    val violationCodeIds: ArrayList<String> = arrayListOf(""),
-    var driverLicense: String = ""
+    val violationCodeIds: ArrayList<Int> = arrayListOf(),
+    var driverLicense: String = "",
+    val licenseNumberYears: String? = "",
+    val driverTypeCode: InsuranceTypeCodeModel = InsuranceTypeCodeModel()
 )

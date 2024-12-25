@@ -59,14 +59,14 @@ fun CustomToast(
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(16.dp)
+                        //.padding(16.dp)
                         .background(
                             color = when (loader.type) {
                                 ToastType.SUCCESS -> AppColors.ToastSuccess.copy(alpha = 1f)
                                 ToastType.ERROR -> Color.Red.copy(alpha = 1f)
                                 ToastType.INFO -> AppColors.AppColor.copy(alpha = 1f)
-                            },
-                            shape = CircleShape
+                            }//,
+                           // shape = CircleShape
                         )
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {

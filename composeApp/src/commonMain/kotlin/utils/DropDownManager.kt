@@ -28,7 +28,7 @@ class DropDownManager : ScreenModel {
             try {
                 val response =
                     Ktor.client
-                        .get("/portal-api/insurance/rest/showInsuranceCodeName")
+                        .get("/insurance/rest/showInsuranceCodeName")
                         .body<AllDropDownValues>()
                 allDropDownValues = response
                 isDataLoaded = true // Notify that data is ready
@@ -64,14 +64,24 @@ class DropDownManager : ScreenModel {
         get() = getYear(false)
 
     private fun getYear(arabic: Boolean): DataXXX {
-        val year = getData(37)
-        year.insuranceTypeCodeModels.forEach { item ->
+        val originalYear = getData(37)
+        val yearCopy = originalYear.copy(
+            insuranceTypeCodeModels = originalYear.insuranceTypeCodeModels.map { item ->
+                item.copy(
+                    description = item.description.copy()
+                )
+            }
+        )
+
+        yearCopy.insuranceTypeCodeModels.forEach { item ->
             if (arabic) {
                 item.description.en = item.description.ar
-            }else
+            } else {
                 item.description.ar = item.description.en
+            }
         }
-        return year
+
+        return yearCopy
     }
 
     val manufactureYear: DataXXX
@@ -82,6 +92,9 @@ class DropDownManager : ScreenModel {
 
     val vehicleParking: DataXXX
         get() = getData(25)
+
+    val driverType: DataXXX
+        get() = getData(9)
 
     val vehicleMileageExpectedAnnual: DataXXX
         get() = getData(30)

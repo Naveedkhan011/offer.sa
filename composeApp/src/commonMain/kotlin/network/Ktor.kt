@@ -15,7 +15,8 @@ import kotlinx.serialization.json.Json
 import utils.LogInManager
 
 object Ktor {
-    private const val BASE_URL = "https://offer.sa"
+    //private const val BASE_URL = "https://offer.sa/portal-api"
+    private const val BASE_URL = "http://141.147.137.116"
 
     val client: HttpClient = HttpClient {
         // JSON configuration

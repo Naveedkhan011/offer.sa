@@ -34,9 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import models.DataXXX
 import models.InsuranceTypeCodeModel
-import presentation.screen.quotes_screen.currentLanguage
 import presentation.screen.quotes_screen.getTitle
 import utils.AppConstants.Companion.getOutlineTextFieldColors
+import utils.language.language_manager.LanguageManager.currentLanguage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,12 +55,12 @@ fun BottomSheet(
     val filteredList = remember(searchQuery) {
         data?.insuranceTypeCodeModels?.filter {
             if (currentLanguage.equals("en")) {
-                it?.description!!.en.contains(
+                it.description.en.contains(
                     searchQuery,
                     ignoreCase = true
                 )
             } else {
-                it?.description!!.ar.contains(
+                it.description.ar.contains(
                     searchQuery,
                     ignoreCase = true
                 )
@@ -124,10 +124,7 @@ fun BottomSheet(
                 if (!filteredList.isEmpty()) {
                     items(filteredList.size) { pos ->
                         Box(modifier = Modifier.fillMaxWidth().clickable {
-                            println("Selected: $pos")
-                            if (filteredList[pos] != null){
-                                onSelected(filteredList[pos]!!)
-                            }
+                            onSelected(filteredList[pos])
                         }) {
                             Text(
                                 text = getTitle(filteredList[pos]),
@@ -142,16 +139,5 @@ fun BottomSheet(
             }
         }
     }
-}
-
-fun getSelectedSpecificationList(data: DataXXX): List<InsuranceTypeCodeModel> {
-    val selectedList: List<InsuranceTypeCodeModel> = ArrayList()
-    data.insuranceTypeCodeModels?.forEach {
-        if (it != null) {
-            if (it.isChecked)
-                selectedList.plus(it)
-        }
-    }
-    return selectedList
 }
 

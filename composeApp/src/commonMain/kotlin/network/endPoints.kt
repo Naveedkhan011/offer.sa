@@ -1,3 +1,3 @@
 package network
 
-val createDriverEndPoint = "/portal-api/insurance/rest/createDriver"
+val createDriverEndPoint = "/insurance/rest/createDriver"

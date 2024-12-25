@@ -9,7 +9,7 @@ data class DataXXX(
     @SerialName("id")
     val id: Int = 0,
     @SerialName("insuranceTypeCodeModels")
-    val insuranceTypeCodeModels: List<InsuranceTypeCodeModel> = listOf(),
+    var insuranceTypeCodeModels: List<InsuranceTypeCodeModel> = listOf(),
     @SerialName("name")
-    val name: String? = null
+    var name: String? = null
 )

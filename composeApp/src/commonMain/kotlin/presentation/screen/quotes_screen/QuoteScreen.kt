@@ -64,10 +64,11 @@ import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import models.Discount
 import models.ResponseTPL
-import presentation.bottom_sheets.quoteViewModel
 import presentation.components.MyTabIndicator
 import utils.AppColors
+import utils.language.language_manager.LanguageManager.currentLanguage
 
+private lateinit var quoteViewModel : QuotesViewModel
 @Composable
 fun QuoteScreen(screenModel: QuotesViewModel) {
     var parentWidth by remember { mutableStateOf(0.dp) }
@@ -269,7 +270,7 @@ fun CustomTab(
 
 @Composable
 fun TabContent(quotes: List<ResponseTPL?>?, completed: Boolean) {
-    Column {
+    Column(Modifier.fillMaxWidth()) {
         if (quotes == null) return
         quotes.forEach { quote ->
             if (quote != null) {

@@ -34,7 +34,7 @@ class SignInViewModel : ScreenModel {
     var loggedUser by mutableStateOf(LoggedUser())
 
     var email by mutableStateOf("naveedkhan011@gmail.com")
-    var password by mutableStateOf("")
+    var password by mutableStateOf("Msfanw@2108")
     var newPassword by mutableStateOf("")
     var confirmPassword by mutableStateOf("")
 
@@ -54,7 +54,7 @@ class SignInViewModel : ScreenModel {
                 try {
 
                     // API call to login endpoint
-                    val response = Ktor.client.post("/portal-api/insurance/rest/auth") {
+                    val response = Ktor.client.post("/insurance/rest/auth") {
                         // Add content type header and serialize the body
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Application.Json)
@@ -85,7 +85,7 @@ class SignInViewModel : ScreenModel {
 
                 // API call to login endpoint
                 val response =
-                    Ktor.client.post("/portal-api/insurance/rest/auth") {
+                    Ktor.client.post("/insurance/rest/auth") {
                         // Add content type header and serialize the body
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Application.Json)
@@ -134,7 +134,7 @@ class SignInViewModel : ScreenModel {
 
                 // API call to login endpoint
                 val response =
-                    Ktor.client.post("/portal-api/insurance/rest/changePwd") {
+                    Ktor.client.post("/insurance/rest/changePwd") {
                         // Add content type header and serialize the body
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Application.Json)

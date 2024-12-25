@@ -25,6 +25,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import utils.AppColors
 import utils.AppConstants.Companion.getOutlineTextFieldColors
+import utils.language.language_manager.LanguageManager.currentLanguage
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable

@@ -50,7 +50,7 @@ class ForgotPasswordViewModel : ScreenModel {
             screenModelScope.launch {
                 verifyingEmail = true
                 try {
-                    val endPoints = "/portal-api/insurance/rest/sendTempPass"
+                    val endPoints = "/insurance/rest/sendTempPass"
                     val response = Ktor.client.post(endPoints) {
                         setBody(mapOf("email" to email))
                         contentType(ContentType.Application.Json)

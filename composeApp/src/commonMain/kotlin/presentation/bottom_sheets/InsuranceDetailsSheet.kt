@@ -28,10 +28,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,9 +43,9 @@ import io.kamel.image.asyncPainterResource
 import models.ResponseTPL
 import openWeb
 import presentation.screen.quotes_screen.QuotesViewModel
-import presentation.screen.quotes_screen.currentLanguage
 import presentation.screen.quotes_screen.spaceBwFields
 import utils.AppConstants
+import utils.language.language_manager.LanguageManager.currentLanguage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -164,7 +160,7 @@ fun InsuranceDetailSheet(
                         CheckboxItem(
                             benefit.benefitId,
                             label = if (currentLanguage == "en") {
-                                benefit.benefitNameEn ?: ""
+                                benefit.benefitNameEn
                             } else {
                                 benefit.benefitNameAr ?: ""
                             },
@@ -189,7 +185,7 @@ fun InsuranceDetailSheet(
             // Buy Policy Button
             Button(
                 onClick = {
-                    quoteViewModel.createInvoice(
+                    quotesViewModel.createInvoice(
                         quote.header.companyCode,
                         quote.products[0]?.deductibleValue
                     )

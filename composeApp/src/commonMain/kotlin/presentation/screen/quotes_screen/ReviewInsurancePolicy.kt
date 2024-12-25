@@ -62,6 +62,7 @@ import presentation.components.OtpDialog
 import utils.AppColors
 import utils.AppConstants
 import utils.AppConstants.Companion.getOutlineTextFieldColors
+import utils.language.language_manager.LanguageManager.currentLanguage
 
 var vehicleInfoDropped by mutableStateOf(false)
 var policyHolderInfoDropped by mutableStateOf(false)

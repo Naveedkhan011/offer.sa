@@ -38,8 +38,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dropDownValues
 import presentation.screen.quotes_screen.QuotesViewModel
+import presentation.screen.quotes_screen.spaceBwFields
 import utils.AppColors
 
 
@@ -140,13 +142,15 @@ fun DriverListSheet(
                                 )
                             }*/
 
-                            if (quoteViewModel.driverList.size > 1){
+                            if (quoteViewModel.driverList.size > 1) {
                                 // Delete Icon
                                 Icon(
                                     imageVector = Icons.Default.Delete,
                                     contentDescription = "Delete Driver",
                                     tint = Color.Red,
-                                    modifier = Modifier.clickable { /* Handle Delete Click */ }
+                                    modifier = Modifier.clickable {
+                                        quoteViewModel.driverList.remove(driver)
+                                    }
                                 )
                             }
 
@@ -172,22 +176,18 @@ fun DriverListSheet(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Percentage Buttons
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-
-                            /*var selectedPercentage by remember {
-                                mutableStateOf(InsuranceTypeCodeModel())
-                            }*/
 
                             var selectedPercentage by remember {
                                 mutableStateOf(false)
                             }
 
                             dropDownValues.driverPercentageList.insuranceTypeCodeModels.forEach { percentage ->
-                                selectedPercentage = percentage.code == driver.driverDrivingPercentage
+                                selectedPercentage =
+                                    percentage.code == driver.driverDrivingPercentage
 
                                 Box(
                                     modifier = Modifier
@@ -203,9 +203,13 @@ fun DriverListSheet(
                                             )
                                             .padding(horizontal = 10.dp, vertical = 4.dp)
                                             .clickable {
-                                                if (quoteViewModel.driverList.size > 1){
+                                                if (quoteViewModel.driverList.size > 1) {
                                                     selectedPercentage = !selectedPercentage
                                                     driver.driverDrivingPercentage = percentage.code
+
+                                                    if (quoteViewModel.driverList.sumOf { driver -> driver.driverDrivingPercentage ?: 0 } == 100){
+                                                        quoteViewModel.updateDriverPercentage()
+                                                    }
                                                 }
                                             },
                                         text = "${percentage.code}%",
@@ -215,34 +219,29 @@ fun DriverListSheet(
                                         textAlign = TextAlign.Center,
                                     )
                                 }
-
-
-                                /* Button(
-                                     onClick = { selectedPercentage = percentage!! },
-                                     colors = ButtonDefaults.buttonColors(
-                                         containerColor = if (selectedPercentage == percentage) Color.Green else Color.LightGray,
-                                         contentColor = Color.White
-                                     ),
-                                     shape = RoundedCornerShape(50), // Rounded buttons
-                                     modifier = Modifier.weight(1f) // Ensures equal width buttons
-                                         .padding(horizontal = 4.dp)
-                                 ) {
-                                     Text(
-                                         text = "${percentage?.code}%",
-                                         style = MaterialTheme.typography.labelSmall,
-                                         textAlign = TextAlign.Center
-                                     )
-                                 }*/
-
                             }
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(spaceBwFields))
 
-            // Add New Driver Button
+            Text(
+                text = "Maximum Drivers for 100%: (Now ${quoteViewModel.driverList.size} for ${
+                    quoteViewModel.driverList.sumOf { driver -> driver.driverDrivingPercentage ?: 0 }
+                } % )",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp
+                ),
+                modifier = Modifier.fillMaxWidth().background(
+                    Color.Green.copy(alpha = 0.4f),
+                    RoundedCornerShape(10.dp)
+                ).padding(10.dp)
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
             Button(
                 onClick = { quoteViewModel.addNewDriverSheetVisible = true },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 45.dp),
@@ -257,7 +256,6 @@ fun DriverListSheet(
             }
         }
     }
-
 
     if (quoteViewModel.addNewDriverSheetVisible) {
         AddNewDriverSheet(

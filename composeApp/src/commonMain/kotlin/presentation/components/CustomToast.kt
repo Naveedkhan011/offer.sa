@@ -11,6 +11,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -57,7 +58,7 @@ fun CustomToast(
             ) {
                 // Toast content at the bottom
                 Box(
-                    modifier = Modifier
+                    modifier = Modifier.fillMaxWidth()
                         .align(Alignment.BottomCenter)
                         //.padding(16.dp)
                         .background(

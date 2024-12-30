@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Offer</string>
+
+    <string name="message_successful_payment">Payment successfull</string>
+    <string name="message_unsuccessful_payment">Payment unsuccessfull</string>
+    <string name="custom_ui_callback_scheme">customui</string>
+
 </resources>

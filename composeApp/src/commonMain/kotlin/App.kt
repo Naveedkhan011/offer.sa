@@ -29,6 +29,7 @@ import presentation.components.FullScreenLoadingDialog
 import presentation.screen.forgot_password.ForgotPasswordViewModel
 import presentation.screen.login.SignInViewModel
 import presentation.screen.main_screen.HomeViewModel
+import presentation.screen.payment.PaymentScreen
 import presentation.screen.quotes_screen.QuotesViewModel
 import presentation.screen.signup_screen.SignupViewModel
 import presentation.screen.splash.Splash
@@ -93,7 +94,7 @@ fun App(sharedPreference: KMMPreference) {
 
     MaterialTheme(colorScheme = colors) {
 
-        Navigator(Splash()) {
+        Navigator(PaymentScreen()) {
             SlideTransition(it)
         }
 

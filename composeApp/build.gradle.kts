@@ -14,7 +14,7 @@ kotlin {
             }
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -25,14 +25,17 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
-        
+
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp) // OkHttp engine for Android
+            implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
+            implementation("com.google.android.material:material:1.6.1")
         }
+
         iosMain.dependencies {
             //Dawin ktor engine for iOS
             implementation(libs.ktor.client.darwin) // Native iOS engine
@@ -45,7 +48,7 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation (libs.navigation.compose)
+            implementation(libs.navigation.compose)
             implementation(libs.kotlinx.datetime) // Check for the latest version
 
             //ktor
@@ -72,6 +75,11 @@ kotlin {
             implementation(libs.mongodb.realm)
             implementation(libs.kotlin.coroutines)
             implementation(libs.stately.common)
+
+            //lottie animation
+            implementation(libs.lottie.compose)
+
+            implementation(libs.coil.compose)
         }
     }
 }

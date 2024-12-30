@@ -8,6 +8,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import dropDownValues
 import hideLoading
+import hyper_pay.HyperPay
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -122,23 +123,6 @@ class QuotesViewModel : ScreenModel {
     var driverList: MutableList<showDriverByVehicleIdResponseItem> = mutableListOf()
     var createDriver by mutableStateOf(buildDriverUiData())
 
-    private fun buildDriverUiData(): CreateDriverUiModel {
-        return CreateDriverUiModel(
-            driverId = "1011004031",
-            childrenBelow16 = dropDownValues.noOfChildren.insuranceTypeCodeModels[0],
-            dobMonth = dropDownValues.monthsEnglish.insuranceTypeCodeModels[0],
-            dobYear = dropDownValues.arabicYears.insuranceTypeCodeModels[0],
-            driverAddressCity = dropDownValues.driverBusinessCityList.insuranceTypeCodeModels[0],
-            driverBusinessCity = dropDownValues.driverBusinessCityList.insuranceTypeCodeModels[0],
-            driverNoaLastFiveYears = dropDownValues.accidentCount.insuranceTypeCodeModels[0],
-            driverNocLastFiveYears = dropDownValues.accidentCount.insuranceTypeCodeModels[0],
-            driverRelationship = dropDownValues.driverRelation.insuranceTypeCodeModels[0],
-            education = dropDownValues.educationList.insuranceTypeCodeModels[0],
-            licenseCountryCode = dropDownValues.drivingLicenceCountryList.insuranceTypeCodeModels[0],
-            vehicleNightParking = dropDownValues.vehicleParking.insuranceTypeCodeModels[0],
-            driverTypeCode = dropDownValues.driverType.insuranceTypeCodeModels[1]
-        )
-    }
 
     var addNewDriverBody by mutableStateOf(CreateDriverBody())
 
@@ -166,11 +150,9 @@ class QuotesViewModel : ScreenModel {
         MutableStateFlow(QuotesUiState())
     val quotesApiStates: StateFlow<QuotesUiState> = _quotesApiStates
 
-
     // vehicle list
     var vehicleList: MutableList<VehicleListModelItem> = mutableListOf()
     var createInvoiceUiModel by mutableStateOf(CreateInvoiceUiModel())
-
 
     //quotes list
     var quotes by mutableStateOf(QuotesListResponse())
@@ -1094,4 +1076,21 @@ class QuotesViewModel : ScreenModel {
         )
     }
 
+    private fun buildDriverUiData(): CreateDriverUiModel {
+        return CreateDriverUiModel(
+            driverId = "1011004031",
+            childrenBelow16 = dropDownValues.noOfChildren.insuranceTypeCodeModels[0],
+            dobMonth = dropDownValues.monthsEnglish.insuranceTypeCodeModels[0],
+            dobYear = dropDownValues.arabicYears.insuranceTypeCodeModels[0],
+            driverAddressCity = dropDownValues.driverBusinessCityList.insuranceTypeCodeModels[0],
+            driverBusinessCity = dropDownValues.driverBusinessCityList.insuranceTypeCodeModels[0],
+            driverNoaLastFiveYears = dropDownValues.accidentCount.insuranceTypeCodeModels[0],
+            driverNocLastFiveYears = dropDownValues.accidentCount.insuranceTypeCodeModels[0],
+            driverRelationship = dropDownValues.driverRelation.insuranceTypeCodeModels[0],
+            education = dropDownValues.educationList.insuranceTypeCodeModels[0],
+            licenseCountryCode = dropDownValues.drivingLicenceCountryList.insuranceTypeCodeModels[0],
+            vehicleNightParking = dropDownValues.vehicleParking.insuranceTypeCodeModels[0],
+            driverTypeCode = dropDownValues.driverType.insuranceTypeCodeModels[1]
+        )
+    }
 }

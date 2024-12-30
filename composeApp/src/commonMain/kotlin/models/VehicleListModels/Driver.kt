@@ -107,7 +107,7 @@ data class Driver(
     @SerialName("licenceYear")
     val licenceYear: String? = null,
     @SerialName("ncdFreeYears")
-    val ncdFreeYears: String? = null,
+    val ncdFreeYears: Int? = null,
     @SerialName("ncdReference")
     val ncdReference: String? = null,
     @SerialName("otherCountryTotalDrivingExperience")

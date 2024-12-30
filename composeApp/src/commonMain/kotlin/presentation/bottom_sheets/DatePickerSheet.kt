@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import presentation.screen.quotes_screen.spaceBwFields
 import utils.AppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,10 +47,10 @@ fun DateBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissSheet,
         sheetState = sheetState,
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -64,7 +65,7 @@ fun DateBottomSheet(
 
             DatePicker(
                 state = state,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.padding(2.dp).fillMaxWidth(),
                 dateFormatter = remember { DatePickerDefaults.dateFormatter() },
                 title = null,
                 headline = {
@@ -85,7 +86,7 @@ fun DateBottomSheet(
             )
 
             Button(
-                modifier = Modifier.padding(bottom = 45.dp).align(Alignment.End),
+                modifier = Modifier.padding(bottom = 45.dp, end = spaceBwFields).align(Alignment.End),
                 onClick = {
                     if (state.selectedDateMillis != null) {
                         onDateSelected(convertMillisToFormattedDate(state.selectedDateMillis!!))

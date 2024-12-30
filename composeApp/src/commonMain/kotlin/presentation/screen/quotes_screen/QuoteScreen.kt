@@ -399,6 +399,9 @@ fun QuoteCard(quote: ResponseTPL) {
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
+
+        val isExpended = quote.isExpended.value
+
         Column {
             Column(
                 modifier = Modifier.padding(16.dp)
@@ -451,10 +454,10 @@ fun QuoteCard(quote: ResponseTPL) {
                 }
 
                 Spacer(modifier = Modifier.height(spaceBwFields))
-                Text(
+                /*Text(
                     "Discount: ${quote.header.companyCode}",
                     style = MaterialTheme.typography.bodySmall
-                )
+                )*/
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
@@ -501,41 +504,45 @@ fun QuoteCard(quote: ResponseTPL) {
                             fontWeight = FontWeight.Normal
                         )
 
-                        /*Icon(
-                            if (quote.isExpended) Icons.Default.KeyboardArrowUp else Icons.Default.ArrowDropDown,
+                        Icon(
+                            if (quote.isExpended.value) Icons.Default.KeyboardArrowUp else Icons.Default.ArrowDropDown,
                             contentDescription = "Dropdown",
                             modifier = Modifier.clickable {
-                                quote = quote.copy(isExpended = !quote.isExpended)
+                                quote.isExpended.value = !isExpended
                             }
-                        )*/
+                        )
                     }
-                    if (quote.products.isNotEmpty() && quote.products[0]!!.discount!!.isNotEmpty()) {
-                        quote.products[0]!!.discount!!.forEach {
 
-                            Row(modifier = Modifier.padding(10.dp)) {
-                                Text(
-                                    modifier = Modifier.weight(1f),
-                                    text = if (currentLanguage == "en") {
-                                        it.priceNameEn ?: ""
-                                    } else {
-                                        it.priceNameAr ?: ""
-                                    }
-                                )
+                    if (quote.isExpended.value){
+                        if (quote.products.isNotEmpty() && quote.products[0]!!.discount!!.isNotEmpty()) {
+                            quote.products[0]!!.discount!!.forEach {
 
-                                Text(
-                                    modifier = Modifier
-                                        .padding(horizontal = 2.dp)
-                                        .fillMaxHeight(),
-                                    textAlign = TextAlign.End,
-                                    text = "$currency ${
-                                        if (quote.products.isNotEmpty() && quote.products[0]!!.discount!!.isNotEmpty())
-                                            getTotalDiscount(quote.products[0]!!.discount!!).toString() else "0"
-                                    }",
-                                    fontWeight = FontWeight.Normal
-                                )
+                                Row(modifier = Modifier.padding(10.dp)) {
+                                    Text(
+                                        modifier = Modifier.weight(1f),
+                                        text = if (currentLanguage == "en") {
+                                            it.priceNameEn ?: ""
+                                        } else {
+                                            it.priceNameAr ?: ""
+                                        }
+                                    )
+
+                                    Text(
+                                        modifier = Modifier
+                                            .padding(horizontal = 2.dp)
+                                            .fillMaxHeight(),
+                                        textAlign = TextAlign.End,
+                                        text = "$currency ${
+                                            if (quote.products.isNotEmpty() && quote.products[0]!!.discount!!.isNotEmpty())
+                                                getTotalDiscount(quote.products[0]!!.discount!!).toString() else "0"
+                                        }",
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                }
                             }
                         }
                     }
+
 
 
                     /*AnimatedVisibility(

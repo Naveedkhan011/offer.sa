@@ -61,9 +61,10 @@ import models.LoginResponse
 import models.enums.ToastType
 import navigator
 import offer.composeapp.generated.resources.Res
-import offer.composeapp.generated.resources.company_logo
 import offer.composeapp.generated.resources.ic_baseline_alternate_email_24
 import offer.composeapp.generated.resources.ic_baseline_lock_24
+import offer.composeapp.generated.resources.logo
+import offer.composeapp.generated.resources.walk1
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import presentation.components.OtpDialog
@@ -219,7 +220,7 @@ class LoginScreen : Screen {
 
             // Logo
             Image(
-                painter = painterResource(Res.drawable.company_logo),
+                painter = painterResource(Res.drawable.logo),
                 contentDescription = null,
                 modifier = Modifier.size(100.dp)
             )

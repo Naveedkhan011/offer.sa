@@ -9,6 +9,9 @@ import kotlinx.coroutines.launch
 import models.ServicesResponse
 import network.Ktor
 import models.enums.ApiStatus
+import network.Ktor.BASE_URL
+import network.createDriverEndPoint
+import network.servicesEndPoint
 
 class HomeFragmentViewModel() : ViewModel() {
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
@@ -25,7 +28,7 @@ class HomeFragmentViewModel() : ViewModel() {
     fun getServices() {
         viewModelScope.launch {
             try {
-                val servicesResponse = Ktor.client.get("/insurance/rest/serviceList")
+                val servicesResponse = Ktor.client.get(servicesEndPoint)
                     .body<ServicesResponse>()
                 _uiState.value = HomeUiState(
                     apiStatus = ApiStatus.SUCCESS,

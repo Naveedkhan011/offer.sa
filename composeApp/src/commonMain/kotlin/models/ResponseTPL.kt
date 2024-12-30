@@ -1,6 +1,8 @@
 package models
 
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -19,5 +21,6 @@ data class ResponseTPL(
     @SerialName("statusCode")
     val statusCode: Int? = null,
 
-    var isExpended : Boolean = false
+    var isExpended: MutableState<Boolean> = mutableStateOf(false)
+
 )

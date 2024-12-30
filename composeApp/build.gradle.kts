@@ -61,7 +61,6 @@ kotlin {
 
 
             //kamel
-            //implementation(libs.kamel.image.default)
             implementation(libs.kamel)
 
             implementation(libs.navigator)
@@ -73,7 +72,6 @@ kotlin {
             implementation(libs.mongodb.realm)
             implementation(libs.kotlin.coroutines)
             implementation(libs.stately.common)
-
         }
     }
 }

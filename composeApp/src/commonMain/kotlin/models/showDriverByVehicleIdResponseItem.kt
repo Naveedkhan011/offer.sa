@@ -107,7 +107,7 @@ data class showDriverByVehicleIdResponseItem(
     @SerialName("licenceYear")
     val licenceYear: String? = "",
     @SerialName("ncdFreeYears")
-    val ncdFreeYears: String? = "",
+    val ncdFreeYears: Int? = 0,
     @SerialName("ncdReference")
     val ncdReference: String? = "",
     @SerialName("otherCountryTotalDrivingExperience")

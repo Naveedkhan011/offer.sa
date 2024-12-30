@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import models.DataXXX
 import models.InsuranceTypeCodeModel
+import utils.AppConstants
 import utils.AppConstants.Companion.getCheckBoxColors
 
 data class VehicleSpecifications(var isChecked: Boolean = false, val title: String = "")
@@ -54,8 +54,8 @@ fun VehicleSpecificationSheet(
         skipPartiallyExpanded = true
     )
     val filteredList = remember(searchQuery) {
-        data.insuranceTypeCodeModels?.filter {
-            it?.description?.en!!.contains(
+        data.insuranceTypeCodeModels.filter {
+            it.description.en.contains(
                 searchQuery,
                 ignoreCase = true
             )
@@ -74,7 +74,6 @@ fun VehicleSpecificationSheet(
             Text("DOB Month", fontSize = 18.sp, color = Color.Black, fontWeight = FontWeight.Bold)
 
             Spacer(modifier = Modifier.height(16.dp))
-
 
             // Search Field
             OutlinedTextField(
@@ -99,11 +98,7 @@ fun VehicleSpecificationSheet(
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    focusedBorderColor = MaterialTheme.colorScheme.surfaceVariant,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
+                colors = AppConstants.getOutlineTextFieldColors(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
@@ -118,12 +113,10 @@ fun VehicleSpecificationSheet(
             LazyColumn(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (!filteredList.isNullOrEmpty()) {
+                if (filteredList.isNotEmpty()) {
                     items(filteredList.size) { month ->
 
-                        if (data.id == 29){
-
-                        }else{
+                        if (data.id != 29) {
                             Row(modifier = Modifier.fillMaxWidth().clickable {
                                 //onSelected(getSelectedSpecificationList(data))
                             }) {
@@ -134,7 +127,7 @@ fun VehicleSpecificationSheet(
                                 )
 
                                 Text(
-                                    text = filteredList.get(month)?.description?.en ?:"",
+                                    text = filteredList[month].description.en,
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier
                                         .fillMaxWidth()

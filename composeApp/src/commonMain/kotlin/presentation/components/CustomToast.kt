@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.delay
 import models.enums.ToastType
 import utils.AppColors
@@ -30,6 +31,7 @@ import utils.AppColors
 @Composable
 fun CustomToast(
     loader: Loader,
+    modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
     duration: Long = 3000L // Toast duration in milliseconds
 ) {
@@ -52,8 +54,9 @@ fun CustomToast(
 
         if (loader.isToastVisible) {
             Box(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxSize()
+                    .zIndex(1f) // Ensure it is above other layers
                     .background(Color.Transparent)
             ) {
                 // Toast content at the bottom

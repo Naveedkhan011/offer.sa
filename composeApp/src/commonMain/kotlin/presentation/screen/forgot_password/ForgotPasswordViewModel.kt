@@ -6,14 +6,12 @@ import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import io.ktor.client.call.body
-import io.ktor.client.request.accept
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
 import kotlinx.coroutines.launch
 import models.GeneralResponse
 import network.Ktor
+import network.sendTempPass
 import utils.language.language_manager.LanguageManager
 
 class ForgotPasswordViewModel : ScreenModel {
@@ -50,11 +48,8 @@ class ForgotPasswordViewModel : ScreenModel {
             screenModelScope.launch {
                 verifyingEmail = true
                 try {
-                    val endPoints = "/insurance/rest/sendTempPass"
-                    val response = Ktor.client.post(endPoints) {
+                    val response = Ktor.client.post(sendTempPass) {
                         setBody(mapOf("email" to email))
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
                     }.body<GeneralResponse>()
 
                     if (response.success) {

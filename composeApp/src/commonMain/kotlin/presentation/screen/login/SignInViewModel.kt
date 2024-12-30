@@ -10,6 +10,7 @@ import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.utils.EmptyContent.contentType
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,9 @@ import models.ChangePasswordResponse
 import models.LoggedUser
 import models.LoginResponse
 import network.Ktor
+import network.auth
+import network.changePwd
+import network.verifyAuthOTP
 import utils.language.language_manager.LanguageManager
 
 class SignInViewModel : ScreenModel {
@@ -54,7 +58,7 @@ class SignInViewModel : ScreenModel {
                 try {
 
                     // API call to login endpoint
-                    val response = Ktor.client.post("/insurance/rest/auth") {
+                    val response = Ktor.client.post(auth) {
                         // Add content type header and serialize the body
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Application.Json)
@@ -85,7 +89,7 @@ class SignInViewModel : ScreenModel {
 
                 // API call to login endpoint
                 val response =
-                    Ktor.client.post("/insurance/rest/auth") {
+                    Ktor.client.post(verifyAuthOTP) {
                         // Add content type header and serialize the body
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Application.Json)
@@ -134,7 +138,7 @@ class SignInViewModel : ScreenModel {
 
                 // API call to login endpoint
                 val response =
-                    Ktor.client.post("/insurance/rest/changePwd") {
+                    Ktor.client.post(changePwd) {
                         // Add content type header and serialize the body
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Application.Json)
@@ -178,10 +182,10 @@ class SignInViewModel : ScreenModel {
         emailError = if (email.isBlank()) {
             isValid = false
             LanguageManager.currentStrings.emailIsRequired
-        } else if (!email.matches(emailRegex.toRegex())) {
+        } /*else if (!email.matches(emailRegex.toRegex())) {
             isValid = false
             "Invalid email format"
-        } else null
+        } */else null
 
         return isValid
     }

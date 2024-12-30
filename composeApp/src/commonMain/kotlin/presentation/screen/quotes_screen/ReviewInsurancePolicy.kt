@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -82,11 +81,10 @@ fun ReviewInsurancePolicy(quoteModel: QuotesViewModel) {
 
         Column(
             modifier = Modifier
-                .padding(vertical = 10.dp)
         ) {
 
             Invoice()
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(spaceBwFields))
 
             /*
                             // Coupon Code Section
@@ -98,7 +96,7 @@ fun ReviewInsurancePolicy(quoteModel: QuotesViewModel) {
             Spacer(modifier = Modifier.height(spaceBwFields))
             BillingDetailsForm()
 
-            Spacer(modifier = Modifier.height(spaceBwFields))
+            Spacer(modifier = Modifier.height(spaceBwFields * 2))
             PolicyDetails()
 
             Spacer(modifier = Modifier.height(spaceBwFields * 2))
@@ -966,7 +964,7 @@ fun DriverInformationSection() {
                     "${if (currentLanguage == "en") it.fullEnglishName else it.fullArabicName}"
                 )
                 VehicleRow("Date of Birth:", "${it.dobMonth} / ${it.dobYear}")
-                VehicleRow("Driving Percentage:", "${it.driverDrivingPercentage}")
+                VehicleRow("Driving Percentage:", "${it.driverDrivingPercentage}%")
             }
         }
     }

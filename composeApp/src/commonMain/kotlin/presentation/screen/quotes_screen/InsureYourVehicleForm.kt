@@ -1,11 +1,15 @@
 package presentation.screen.quotes_screen
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
@@ -63,30 +67,36 @@ fun IqamaFormScreen(quoteViewModel: QuotesViewModel) {
         Spacer(modifier = Modifier.height(spaceBwFields))
 
         if (quoteViewModel.policyHolderUiData.nationalId.isNotEmpty()) {
-            DropdownField(
-                label = "DOB Month",
-                onclick = {
-                    quoteViewModel.selectedSheet = BottomSheetCaller.MONTH
-                },
+            /*Row(
                 modifier = Modifier.fillMaxWidth(),
-                errorValue = quoteViewModel.policyHolderUiData.dobMonthError,
-                selectedOption = getTitle(quoteViewModel.policyHolderUiData.dobMonth)
-            )
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {*/
+                DropdownField(
+                    label = "DOB Month",
+                    onclick = {
+                        quoteViewModel.selectedSheet = BottomSheetCaller.MONTH
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    errorValue = quoteViewModel.policyHolderUiData.dobMonthError,
+                    selectedOption = getTitle(quoteViewModel.policyHolderUiData.dobMonth)
+                )
 
-            Spacer(modifier = Modifier.height(spaceBwFields))
+                Spacer(modifier = Modifier.height(spaceBwFields))
 
-            DropdownField(
-                label = "DOB Year",
-                onclick = {
-                    quoteViewModel.selectedSheet = BottomSheetCaller.YEAR
-                },
-                modifier = Modifier.fillMaxWidth(),
-                errorValue = quoteViewModel.policyHolderUiData.dobYearError,
-                selectedOption = getTitle(quoteViewModel.policyHolderUiData.dobYear)
-            )
+                DropdownField(
+                    label = "DOB Year",
+                    onclick = {
+                        quoteViewModel.selectedSheet = BottomSheetCaller.YEAR
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    errorValue = quoteViewModel.policyHolderUiData.dobYearError,
+                    selectedOption = getTitle(quoteViewModel.policyHolderUiData.dobYear)
+                )
 
-            Spacer(modifier = Modifier.height(spaceBwFields))
+            //}
         }
+
+        Spacer(modifier = Modifier.height(spaceBwFields))
 
         OutlinedTextField(
             value = quoteViewModel.policyHolderUiData.sequenceNumber,

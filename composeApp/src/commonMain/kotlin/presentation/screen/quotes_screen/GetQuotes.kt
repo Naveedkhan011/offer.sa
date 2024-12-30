@@ -425,10 +425,9 @@ fun DropdownField(
             },
             colors = getOutlineTextFieldColors()
         )
+
+        addErrorText(errorValue)
     }
-
-    addErrorText(errorValue)
-
 }
 
 

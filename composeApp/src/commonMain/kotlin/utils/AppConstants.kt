@@ -12,10 +12,41 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import kotlinx.serialization.SerializationException
+import models.ErrorResponse
+import navigator
+import presentation.screen.login.LoginScreen
+import presentation.screen.quotes_screen.json
+import showError
+import utils.language.language_manager.LanguageManager
 
 class AppConstants {
 
     companion object {
+
+
+        suspend fun onError(response: HttpResponse) {
+            if (response.status.value == 401) {
+                logoutAndNavigateToLoginScreen()
+            } else {
+                try {
+                    val errorResponse =
+                        json.decodeFromString(ErrorResponse.serializer(), response.bodyAsText())
+                    showError(errorResponse.errorMessage)
+                } catch (ex: SerializationException) {
+                    showError("un Expected Error")
+                }
+            }
+        }
+
+        suspend fun logoutAndNavigateToLoginScreen() {
+            //LogInManager.setLoggedInValue(false)
+            navigator.push(LoginScreen())
+            showError(LanguageManager.currentStrings.unauthenticated)
+        }
+
 
         @Composable
         fun getOutlineTextFieldColors(): TextFieldColors {
@@ -82,7 +113,6 @@ class AppConstants {
             const val IS_ALREADY_VIEWED = "isAlreadyViewed"
         }
     }
-
 
 
 }

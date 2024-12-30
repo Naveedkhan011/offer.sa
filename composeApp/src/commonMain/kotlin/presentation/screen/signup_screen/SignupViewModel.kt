@@ -7,11 +7,9 @@ import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import io.ktor.client.call.body
-import io.ktor.client.request.accept
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.launch
 import models.GeneralResponse
 import models.NationalIdResponse
@@ -19,6 +17,15 @@ import models.SignUpRequest
 import models.UserProfileX
 import models.enums.SignUpStates
 import network.Ktor
+import network.checkAvailability
+import network.sendNationalIdOtpEndPoint
+import network.sendVerificationCodeAny
+import network.sendVerificationCodeSMSEndPoint
+import network.signup
+import network.verifyEmailCodeAny
+import network.verifyNationalIdByOtpEndPoint
+import network.verifySMSCodeAnyEndPoint
+import presentation.screen.quotes_screen.json
 import utils.AppConstants
 import utils.language.language_manager.LanguageManager
 
@@ -77,11 +84,8 @@ class SignupViewModel : ScreenModel {
             screenModelScope.launch {
                 verifyingEmail = true
                 try {
-                    val endPoints = "/insurance/rest/checkAvailability"
-                    val response = Ktor.client.post(endPoints) {
+                    val response = Ktor.client.post(checkAvailability) {
                         setBody(mapOf("email" to email))
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
                     }.body<GeneralResponse>()
 
                     buttonEnabled = response.data?.emailAvailable == false
@@ -104,11 +108,8 @@ class SignupViewModel : ScreenModel {
         screenModelScope.launch {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/insurance/rest/sendVerificationCodeAny"
-                    val response = Ktor.client.post(endPoints) {
+                    val response = Ktor.client.post(sendVerificationCodeAny) {
                         setBody(mapOf("email" to email))
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
                     }.body<GeneralResponse>()
 
                     if (response.success) {
@@ -126,11 +127,8 @@ class SignupViewModel : ScreenModel {
         screenModelScope.launch {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/insurance/rest/verifyEmailCodeAny"
-                    val response = Ktor.client.post(endPoints) {
+                    val response = Ktor.client.post(verifyEmailCodeAny) {
                         setBody(mapOf("email" to email, "code" to otp))
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
                     }.body<GeneralResponse>()
 
                     buttonEnabled = !response.success
@@ -164,11 +162,8 @@ class SignupViewModel : ScreenModel {
             screenModelScope.launch {
                 verifyingNationalID = true
                 try {
-                    val endPoints = "/insurance/rest/checkAvailability"
-                    val response = Ktor.client.post(endPoints) {
+                    val response = Ktor.client.post(checkAvailability) {
                         setBody(mapOf("nationalId" to nationalId))
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
                     }.body<GeneralResponse>()
 
                     buttonEnabled = response.data?.nationalIdAvailable == false
@@ -191,8 +186,7 @@ class SignupViewModel : ScreenModel {
         if (isValidIqama()) {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/insurance/rest/sendNationalIdOtp"
-                    val response = Ktor.client.post(endPoints) {
+                    val response = Ktor.client.post(sendNationalIdOtpEndPoint) {
                         setBody(
                             mapOf(
                                 "email" to email,
@@ -201,8 +195,6 @@ class SignupViewModel : ScreenModel {
                                     ?.uppercase() ?: "EN")
                             )
                         )
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
                     }.body<NationalIdResponse>()
 
                     buttonEnabled = response.success
@@ -224,16 +216,13 @@ class SignupViewModel : ScreenModel {
         if (isValidIqama()) {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/insurance/rest/verifyNationalIdByOtp"
-                    val response = Ktor.client.post(endPoints) {
+                    val response = Ktor.client.post(verifyNationalIdByOtpEndPoint) {
                         setBody(
                             mapOf(
                                 "email" to email,
                                 "otp" to otp
                             )
                         )
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
                     }.body<NationalIdResponse>()
 
                     buttonEnabled = !response.success
@@ -276,15 +265,12 @@ class SignupViewModel : ScreenModel {
             screenModelScope.launch {
                 verifyingMobile = true
                 try {
-                    val endPoints = "/insurance/rest/checkAvailability"
-                    val response = Ktor.client.post(endPoints) {
+                    val response = Ktor.client.post(checkAvailability) {
                         setBody(
                             mapOf(
                                 "mobile" to mobileNumber
                             )
                         )
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
                     }.body<GeneralResponse>()
 
                     buttonEnabled = (response.data?.mobileAvailable ?: false) == false
@@ -307,16 +293,13 @@ class SignupViewModel : ScreenModel {
         if (isValidMobile()) {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/insurance/rest/sendVerificationCodeSMS"
-                    val response = Ktor.client.post(endPoints) {
+                    val response = Ktor.client.post(sendVerificationCodeSMSEndPoint) {
                         setBody(
                             mapOf(
                                 "email" to email,
                                 "mobile" to mobileNumber
                             )
                         )
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
                     }.body<GeneralResponse>()
 
                     if (response.success) {
@@ -336,16 +319,13 @@ class SignupViewModel : ScreenModel {
         if (isValidMobile()) {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/insurance/rest/verifySMSCodeAny"
-                    val response = Ktor.client.post(endPoints) {
+                    val response = Ktor.client.post(verifySMSCodeAnyEndPoint) {
                         setBody(
                             mapOf(
                                 "email" to email,
                                 "otp" to otp
                             )
                         )
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
                     }.body<GeneralResponse>()
 
                     if (response.success) {
@@ -407,8 +387,7 @@ class SignupViewModel : ScreenModel {
         if (validateForm()) {
             screenModelScope.launch {
                 try {
-                    val endPoints = "/insurance/rest/signup"
-                    val response = Ktor.client.post(endPoints) {
+                    val response = Ktor.client.post(signup) {
                         setBody(
                             SignUpRequest(
                                 email = email,
@@ -420,14 +399,17 @@ class SignupViewModel : ScreenModel {
                                 ),
                             )
                         )
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
-                    }.body<GeneralResponse>()
+                    }
 
-                    if (response.success) {
+                    val data = json.decodeFromString(
+                        GeneralResponse.serializer(),
+                        response.bodyAsText()
+                    )
+
+                    if (data.success) {
                         signUpStates = SignUpStates.SIGN_UP_SUCCESSFULLY
                     } else
-                        confirmPasswordError = response.message
+                        confirmPasswordError = data.message
                 } catch (e: Exception) {
                     confirmPasswordError = e.message
                 }

@@ -43,7 +43,7 @@ data class VehicleListModelItem(
     @SerialName("manufactureYear")
     val manufactureYear: Int? = 0,
     @SerialName("ncdFreeYears")
-    val ncdFreeYears: String? = "",
+    val ncdFreeYears: Int? = 0,
     @SerialName("ncdReferenceNo")
     val ncdReferenceNo: String? = "",
     @SerialName("policyHolder")
@@ -73,7 +73,7 @@ data class VehicleListModelItem(
     @SerialName("userId")
     val userId: Int? = 0,
     @SerialName("vehicleAgencyRepair")
-    val vehicleAgencyRepair: String? = String(),
+    val vehicleAgencyRepair: Int? = 0,
     @SerialName("vehicleAxleWeightCode")
     val vehicleAxleWeightCode: String? = String(),
     @SerialName("vehicleChassisNumber")

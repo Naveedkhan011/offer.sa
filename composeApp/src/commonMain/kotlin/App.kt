@@ -1,5 +1,6 @@
 import KoinInitializer.initializeKoin
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -8,10 +9,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import data.MongoDB
@@ -36,9 +39,9 @@ import utils.LogInManager
 import utils.language.language_manager.LanguageManager
 import utils.language.languages.ArabicStrings
 
-
 val lightRedColor = Color(color = 0xFFF57D88)
 val darkRedColor = Color(color = 0xFF77000B)
+
 lateinit var SHARED_PREFERENCE: KMMPreference
 val layoutDirection =
     if (LanguageManager.currentStrings == ArabicStrings) LayoutDirection.Rtl else LayoutDirection.Ltr
@@ -50,13 +53,12 @@ data class Loader(
     var type: ToastType = ToastType.INFO
 )
 
-
 lateinit var navigator: Navigator
 
 var loaderData by mutableStateOf(Loader())
 var isLoading by mutableStateOf(false)
 val dropDownValues = DropDownManager()
-val currency: String = "SAR"
+const val currency: String = "SAR"
 lateinit var uriHandler: UriHandler
 
 @Composable
@@ -84,9 +86,11 @@ fun App(sharedPreference: KMMPreference) {
         primaryContainer = lightRedColor,
         onPrimaryContainer = darkRedColor
     )
+
     val colors by mutableStateOf(
         if (isSystemInDarkTheme()) darkColors else lightColors
     )
+
     MaterialTheme(colorScheme = colors) {
 
         Navigator(Splash()) {
@@ -97,6 +101,9 @@ fun App(sharedPreference: KMMPreference) {
 
         CustomToast(
             loader = loaderData,
+            modifier = Modifier
+                .zIndex(30f) // Ensure this is above other UI
+                .fillMaxSize(),
             onDismiss = {
                 loaderData = Loader(isToastVisible = false, messageToDisplay = "")
             }

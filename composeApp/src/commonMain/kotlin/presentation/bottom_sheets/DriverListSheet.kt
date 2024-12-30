@@ -53,6 +53,10 @@ fun DriverListSheet(
     onSelected: (selectedMonth: String) -> Unit
 ) {
 
+    var totalPercentage by remember {
+        mutableStateOf(100)
+    }
+
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
@@ -81,6 +85,7 @@ fun DriverListSheet(
 
             quoteViewModel.driverList.forEach { driver ->
                 // Driver Information Card
+                Spacer(modifier = Modifier.height(spaceBwFields))
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -207,7 +212,12 @@ fun DriverListSheet(
                                                     selectedPercentage = !selectedPercentage
                                                     driver.driverDrivingPercentage = percentage.code
 
-                                                    if (quoteViewModel.driverList.sumOf { driver -> driver.driverDrivingPercentage ?: 0 } == 100){
+                                                    totalPercentage =
+                                                        quoteViewModel.driverList.sumOf { driver ->
+                                                            driver.driverDrivingPercentage ?: 0
+                                                        }
+
+                                                    if (totalPercentage == 100) {
                                                         quoteViewModel.updateDriverPercentage()
                                                     }
                                                 }
@@ -228,13 +238,12 @@ fun DriverListSheet(
             Spacer(modifier = Modifier.height(spaceBwFields))
 
             Text(
-                text = "Maximum Drivers for 100%: (Now ${quoteViewModel.driverList.size} for ${
-                    quoteViewModel.driverList.sumOf { driver -> driver.driverDrivingPercentage ?: 0 }
-                } % )",
+                text = "Maximum Drivers for 100%: (Now ${quoteViewModel.driverList.size} for $totalPercentage % )",
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 13.sp
                 ),
+                color = if (totalPercentage != 100) Color.Red else Color.Black,
                 modifier = Modifier.fillMaxWidth().background(
                     Color.Green.copy(alpha = 0.4f),
                     RoundedCornerShape(10.dp)

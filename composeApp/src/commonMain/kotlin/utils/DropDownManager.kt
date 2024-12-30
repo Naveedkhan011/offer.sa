@@ -13,6 +13,7 @@ import models.DataXXX
 import models.Description
 import models.InsuranceTypeCodeModel
 import network.Ktor
+import network.showInsuranceCodeName
 
 class DropDownManager : ScreenModel {
 
@@ -28,7 +29,7 @@ class DropDownManager : ScreenModel {
             try {
                 val response =
                     Ktor.client
-                        .get("/insurance/rest/showInsuranceCodeName")
+                        .get(showInsuranceCodeName)
                         .body<AllDropDownValues>()
                 allDropDownValues = response
                 isDataLoaded = true // Notify that data is ready
